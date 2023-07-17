@@ -1,0 +1,1057 @@
+*********************************************************************************
+*  TRNBuild   3.0.298
+*********************************************************************************
+*   BUILDING DESCRIPTIONS FILE TRNSYS
+*   FOR BUILDING:   C:\Users\20181270\OneDrive - TU Eindhoven\PhD\TRNSYS\Publication1\House_internal_heating.b18
+*   GET BY WORKING WITH TRNBuild 1.0 for Windows
+*********************************************************************************
+*
+*--------------------------------------------------------------------------------
+*  C o m m e n t s
+*--------------------------------------------------------------------------------
+*#C Originally created by TRNSIDF Version 1.81
+*--------------------------------------------------------------------------------
+*  P r o j e c t
+*--------------------------------------------------------------------------------
+*+++ PROJECT
+*+++ TITLE=UNDEFINED
+*+++ DESCRIPTION=UNDEFINED
+*+++ CREATED=UNDEFINED
+*+++ ADDRESS=UNDEFINED
+*+++ CITY=UNDEFINED
+*+++ SWITCH=UNDEFINED
+*--------------------------------------------------------------------------------
+*  P r o p e r t i e s
+*--------------------------------------------------------------------------------
+PROPERTIES
+ DENSITY=1.204 : CAPACITY=1.012 : PRESSURE=101325.000 : HVAPOR=2454.0 : SIGMA=2.041e-007 : RTEMP=293.15
+*--- convective heat transfer coefficient calculation ---------------------
+ KFLOORUP=7.2 : EFLOORUP=0.31 : KFLOORDOWN=3.888 : EFLOORDOWN=0.31
+ KCEILUP=7.2 : ECEILUP=0.31 : KCEILDOWN=3.888 : ECEILDOWN=0.31
+ KVERTICAL=5.76 : EVERTICAL=0.3
+*--- radiance parameters -------------------
+ SCENE_ROTATION_ANGLE=0 : GROUND_IDS= : GROUND_REFLECTANCE=0.2 : SHADER_REFLECTANCE=0
+ CALC_MODE=RAD : LATITUDE=48 : LONGITUDE=-9.2 : TIME_ZONE=-15 : SITE_ELEVATION=200
+ AB=5 : AD=1000 : AS=20 : AR=300 : AA=0.1
+ LR=6 : ST=0.15 : SJ=1 : LW=0.004 : DJ=0 : DS=0.2 : DR=2 : DP=512
+*--- comfort parameters -------------------
+ DIAM-SENSOR=0.07 : EPS-SENSOR=0.82 : REFL-SENSOR=0.47 : ELV_AIRSPEED1=0.3 : ELV_AIRSPEED2=0.7 : ELV_AIRSPEED3=1.2
+*--- other -------------------
+ FSCAL_TREGENZA=MEDIUM : SHM_MODE=0 : SURFGRID=0
+*--- daylight  -------------------
+ UDIMIN=100 : UDIMAX=2000 : DAMIN=300
+*
+*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+TYPES
+*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*
+*--------------------------------------------------------------------------------
+*  L a y e r s
+*--------------------------------------------------------------------------------
+LAYER PUTZ
+ CONDUCTIVITY=   2.52 : CAPACITY=      1 : DENSITY=   1400 : PERT=      0 : PENRT=      0
+LAYER KST
+ CONDUCTIVITY=  3.564 : CAPACITY=      1 : DENSITY=   1600 : PERT=      0 : PENRT=      0
+LAYER DAEMA
+ CONDUCTIVITY=  0.173 : CAPACITY=      1 : DENSITY=     60 : PERT=      0 : PENRT=      0
+LAYER GIPS
+ CONDUCTIVITY=  0.756 : CAPACITY=      1 : DENSITY=    900 : PERT=      0 : PENRT=      0
+LAYER HOLZ
+ CONDUCTIVITY=  0.468 : CAPACITY=    2.1 : DENSITY=    600 : PERT=      0 : PENRT=      0
+LAYER BET
+ CONDUCTIVITY=   7.56 : CAPACITY=      1 : DENSITY=   2200 : PERT=      0 : PENRT=      0
+LAYER TEPP
+ CONDUCTIVITY=  0.288 : CAPACITY=    1.3 : DENSITY=    700 : PERT=      0 : PENRT=      0
+LAYER ESTR
+ CONDUCTIVITY=   5.04 : CAPACITY=      1 : DENSITY=   2000 : PERT=      0 : PENRT=      0
+LAYER MIWO
+ CONDUCTIVITY=  0.144 : CAPACITY=      1 : DENSITY=     60 : PERT=      0 : PENRT=      0
+LAYER DAEMM
+ CONDUCTIVITY=  0.144 : CAPACITY=      1 : DENSITY=     60 : PERT=      0 : PENRT=      0
+LAYER STONE_MASS
+ CONDUCTIVITY=   1.55 : CAPACITY=      1 : DENSITY=    900 : PERT=      0 : PENRT=      0
+LAYER Plasterboard
+ CONDUCTIVITY=  0.576 : CAPACITY=   0.84 : DENSITY=    950 : PERT=      0 : PENRT=      0
+LAYER Timberfloor
+ CONDUCTIVITY=  0.504 : CAPACITY=    1.2 : DENSITY=    650 : PERT=      0 : PENRT=      0
+LAYER Brick
+ CONDUCTIVITY=   2.92 : CAPACITY=      1 : DENSITY=   1800 : PERT=      0 : PENRT=      0
+LAYER Stucco
+ CONDUCTIVITY=  2.596 : CAPACITY=  0.837 : DENSITY= 2659.1 : PERT=      0 : PENRT=      0
+LAYER Rooftile
+ CONDUCTIVITY=  2.492 : CAPACITY=  0.837 : DENSITY= 1121.3 : PERT=      0 : PENRT=      0
+LAYER Roofdeck
+ CONDUCTIVITY=  0.504 : CAPACITY=    0.9 : DENSITY=    530 : PERT=      0 : PENRT=      0
+LAYER Aircavity_floor
+ RESISTANCE=    0.045 : PERT=      0 : PENRT=      0
+LAYER Aircavity
+ RESISTANCE=    0.044 : PERT=      0 : PENRT=      0
+LAYER Fibreglass
+ CONDUCTIVITY=  0.144 : CAPACITY=   0.84 : DENSITY=     12 : PERT=      0 : PENRT=      0
+LAYER Polyurethane
+ CONDUCTIVITY=  0.083 : CAPACITY=  1.591 : DENSITY=     24 : PERT=      0 : PENRT=      0
+LAYER ConcreteSL
+ CONDUCTIVITY=  4.068 : CAPACITY=      1 : DENSITY=   1400 : PERT=      0 : PENRT=      0
+LAYER CONCRETE6IN
+ CONDUCTIVITY=   4.72 : CAPACITY=  0.837 : DENSITY= 2242.6 : PERT=      0 : PENRT=      0
+LAYER Concrete8in
+ CONDUCTIVITY=   4.72 : CAPACITY=  0.837 : DENSITY= 2242.6 : PERT=      0 : PENRT=      0
+LAYER CONCRETE12IN
+ CONDUCTIVITY=  4.868 : CAPACITY=  0.837 : DENSITY= 1217.4 : PERT=      0 : PENRT=      0
+*--------------------------------------------------------------------------------
+*  I n p u t s
+*--------------------------------------------------------------------------------
+INPUTS TGROUND TBOUNDARY SHADE_CLOSE SHADE_OPEN MAX_ISHADE MAX_ESHADE Q_livingroom Q_bedroom1 Q_bedroom2 Occ_schedule infil_input
+INPUTS_DESCRIPTION
+ TGROUND : C : Ground Temperature (boundary temperature used for floors adjacent to the ground)
+ TBOUNDARY : C : Boundary Temperature (boundary temperature used for boundary floors, walls, ceilings)
+ SHADE_CLOSE : kJ/hr.m^2 : threshold of total radiation on facade where shading device is activated
+ SHADE_OPEN : kJ/hr.m^2 : threshold of total radiation on facade where shading device is deactivated
+ MAX_ISHADE : any : max shading factor of internal shading
+ MAX_ESHADE : any : max shading factor of external shading
+ Q_livingroom : kJ/hr : Heat input from the radiator to the living room
+ Q_bedroom1 : kJ/hr : Heat input from the radiator to Bedroom 1
+ Q_bedroom2 : kJ/hr : Heat input from the radiator to Bedroom2
+ Occ_schedule : any : Number of occupants in the room
+ infil_input : any : rate if infiltration in ach
+*--------------------------------------------------------------------------------
+*  S c h e d u l e s
+*--------------------------------------------------------------------------------
+SCHEDULE Weekday-living_room
+ HOURS =0.000 7.000 9.000 18.000 22.000 24.0
+ VALUES=0 1. 0 1. 0 0 
+SCHEDULE Weekend-living_room
+ HOURS =0.000 9.000 10.000 13.000 15.000 18.000 22.000 24.0
+ VALUES=0 1. 0.5 1. 0.5 1. 0 0 
+SCHEDULE Lights
+ HOURS =0.000 7.000 23.000 24.0
+ VALUES=0 1. 0 0 
+SCHEDULE DAYNIGHT
+ HOURS =0.000 6.000 18.000 24.0
+ VALUES=0 1. 0 0 
+SCHEDULE Weekday-first_floor
+ HOURS =0.000 7.000 22.000 24.0
+ VALUES=1. 0 1. 1. 
+SCHEDULE Weekend-first
+ HOURS =0.000 9.000 22.000 24.0
+ VALUES=1. 0 1. 1. 
+SCHEDULE dev
+ HOURS =0.000 5.000 6.000 7.000 8.000 12.000 13.000 14.000 17.000 18.000 19.000 20.000 23.000 24.0
+ VALUES=0.1 0.2 0.7 0.2 0.1 0.6 0.2 0.1 0.2 0.4 0.9 0.2 0.1 0.1 
+SCHEDULE setpoint_weekday_living
+ HOURS =0.000 6.000 8.000 17.000 21.000 22.000 24.0
+ VALUES=16. 20. 16. 20. 19. 16. 16. 
+SCHEDULE setpoint_weekend_living
+ HOURS =0.000 8.000 10.000 21.000 23.000 24.0
+ VALUES=16. 21. 20. 19. 16. 16. 
+SCHEDULE setpoint_weekday_first
+ HOURS =0.000 6.000 7.000 8.000 18.000 19.000 24.0
+ VALUES=14. 18. 20. 14. 19. 14. 14. 
+SCHEDULE setpoint_weekend_first
+ HOURS =0.000 6.000 8.000 9.000 10.000 17.000 18.000 24.0
+ VALUES=14. 18. 20. 18. 14. 18. 14. 14. 
+SCHEDULE USE
+ DAYS=1 2 3 4 5 6 7
+ HOURLY=Weekday-living_room Weekday-living_room Weekday-living_room Weekday-living_room Weekday-living_room Weekend-living_room Weekend-living_room
+SCHEDULE LIGHT
+ DAYS=1 2 3 4 5 6 7
+ HOURLY=Lights Lights Lights Lights Lights Weekend-living_room Weekend-living_room
+SCHEDULE SETOFF
+ DAYS=1 2 3 4 5 6 7
+ HOURLY=DAYNIGHT DAYNIGHT DAYNIGHT DAYNIGHT DAYNIGHT Weekend-living_room Weekend-living_room
+SCHEDULE Occ_week_living
+ DAYS=1 2 3 4 5 6 7
+ HOURLY=Weekday-living_room Weekday-living_room Weekday-living_room Weekday-living_room Weekday-living_room Weekend-living_room Weekend-living_room
+SCHEDULE Occ_week_first_floor
+ DAYS=1 2 3 4 5 6 7
+ HOURLY=Weekday-first_floor Weekday-first_floor Weekday-first_floor Weekday-first_floor Weekday-first_floor Weekend-first Weekend-first
+SCHEDULE setpoint_week_living
+ DAYS=1 2 3 4 5 6 7
+ HOURLY=setpoint_weekday_living setpoint_weekday_living setpoint_weekday_living setpoint_weekday_living setpoint_weekday_living setpoint_weekend_living setpoint_weekend_living
+SCHEDULE setpoint_week_first
+ DAYS=1 2 3 4 5 6 7
+ HOURLY=setpoint_weekday_first setpoint_weekday_first setpoint_weekday_first setpoint_weekday_first setpoint_weekday_first setpoint_weekend_first setpoint_weekend_first
+SCHEDULE Vent_schedule_living
+ HOURS =0 744 1416 2160 2880 3624 4344 5088 5832 6552 7296 8016 8760
+ VALUES=0.1 0.1 0.2 0.2 0.3 0.5 1. 1. 1. 0.5 0.2 0.1 0.1 
+SCHEDULE Vent_schedule_first
+ HOURS =0 744 1416 2160 2880 3624 4344 5088 5832 6552 7296 8016 8760
+ VALUES=0.1 0.1 0.2 0.2 0.3 0.5 1. 1. 1. 0.5 0.2 0.1 0.1 
+*--------------------------------------------------------------------------------
+*  C O N S T R U C T I O N (Wall, Floor, Ceiling,..)
+*--------------------------------------------------------------------------------
+CONSTRUCTION BND_WALL
+ LAYERS   = PUTZ  KST   DAEMA GIPS  
+ THICKNESS= 0.015 0.175 0.173 0.013 
+ ABS-FRONT= 0.4   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 64
+CONSTRUCTION EXT_WALL
+ LAYERS   = Brick Aircavity Brick 
+ THICKNESS= 0.1   0         0.1   
+ ABS-FRONT= 0.4   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 64
+CONSTRUCTION EXT_ROOF
+ LAYERS   = Plasterboard Aircavity Timberfloor Roofdeck Rooftile 
+ THICKNESS= 0.03         0         0.05        0.01     0.02     
+ ABS-FRONT= 0.1   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 64
+CONSTRUCTION EXT_FLOOR
+ LAYERS   = Concrete8in Aircavity_floor 
+ THICKNESS= 0.25        0               
+ ABS-FRONT= 0.8   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 64
+CONSTRUCTION BND_CEILING
+ LAYERS   = PUTZ  BET   DAEMA HOLZ  
+ THICKNESS= 0.015 0.16  0.3   0.03  
+ ABS-FRONT= 0.1   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 64
+CONSTRUCTION BND_FLOOR
+ LAYERS   = TEPP  ESTR  MIWO  BET   DAEMA GIPS  
+ THICKNESS= 0.005 0.05  0.03  0.16  0.133 0.013 
+ ABS-FRONT= 0.8   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 64
+CONSTRUCTION GROUND_FLOOR
+ LAYERS   = TEPP  ESTR  DAEMM BET   
+ THICKNESS= 0.005 0.05  0.121 0.2   
+ ABS-FRONT= 0.8   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 0.001
+CONSTRUCTION ADJ_WALL
+ LAYERS   = GIPS  Brick GIPS  
+ THICKNESS= 0.013 0.1   0.013 
+ ABS-FRONT= 0.4   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 11
+CONSTRUCTION ADJ_CEILING
+ LAYERS   = PUTZ  BET   MIWO  ESTR  TEPP  
+ THICKNESS= 0.015 0.05  0.03  0.16  0.005 
+ ABS-FRONT= 0.1   : ABS-BACK= 0.5  
+ EPS-FRONT= 0.9   : EPS-BACK= 0.9  
+ HFRONT   = 11 : HBACK= 11
+*--------------------------------------------------------------------------------
+*  W i n d o w s
+*--------------------------------------------------------------------------------
+WINDOW EXT_WINDOW1
+ WINID=3418 : HINSIDE=11 : HOUTSIDE=64 : SLOPE=-999 : SPACID=4 : WWID=0.77 : WHEIG=1.08 : FFRAME=0.15 : UFRAME=8.17 : ABSFRAME=0.6 : RISHADE=0 : RESHADE=0 : REFLISHADE=0.5 : REFLOSHADE=0.5 : CCISHADE=0.5 : EPSFRAME=0.9 : EPSISHADE=0.9 : ITSHADECLOSE=INPUT 1*SHADE_CLOSE : ITSHADEOPEN=INPUT 1*SHADE_OPEN : FLOWTOAIRNODE=1 : PERT=0 : PENRT=0 : RADMATERIAL=undefined : RADMATERIAL_SHD1=undefined
+WINDOW EXT_WINDOW2
+ WINID=201 : HINSIDE=11 : HOUTSIDE=64 : SLOPE=-999 : SPACID=4 : WWID=0.77 : WHEIG=1.08 : FFRAME=0.15 : UFRAME=8.17 : ABSFRAME=0.6 : RISHADE=0 : RESHADE=0 : REFLISHADE=0.5 : REFLOSHADE=0.5 : CCISHADE=0.5 : EPSFRAME=0.9 : EPSISHADE=0.9 : ITSHADECLOSE=INPUT 1*SHADE_CLOSE : ITSHADEOPEN=INPUT 1*SHADE_OPEN : FLOWTOAIRNODE=1 : PERT=0 : PENRT=0 : RADMATERIAL=undefined : RADMATERIAL_SHD1=undefined
+WINDOW ADJ_WINDOW1
+ WINID=201 : HINSIDE=11 : HOUTSIDE=64 : SLOPE=-999 : SPACID=4 : WWID=0.77 : WHEIG=1.08 : FFRAME=0.15 : UFRAME=8.17 : ABSFRAME=0.6 : RISHADE=0 : RESHADE=0 : REFLISHADE=0.5 : REFLOSHADE=0.5 : CCISHADE=0.5 : EPSFRAME=0.9 : EPSISHADE=0.9 : ITSHADECLOSE=INPUT 1*SHADE_CLOSE : ITSHADEOPEN=INPUT 1*SHADE_OPEN : FLOWTOAIRNODE=1 : PERT=0 : PENRT=0 : RADMATERIAL=undefined : RADMATERIAL_SHD1=undefined
+WINDOW ADJ_WINDOW2
+ WINID=201 : HINSIDE=11 : HOUTSIDE=64 : SLOPE=-999 : SPACID=4 : WWID=0.77 : WHEIG=1.08 : FFRAME=0.15 : UFRAME=8.17 : ABSFRAME=0.6 : RISHADE=0 : RESHADE=0 : REFLISHADE=0.5 : REFLOSHADE=0.5 : CCISHADE=0.5 : EPSFRAME=0.9 : EPSISHADE=0.9 : ITSHADECLOSE=INPUT 1*SHADE_CLOSE : ITSHADEOPEN=INPUT 1*SHADE_OPEN : FLOWTOAIRNODE=1 : PERT=0 : PENRT=0 : RADMATERIAL=undefined : RADMATERIAL_SHD1=undefined
+*--------------------------------------------------------------------------------
+*  G a i n s / L o s s e s
+*--------------------------------------------------------------------------------
+GAIN heating_living
+ CONVECTIVE=INPUT 0.8*Q_livingroom : RADIATIVE=INPUT 0.2*Q_livingroom : HUMIDITY=0 : ELPOWERFRAC=0 :  ABSOLUTE : CATEGORY=MISCELLANEOUS
+GAIN heating_bedroom1
+ CONVECTIVE=INPUT 0.8*Q_bedroom1 : RADIATIVE=INPUT 0.2*Q_bedroom1 : HUMIDITY=0 : ELPOWERFRAC=0 :  ABSOLUTE : CATEGORY=MISCELLANEOUS
+GAIN Ltg_gain
+ CONVECTIVE=SCHEDULE 2.916*Lights : RADIATIVE=SCHEDULE 6.804*Lights : HUMIDITY=0 : ELPOWERFRAC=1 :  AREA_RELATED : CATEGORY=LIGHTS
+GAIN Dev_gain
+ CONVECTIVE=SCHEDULE 23.04*dev : RADIATIVE=SCHEDULE 5.76*dev : HUMIDITY=0 : ELPOWERFRAC=1 :  AREA_RELATED : CATEGORY=EQUIPMENT
+GAIN SIA_2024_Dev_32office
+ CONVECTIVE=40 : RADIATIVE=10 : HUMIDITY=0 : ELPOWERFRAC=1 :  AREA_RELATED : CATEGORY=EQUIPMENT
+GAIN SIA_2024_Ltg_43library
+ CONVECTIVE=15.12 : RADIATIVE=35.28 : HUMIDITY=0 : ELPOWERFRAC=1 :  AREA_RELATED : CATEGORY=LIGHTS
+GAIN SIA_2024_Dev_63kitchen
+ CONVECTIVE=576 : RADIATIVE=144 : HUMIDITY=0 : ELPOWERFRAC=1 :  AREA_RELATED : CATEGORY=EQUIPMENT
+*--------------------------------------------------------------------------------
+*  C o m f o r t
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+*  I n f i l t r a t i o n
+*--------------------------------------------------------------------------------
+INFILTRATION INFIL1
+ AIRCHANGE=INPUT 1*infil_input
+*--------------------------------------------------------------------------------
+*  V e n t i l a t i o n
+*--------------------------------------------------------------------------------
+VENTILATION Vent_living
+ TEMPERATURE=OUTSIDE
+ AIRCHANGE=SCHEDULE 0.2*Occ_week_living
+ SPECFANPOWER=0
+ SENSHR=0
+ ABSMINHUM=OUTSIDE
+ ABSMAXHUM=OUTSIDE
+ CALCQAHU=1
+VENTILATION Vent_first
+ TEMPERATURE=OUTSIDE
+ AIRCHANGE=SCHEDULE 0.2*Occ_week_first_floor
+ SPECFANPOWER=0
+ SENSHR=0
+ ABSMINHUM=OUTSIDE
+ ABSMAXHUM=OUTSIDE
+ CALCQAHU=1
+VENTILATION Vent_unused
+ TEMPERATURE=OUTSIDE
+ AIRCHANGE=0.05
+ SPECFANPOWER=0
+ SENSHR=0
+ ABSMINHUM=OUTSIDE
+ ABSMAXHUM=OUTSIDE
+ CALCQAHU=0
+*--------------------------------------------------------------------------------
+*  C o o l i n g
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+*  H e a t i n g
+*--------------------------------------------------------------------------------
+HEATING heating_living
+ ON=SCHEDULE 1*setpoint_week_living
+ POWER=999999999
+ HUMIDITY=0
+ RRAD=0.8
+ ELPOWERFRAC=0
+ AREA_RELATED_POWER=0
+HEATING heating_first
+ ON=SCHEDULE 1*setpoint_week_first
+ POWER=999999999
+ HUMIDITY=0
+ RRAD=0.8
+ ELPOWERFRAC=0
+ AREA_RELATED_POWER=0
+*--------------------------------------------------------------------------------
+*  D a y l i g h t   C o n t r o l 
+*--------------------------------------------------------------------------------
+DCONTROL DLC1
+ ILLMODE=1 : VALUE=2 : ILLSETPOINT1=300 : ILLSETPOINT2=100 : CNTRLMODE=2 : MINPFAC=0.2 : MINLFAC=0.2 : GEOPOS1=0 : GEOPOS2=0 : GEOPOS3=0 : GEOPOS4=0
+*
+*--------------------------------------------------------------------------------
+*  Z o n e s
+*--------------------------------------------------------------------------------
+ZONES BG_Entree BG_Kitchen 1e_Bedroom3 1e_Stairwell 1e_Bedroom1 1e_Bedroom2 Attic1 BG_living_room1
+*--------------------------------------------------------------------------------
+*  O r i e n t a t i o n s
+*--------------------------------------------------------------------------------
+HEMISPHERE NORTHERN
+ORIENTATIONS H_0_0 S_0_30 S_0_90 W_90_90 N_180_30 N_180_90 E_270_90
+INTERNAL_CALCULATION H_0_0 S_0_30 S_0_90 W_90_90 N_180_30 N_180_90 E_270_90
+*
+*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+BUILDING
+*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+*
+*--------------------------------------------------------------------------------
+*  Z o n e  BG_Entree  /  A i r n o d e  BG_Entree
+*--------------------------------------------------------------------------------
+ZONE BG_Entree
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE BG_Entree
+WALL         =EXT_WALL   : SURF=  7 : AREA=      7.85 : EXTERNAL : ORI=W_90_90 : FSKY=0.5 : GEOSURF=0.060153
+WALL         =ADJ_WALL   : SURF=  8 : AREA=       5.2 : ADJACENT=BG_Kitchen : ADJ_SURF=13 : FRONT : GEOSURF=0.039847
+WALL         =ADJ_WALL   : SURF=  9 : AREA=      7.85 : ADJACENT=BG_living_room1 : ADJ_SURF=63 : FRONT : GEOSURF=0.060153
+WALL         =EXT_WALL   : SURF= 10 : AREA=       5.2 : EXTERNAL : ORI=S_0_90 : FSKY=0.5 : GEOSURF=0.039847
+FLOOR        =GROUND_FLOOR : SURF= 11 : AREA=     6.531 : BOUNDARY=INPUT 1*TGROUND : GEOSURF=0.8
+CEILING      =ADJ_CEILING : SURF= 12 : AREA=     6.531 : ADJACENT=1e_Stairwell : ADJ_SURF=27 : FRONT
+ REGIME
+ GAIN        = SIA_2024_Ltg_43library : SCALE= SCHEDULE 0.8*Occ_week_living : GEOPOS= 0 : SCALE2= SCHEDULE 1*Lights : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = Dev_gain   : SCALE= 0.8 : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_unused
+ CAPACITANCE = 190.594 : VOLUME= 16.328  : REFAREA= 6.531   : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  BG_Kitchen  /  A i r n o d e  BG_Kitchen
+*--------------------------------------------------------------------------------
+ZONE BG_Kitchen
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE BG_Kitchen
+WALL         =ADJ_WALL   : SURF= 13 : AREA=       5.2 : ADJACENT=BG_Entree : ADJ_SURF=8 : BACK : GEOSURF=0.040467
+WALL         =EXT_WALL   : SURF= 14 : AREA=      7.65 : EXTERNAL : ORI=W_90_90 : FSKY=0.5 : GEOSURF=0.059533
+CEILING      =ADJ_CEILING : SURF= 15 : AREA=     6.365 : ADJACENT=1e_Bedroom3 : ADJ_SURF=22 : FRONT
+FLOOR        =GROUND_FLOOR : SURF= 16 : AREA=     6.365 : BOUNDARY=INPUT 1*TGROUND : GEOSURF=0.8
+WALL         =ADJ_WALL   : SURF= 17 : AREA=      7.65 : ADJACENT=BG_Living_room2 : ADJ_SURF=5 : BACK : GEOSURF=0.059533
+WALL         =EXT_WALL   : SURF= 18 : AREA=       5.2 : EXTERNAL : ORI=N_180_90 : FSKY=0.5 : GEOSURF=0.040467
+ REGIME
+ GAIN        = SIA_2024_Ltg_43library : SCALE= SCHEDULE 1*Occ_week_living : GEOPOS= 0 : SCALE2= SCHEDULE 1*Lights : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = SIA_2024_Dev_32office : SCALE= SCHEDULE 1*dev : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_unused
+ CAPACITANCE = 190.094 : VOLUME= 15.912  : REFAREA= 6.365   : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  1e_Bedroom3  /  A i r n o d e  1e_Bedroom3
+*--------------------------------------------------------------------------------
+ZONE 1e_Bedroom3
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE 1e_Bedroom3
+WALL         =EXT_WALL   : SURF= 19 : AREA=     3.038 : EXTERNAL : ORI=H_0_0 : FSKY=0.5 : GEOSURF=0.025151
+WINDOW=EXT_WINDOW1 : SURF= 25 : AREA=      1.85 : EXTERNAL : ORI=H_0_0 : FSKY=0.5 : GEOSURF=0.015316
+WALL         =ADJ_WALL   : SURF= 20 : AREA=     4.888 : ADJACENT=1e_Stairwell : ADJ_SURF=30 : FRONT : GEOSURF=0.040467
+WALL         =ADJ_WALL   : SURF= 21 : AREA=     7.191 : ADJACENT=1e_Bedroom2 : ADJ_SURF=40 : FRONT : GEOSURF=0.059533
+FLOOR        =ADJ_CEILING : SURF= 22 : AREA=     6.365 : ADJACENT=BG_Kitchen : ADJ_SURF=15 : BACK : GEOSURF=0.8
+WALL         =EXT_WALL   : SURF= 23 : AREA=     7.191 : EXTERNAL : ORI=W_90_90 : FSKY=0.5 : GEOSURF=0.059533
+CEILING      =ADJ_CEILING : SURF= 24 : AREA=     6.365 : ADJACENT=Attic3 : ADJ_SURF=50 : FRONT
+ REGIME
+ GAIN        = Ltg_gain   : SCALE= SCHEDULE 1*Occ_week_first_floor : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = SIA_2024_Dev_32office : SCALE= SCHEDULE 1*dev : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_first
+ CAPACITANCE = 170.949 : VOLUME= 14.957  : REFAREA= 6.365   : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  1e_Stairwell  /  A i r n o d e  1e_Stairwell
+*--------------------------------------------------------------------------------
+ZONE 1e_Stairwell
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE 1e_Stairwell
+WALL         =EXT_WALL   : SURF= 26 : AREA=     7.379 : EXTERNAL : ORI=W_90_90 : FSKY=0.5 : GEOSURF=0.060153
+FLOOR        =ADJ_CEILING : SURF= 27 : AREA=     6.531 : ADJACENT=BG_Entree : ADJ_SURF=12 : BACK : GEOSURF=0.8
+WALL         =ADJ_WALL   : SURF= 28 : AREA=     7.379 : ADJACENT=1e_Bedroom1 : ADJ_SURF=35 : FRONT : GEOSURF=0.060153
+CEILING      =ADJ_CEILING : SURF= 29 : AREA=     6.531 : ADJACENT=Attic4 : ADJ_SURF=46 : FRONT
+WALL         =ADJ_WALL   : SURF= 30 : AREA=     4.888 : ADJACENT=1e_Bedroom3 : ADJ_SURF=20 : BACK : GEOSURF=0.039847
+WALL         =EXT_WALL   : SURF= 31 : AREA=     4.888 : EXTERNAL : ORI=S_0_90 : FSKY=0.5 : GEOSURF=0.039847
+ REGIME
+ GAIN        = SIA_2024_Ltg_43library : SCALE= SCHEDULE 0.8*Occ_week_first_floor : GEOPOS= 0 : SCALE2= SCHEDULE 1*Lights : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = SIA_2024_Dev_32office : SCALE= SCHEDULE 0.8*dev : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_unused
+ CAPACITANCE = 90.418  : VOLUME= 15.348  : REFAREA= 6.531   : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  1e_Bedroom1  /  A i r n o d e  1e_Bedroom1
+*--------------------------------------------------------------------------------
+ZONE 1e_Bedroom1
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE 1e_Bedroom1
+WALL         =ADJ_WALL   : SURF= 32 : AREA=     8.295 : ADJACENT=1e_Bedroom2 : ADJ_SURF=39 : FRONT : GEOSURF=0.052924
+FLOOR        =ADJ_CEILING : SURF= 33 : AREA=    11.084 : ADJACENT=BG_living_room1 : ADJ_SURF=64 : BACK : GEOSURF=0.8
+WALL         =EXT_WALL   : SURF= 34 : AREA=     7.379 : EXTERNAL : ORI=E_270_90 : FSKY=0.5 : GEOSURF=0.047076
+WALL         =ADJ_WALL   : SURF= 35 : AREA=     7.379 : ADJACENT=1e_Stairwell : ADJ_SURF=28 : BACK : GEOSURF=0.047076
+CEILING      =ADJ_CEILING : SURF= 36 : AREA=    11.084 : ADJACENT=Attic1 : ADJ_SURF=54 : FRONT
+WALL         =EXT_WALL   : SURF= 37 : AREA=     4.758 : EXTERNAL : ORI=S_0_90 : FSKY=0.5 : GEOSURF=0.030355
+WINDOW=EXT_WINDOW1 : SURF= 38 : AREA=     3.537 : EXTERNAL : ORI=S_0_90 : FSKY=0.5 : GEOSURF=0.022569
+ REGIME
+ GAIN        = SIA_2024_Ltg_43library : SCALE= SCHEDULE 1*Occ_week_first_floor : GEOPOS= 0 : SCALE2= SCHEDULE 1*Lights : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = SIA_2024_Dev_32office : SCALE= SCHEDULE 1*dev : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_first
+ HEATING     = heating_first
+ CAPACITANCE = 310.257 : VOLUME= 26.048  : REFAREA= 11.084  : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  1e_Bedroom2  /  A i r n o d e  1e_Bedroom2
+*--------------------------------------------------------------------------------
+ZONE 1e_Bedroom2
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE 1e_Bedroom2
+WALL         =ADJ_WALL   : SURF= 39 : AREA=     8.295 : ADJACENT=1e_Bedroom1 : ADJ_SURF=32 : BACK : GEOSURF=0.053566
+WALL         =ADJ_WALL   : SURF= 40 : AREA=     7.191 : ADJACENT=1e_Bedroom3 : ADJ_SURF=21 : BACK : GEOSURF=0.046434
+CEILING      =ADJ_CEILING : SURF= 41 : AREA=    10.802 : ADJACENT=Attic2 : ADJ_SURF=58 : FRONT
+FLOOR        =ADJ_CEILING : SURF= 42 : AREA=    10.802 : ADJACENT=BG_Living_room2 : ADJ_SURF=4 : BACK : GEOSURF=0.8
+WALL         =EXT_WALL   : SURF= 43 : AREA=     7.191 : EXTERNAL : ORI=E_270_90 : FSKY=0.5 : GEOSURF=0.046434
+WALL         =EXT_WALL   : SURF= 44 : AREA=     4.758 : EXTERNAL : ORI=N_180_90 : FSKY=0.5 : GEOSURF=0.030724
+WINDOW=EXT_WINDOW1 : SURF= 45 : AREA=     3.537 : EXTERNAL : ORI=N_180_90 : FSKY=0.5 : GEOSURF=0.022842 : ISHADE=INPUT 1*MAX_ISHADE : SHADECNTRL=ISHADE_INTERNAL
+ REGIME
+ GAIN        = SIA_2024_Ltg_43library : SCALE= SCHEDULE 1*Occ_week_first_floor : GEOPOS= 0 : SCALE2= SCHEDULE 1*Lights : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = SIA_2024_Dev_32office : SCALE= SCHEDULE 1*dev : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_first
+ HEATING     = heating_first
+ CAPACITANCE = 300.461 : VOLUME= 25.384  : REFAREA= 10.802  : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  Attic1  /  A i r n o d e  Attic1
+*--------------------------------------------------------------------------------
+ZONE Attic1
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE Attic1
+ROOF         =EXT_ROOF   : SURF= 53 : AREA=     12.69 : EXTERNAL : ORI=S_0_30 : FSKY=0.93
+FLOOR        =ADJ_CEILING : SURF= 54 : AREA=    11.084 : ADJACENT=1e_Bedroom1 : ADJ_SURF=36 : BACK : GEOSURF=0.8
+WALL         =EXT_WALL   : SURF= 55 : AREA=     2.893 : EXTERNAL : ORI=E_270_90 : FSKY=0.5 : GEOSURF=0.2
+ROOF         =EXT_ROOF   : SURF= 56 : AREA=     0.164 : EXTERNAL : ORI=N_180_30 : FSKY=0.93
+ REGIME
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_unused
+ CAPACITANCE = 120.256 : VOLUME= 10.213  : REFAREA= 11.084  : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  Attic1  /  A i r n o d e  Attic2
+*--------------------------------------------------------------------------------
+AIRNODE Attic2
+WALL         =EXT_WALL   : SURF= 57 : AREA=     2.749 : EXTERNAL : ORI=E_270_90 : FSKY=0.5 : GEOSURF=0.2
+FLOOR        =ADJ_CEILING : SURF= 58 : AREA=    10.802 : ADJACENT=1e_Bedroom2 : ADJ_SURF=41 : BACK : GEOSURF=0.8
+ROOF         =EXT_ROOF   : SURF= 59 : AREA=    12.526 : EXTERNAL : ORI=N_180_30 : FSKY=0.93
+ REGIME
+ INFILTRATION= INFIL1
+ CAPACITANCE = 110.643 : VOLUME= 9.703   : REFAREA= 10.802  : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  Attic1  /  A i r n o d e  Attic3
+*--------------------------------------------------------------------------------
+AIRNODE Attic3
+FLOOR        =ADJ_CEILING : SURF= 50 : AREA=     6.365 : ADJACENT=1e_Bedroom3 : ADJ_SURF=24 : BACK : GEOSURF=0.8
+ROOF         =EXT_ROOF   : SURF= 51 : AREA=     7.381 : EXTERNAL : ORI=N_180_30 : FSKY=0.93
+WALL         =EXT_WALL   : SURF= 52 : AREA=     2.749 : EXTERNAL : ORI=W_90_90 : FSKY=0.5 : GEOSURF=0.2
+ REGIME
+ INFILTRATION= INFIL1
+ CAPACITANCE = 60.861  : VOLUME= 5.717   : REFAREA= 6.365   : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  Attic1  /  A i r n o d e  Attic4
+*--------------------------------------------------------------------------------
+AIRNODE Attic4
+FLOOR        =ADJ_CEILING : SURF= 46 : AREA=     6.531 : ADJACENT=1e_Stairwell : ADJ_SURF=29 : BACK : GEOSURF=0.8
+ROOF         =EXT_ROOF   : SURF= 47 : AREA=     0.096 : EXTERNAL : ORI=N_180_30 : FSKY=0.93
+ROOF         =EXT_ROOF   : SURF= 48 : AREA=     7.477 : EXTERNAL : ORI=S_0_30 : FSKY=0.93
+WALL         =EXT_WALL   : SURF= 49 : AREA=     2.893 : EXTERNAL : ORI=W_90_90 : FSKY=0.5 : GEOSURF=0.2
+ REGIME
+ INFILTRATION= INFIL1
+ CAPACITANCE = 70.222  : VOLUME= 6.018   : REFAREA= 6.531   : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  BG_living_room1  /  A i r n o d e  BG_living_room1
+*--------------------------------------------------------------------------------
+ZONE BG_living_room1
+RADIATIONMODE
+ BEAM=STANDARD : DIFFUSE=STANDARD : LONGWAVE=STANDARD : GEOMODE=3D_DATA : FSOLAIR=0
+DAYLIGHTMODE
+ DLSHADE =-1
+AIRNODE BG_living_room1
+WALL         =EXT_FLOOR  : SURF= 60 : AREA=      7.85 : EXTERNAL : ORI=E_270_90 : FSKY=0.5 : GEOSURF=0.064017
+WALL         =EXT_WALL   : SURF= 61 : AREA=     5.288 : EXTERNAL : ORI=S_0_90 : FSKY=0.5 : GEOSURF=0.043119
+WINDOW=EXT_WINDOW1 : SURF= 65 : AREA=     3.538 : EXTERNAL : ORI=S_0_90 : FSKY=0.5 : GEOSURF=0.028848
+FLOOR        =EXT_FLOOR  : SURF= 62 : AREA=    11.084 : BOUNDARY=INPUT 1*TGROUND : GEOSURF=0.8
+WALL         =ADJ_WALL   : SURF= 63 : AREA=      7.85 : ADJACENT=BG_Entree : ADJ_SURF=9 : BACK : GEOSURF=0.064016
+CEILING      =ADJ_CEILING : SURF= 64 : AREA=    11.084 : ADJACENT=1e_Bedroom1 : ADJ_SURF=33 : FRONT
+ REGIME
+ GAIN        = SIA_2024_Ltg_43library : SCALE= SCHEDULE 1*Occ_week_living : GEOPOS= 0 : SCALE2= SCHEDULE 1*Lights : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = SIA_2024_Dev_32office : SCALE= SCHEDULE 1*dev : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_living
+ HEATING     = heating_living
+ CAPACITANCE = 330.253 : VOLUME= 27.711  : REFAREA= 11.084  : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  Z o n e  BG_living_room1  /  A i r n o d e  BG_Living_room2
+*--------------------------------------------------------------------------------
+AIRNODE BG_Living_room2
+WALL         =EXT_WALL   : SURF=  1 : AREA=     5.275 : EXTERNAL : ORI=N_180_90 : FSKY=0.5 : GEOSURF=0.043726
+WINDOW=EXT_WINDOW1 : SURF=  6 : AREA=     3.551 : EXTERNAL : ORI=N_180_90 : FSKY=0.5 : GEOSURF=0.029434
+FLOOR        =EXT_FLOOR  : SURF=  2 : AREA=    10.802 : BOUNDARY=INPUT 1*TGROUND : GEOSURF=0.8
+WALL         =EXT_WALL   : SURF=  3 : AREA=      7.65 : EXTERNAL : ORI=E_270_90 : FSKY=0.5 : GEOSURF=0.06342
+CEILING      =ADJ_CEILING : SURF=  4 : AREA=    10.802 : ADJACENT=1e_Bedroom2 : ADJ_SURF=42 : FRONT
+WALL         =ADJ_WALL   : SURF=  5 : AREA=      7.65 : ADJACENT=BG_Kitchen : ADJ_SURF=17 : FRONT : GEOSURF=0.06342
+ REGIME
+ GAIN        = SIA_2024_Ltg_43library : SCALE= SCHEDULE 1*Occ_week_living : GEOPOS= 0 : SCALE2= SCHEDULE 1*Lights : FRAC_REFAREA= 1 : DLIGHT_CTRL=DLC1
+ GAIN        = SIA_2024_Dev_32office : SCALE= SCHEDULE 1*dev : GEOPOS= 0 : SCALE2= 1 : FRAC_REFAREA= 1
+ INFILTRATION= INFIL1
+ VENTILATION = Vent_living
+ HEATING     = heating_living
+ CAPACITANCE = 320.405 : VOLUME= 27.005  : REFAREA= 10.802  : TINITIAL= 20      : PHINITIAL= 50      : WCAPR= 1
+*--------------------------------------------------------------------------------
+*  O u t p u t s
+*--------------------------------------------------------------------------------
+OUTPUTS
+ TRANSFER : TIMEBASE=1.000
+ AIRNODES = BG_Living_room2 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+        =   2 : QSENS - sensible energy demand of airnode, heating(-), cooling(+)
+        =   5 : QVENT - sensible ventilation energy gain of airnode
+        =  96 : ACHINF - Airchange rate infiltration
+        = 151 : QGLIGHT - Sensible energy gains from "lights" gains of airnode [kJ/hr]
+        = 152 : QGEQUIP - Sensible energy gains from  "equipment" gains of airnode [kJ/hr]
+        = 161 : QELVENT - Electric energy demand of ventilation of airnode [kJ/hr]
+ AIRNODES = BG_Entree 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = BG_Kitchen 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = 1e_Bedroom3 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = 1e_Stairwell 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = 1e_Bedroom1 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+        =   2 : QSENS - sensible energy demand of airnode, heating(-), cooling(+)
+ AIRNODES = 1e_Bedroom2 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = Attic4 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = Attic3 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = Attic1 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = Attic2 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+ AIRNODES = BG_living_room1 
+ NTYPES =   1 : TAIR - air temperature of airnode
+        =  25 : TOP - obsolete use new comfort outputs (Version 16: Operative temperature)
+        =  30 : QHEAT - sensible heating demand of airnode (positive values)
+        =  31 : QCOOL - sensible cooling demand of airnode (positive values)
+        = 156 : QELEQUIP - Electric energy demand of "equipment" gains of airnode [kJ/hr]
+        = 155 : QELLIGHT - Electric energy demand of "lights" gains of airnode [kJ/hr]
+*--------------------------------------------------------------------------------
+*  E n d
+*--------------------------------------------------------------------------------
+END
+
+_EXTENSION_WINPOOL_START_
+BERKELEY LAB WINDOW v7.4.6.0  DOE-2 Data File : Multi Band Calculation : generated with Trnsys18.std
+Unit System : SI
+Name        : DOE-2 WINDOW LIB
+Desc        : 2-WSV_#3_Ar90
+Window ID   : 201
+Tilt        : 90.0
+Glazings    : 2
+Frame       :  3 Wood                  2.270
+Spacer      :  2 Class2                0.068   1.550  -0.143
+Total Height: 1500.0 mm
+Total Width : 1200.0 mm
+Glass Height: 1360.3 mm
+Glass Width : 1060.3 mm
+Mullion     : None
+Gap        Thick    Cond  dCond    Vis   dVis   Dens   dDens     Pr     dPr
+1 Ar90/Air1 16.0 0.01712  5.410  2.062  6.300  1.711 -0.0060  0.687 -0.0001
+2              0       0      0      0      0      0       0      0       0
+3              0       0      0      0      0      0       0      0       0
+4              0       0      0      0      0      0       0      0       0
+5              0       0      0      0      0      0       0      0       0
+Angle     0    10    20    30    40    50    60    70    80    90 Hemis
+Tsol  0.504 0.507 0.499 0.489 0.475 0.449 0.392 0.284 0.130 0.000 0.418
+Abs1  0.171 0.172 0.174 0.178 0.184 0.191 0.197 0.199 0.184 0.000 0.185
+Abs2  0.094 0.095 0.103 0.108 0.109 0.112 0.121 0.125 0.086 0.000 0.109
+Abs3      0     0     0     0     0     0     0     0     0     0     0
+Abs4      0     0     0     0     0     0     0     0     0     0     0
+Abs5      0     0     0     0     0     0     0     0     0     0     0
+Abs6      0     0     0     0     0     0     0     0     0     0     0
+Rfsol 0.230 0.226 0.224 0.225 0.231 0.248 0.290 0.391 0.600 1.000 0.279
+Rbsol 0.232 0.226 0.224 0.226 0.237 0.256 0.294 0.382 0.582 0.999 0.280
+Tvis  0.717 0.721 0.711 0.697 0.678 0.641 0.559 0.405 0.186 0.000 0.596
+Rfvis 0.133 0.127 0.126 0.130 0.142 0.169 0.229 0.365 0.620 1.000 0.207
+Rbvis 0.131 0.124 0.121 0.124 0.136 0.160 0.208 0.313 0.540 0.999 0.189
+SHGC  0.620   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A
+Tvis_daylight:  0.780
+Layer ID#         7199    37003        0        0        0        0
+Tir              0.000    0.000        0        0        0        0
+Emis F           0.837    0.037        0        0        0        0
+Emis B           0.837    0.837        0        0        0        0
+Thickness(mm)      6.0      6.0        0        0        0        0
+Cond(W/m2-K     ) 166.7    166.7        0        0        0        0
+Spectral File  ip_fl_6.ipe 37003_IP_ipl         None         None         None         None
+Overall and Center of Glass Ig U-values (W/m2-K)
+Outdoor Temperature                 -17.8 C      15.6 C      26.7 C      37.8 C
+Solar      WdSpd  hcout hrout  hin
+(W/m2)     (m/s)     (W/m2-K)
+0        0.00   0.00  0.00  0.00  1.35 1.35  1.08 1.08  1.10 1.10  1.12 1.12
+0        6.71   0.00  0.00  0.00  1.35 1.35  1.08 1.08  1.10 1.10  1.12 1.12
+783        0.00   0.00  0.00  0.00  1.35 1.35  1.08 1.08  1.10 1.10  1.12 1.12
+783        6.71   0.00  0.00  0.00  1.35 1.35  1.08 1.08  1.10 1.10  1.12 1.12
+BERKELEY LAB WINDOW v7.4.6.0  DOE-2 Data File : Multi Band Calculation : generated with Trnsys18.std
+Unit System : SI
+Name        : DOE-2 WINDOW LIB
+Desc        : GU_ClimaGuard_N_#3_Kr90
+Window ID   : 3202
+Tilt        : 90.0
+Glazings    : 2
+Frame       :  3 Wood                  2.270
+Spacer      :  2 Class2                0.068   1.550  -0.143
+Total Height: 1500.0 mm
+Total Width : 1200.0 mm
+Glass Height: 1360.3 mm
+Glass Width : 1060.3 mm
+Mullion     : None
+Gap        Thick    Cond  dCond    Vis   dVis   Dens   dDens     Pr     dPr
+1 Kr90/Air1 10.0 0.01020  3.319  2.283  7.493  3.448 -0.0122  0.725 0.00002
+2              0       0      0      0      0      0       0      0       0
+3              0       0      0      0      0      0       0      0       0
+4              0       0      0      0      0      0       0      0       0
+5              0       0      0      0      0      0       0      0       0
+Angle     0    10    20    30    40    50    60    70    80    90 Hemis
+Tsol  0.562 0.562 0.558 0.552 0.544 0.522 0.467 0.353 0.175 0.000 0.483
+Abs1  0.104 0.105 0.107 0.110 0.114 0.119 0.125 0.130 0.127 0.000 0.116
+Abs2  0.095 0.095 0.097 0.098 0.097 0.095 0.092 0.082 0.051 0.000 0.091
+Abs3      0     0     0     0     0     0     0     0     0     0     0
+Abs4      0     0     0     0     0     0     0     0     0     0     0
+Abs5      0     0     0     0     0     0     0     0     0     0     0
+Abs6      0     0     0     0     0     0     0     0     0     0     0
+Rfsol 0.239 0.238 0.238 0.240 0.246 0.265 0.317 0.435 0.647 1.000 0.300
+Rbsol 0.249 0.249 0.250 0.252 0.260 0.280 0.332 0.449 0.666 1.000 0.314
+Tvis  0.741 0.740 0.735 0.729 0.718 0.689 0.616 0.465 0.230 0.000 0.638
+Rfvis 0.129 0.128 0.129 0.133 0.143 0.170 0.240 0.394 0.653 1.000 0.215
+Rbvis 0.126 0.125 0.126 0.129 0.139 0.165 0.230 0.373 0.627 1.000 0.207
+SHGC  0.660   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A
+Tvis_daylight:  0.800
+Layer ID#        33000    33009        0        0        0        0
+Tir              0.000    0.000        0        0        0        0
+Emis F           0.860    0.040        0        0        0        0
+Emis B           0.860    0.860        0        0        0        0
+Thickness(mm)      4.0      4.0        0        0        0        0
+Cond(W/m2-K     ) 250.0    250.0        0        0        0        0
+Spectral File 33000_GU_Flo 33009_GU_Cli         None         None         None         None
+Overall and Center of Glass Ig U-values (W/m2-K)
+Outdoor Temperature                 -17.8 C      15.6 C      26.7 C      37.8 C
+Solar      WdSpd  hcout hrout  hin
+(W/m2)     (m/s)     (W/m2-K)
+0        0.00   0.00  0.00  0.00  1.28 1.28  1.06 1.06  1.09 1.09  1.11 1.11
+0        6.71   0.00  0.00  0.00  1.28 1.28  1.06 1.06  1.09 1.09  1.11 1.11
+783        0.00   0.00  0.00  0.00  1.28 1.28  1.06 1.06  1.09 1.09  1.11 1.11
+783        6.71   0.00  0.00  0.00  1.28 1.28  1.06 1.06  1.09 1.09  1.11 1.11
+BERKELEY LAB WINDOW v7.4.6.0  DOE-2 Data File : Multi Band Calculation : generated with Trnsys18.std
+Unit System : SI
+Name        : DOE-2 WINDOW LIB
+Desc        : GU_Solar_Neutral_60_Ar90
+Window ID   : 3418
+Tilt        : 90.0
+Glazings    : 2
+Frame       :  3 Wood                  2.270
+Spacer      :  2 Class2                0.068   1.550  -0.143
+Total Height: 1500.0 mm
+Total Width : 1200.0 mm
+Glass Height: 1360.3 mm
+Glass Width : 1060.3 mm
+Mullion     : None
+Gap        Thick    Cond  dCond    Vis   dVis   Dens   dDens     Pr     dPr
+1 Ar90/Air1 16.0 0.01712  5.410  2.062  6.300  1.711 -0.0060  0.687 -0.0001
+2              0       0      0      0      0      0       0      0       0
+3              0       0      0      0      0      0       0      0       0
+4              0       0      0      0      0      0       0      0       0
+5              0       0      0      0      0      0       0      0       0
+Angle     0    10    20    30    40    50    60    70    80    90 Hemis
+Tsol  0.472 0.474 0.467 0.458 0.446 0.421 0.368 0.267 0.123 0.000 0.392
+Abs1  0.300 0.303 0.312 0.318 0.320 0.325 0.343 0.361 0.304 0.001 0.322
+Abs2  0.040 0.041 0.041 0.042 0.043 0.043 0.041 0.036 0.026 0.000 0.040
+Abs3      0     0     0     0     0     0     0     0     0     0     0
+Abs4      0     0     0     0     0     0     0     0     0     0     0
+Abs5      0     0     0     0     0     0     0     0     0     0     0
+Abs6      0     0     0     0     0     0     0     0     0     0     0
+Rfsol 0.188 0.181 0.179 0.182 0.192 0.211 0.248 0.336 0.547 0.999 0.236
+Rbsol 0.165 0.160 0.158 0.162 0.173 0.197 0.250 0.374 0.613 1.000 0.232
+Tvis  0.530 0.533 0.525 0.516 0.502 0.476 0.417 0.304 0.142 0.000 0.442
+Rfvis 0.243 0.237 0.235 0.237 0.247 0.266 0.302 0.387 0.584 0.999 0.288
+Rbvis 0.173 0.167 0.166 0.170 0.182 0.209 0.266 0.397 0.645 1.000 0.245
+SHGC  0.500   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A
+Tvis_daylight:  0.550
+Layer ID#        33036    33000        0        0        0        0
+Tir              0.000    0.000        0        0        0        0
+Emis F           0.860    0.860        0        0        0        0
+Emis B           0.780    0.860        0        0        0        0
+Thickness(mm)      6.0      4.0        0        0        0        0
+Cond(W/m2-K     ) 166.7    250.0        0        0        0        0
+Spectral File 33036_GU_Sol 33000_GU_Flo         None         None         None         None
+Overall and Center of Glass Ig U-values (W/m2-K)
+Outdoor Temperature                 -17.8 C      15.6 C      26.7 C      37.8 C
+Solar      WdSpd  hcout hrout  hin
+(W/m2)     (m/s)     (W/m2-K)
+0        0.00   0.00  0.00  0.00  2.51 2.51  2.63 2.63  2.72 2.72  2.81 2.81
+0        6.71   0.00  0.00  0.00  2.51 2.51  2.63 2.63  2.72 2.72  2.81 2.81
+783        0.00   0.00  0.00  0.00  2.51 2.51  2.63 2.63  2.72 2.72  2.81 2.81
+783        6.71   0.00  0.00  0.00  2.51 2.51  2.63 2.63  2.72 2.72  2.81 2.81
+BERKELEY LAB WINDOW v7.4.6.0  DOE-2 Data File : Multi Band Calculation : generated with Trnsys18.std
+Unit System : SI
+Name        : DOE-2 WINDOW LIB
+Desc        : GU_Solar_Rblue_20_#2_Ar90
+Window ID   : 3421
+Tilt        : 90.0
+Glazings    : 2
+Frame       :  3 Wood                  2.270
+Spacer      :  2 Class2                0.068   1.550  -0.143
+Total Height: 1500.0 mm
+Total Width : 1200.0 mm
+Glass Height: 1360.3 mm
+Glass Width : 1060.3 mm
+Mullion     : None
+Gap        Thick    Cond  dCond    Vis   dVis   Dens   dDens     Pr     dPr
+1 Ar90/Air1 16.0 0.01712  5.410  2.062  6.300  1.711 -0.0060  0.687 -0.0001
+2              0       0      0      0      0      0       0      0       0
+3              0       0      0      0      0      0       0      0       0
+4              0       0      0      0      0      0       0      0       0
+5              0       0      0      0      0      0       0      0       0
+Angle     0    10    20    30    40    50    60    70    80    90 Hemis
+Tsol  0.162 0.163 0.161 0.158 0.153 0.146 0.128 0.095 0.046 0.000 0.136
+Abs1  0.641 0.646 0.650 0.650 0.645 0.637 0.623 0.578 0.420 0.001 0.614
+Abs2  0.013 0.013 0.013 0.014 0.014 0.014 0.014 0.012 0.009 0.000 0.013
+Abs3      0     0     0     0     0     0     0     0     0     0     0
+Abs4      0     0     0     0     0     0     0     0     0     0     0
+Abs5      0     0     0     0     0     0     0     0     0     0     0
+Abs6      0     0     0     0     0     0     0     0     0     0     0
+Rfsol 0.184 0.177 0.176 0.178 0.188 0.204 0.235 0.315 0.525 0.999 0.227
+Rbsol 0.338 0.333 0.332 0.333 0.339 0.353 0.388 0.474 0.656 1.000 0.377
+Tvis  0.190 0.191 0.188 0.185 0.180 0.171 0.151 0.112 0.054 0.000 0.159
+Rfvis 0.200 0.193 0.192 0.194 0.203 0.219 0.250 0.329 0.535 0.999 0.242
+Rbvis 0.326 0.321 0.320 0.322 0.330 0.349 0.390 0.488 0.684 1.000 0.375
+SHGC  0.230   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A   N/A
+Tvis_daylight:  0.200
+Layer ID#        33040    33000        0        0        0        0
+Tir              0.000    0.000        0        0        0        0
+Emis F           0.860    0.860        0        0        0        0
+Emis B           0.410    0.860        0        0        0        0
+Thickness(mm)      6.0      4.0        0        0        0        0
+Cond(W/m2-K     ) 166.7    250.0        0        0        0        0
+Spectral File 33040_GU_Sol 33000_GU_Flo         None         None         None         None
+Overall and Center of Glass Ig U-values (W/m2-K)
+Outdoor Temperature                 -17.8 C      15.6 C      26.7 C      37.8 C
+Solar      WdSpd  hcout hrout  hin
+(W/m2)     (m/s)     (W/m2-K)
+0        0.00   0.00  0.00  0.00  2.06 2.06  2.06 2.06  2.14 2.14  2.21 2.21
+0        6.71   0.00  0.00  0.00  2.06 2.06  2.06 2.06  2.14 2.14  2.21 2.21
+783        0.00   0.00  0.00  0.00  2.06 2.06  2.06 2.06  2.14 2.14  2.21 2.21
+783        6.71   0.00  0.00  0.00  2.06 2.06  2.06 2.06  2.14 2.14  2.21 2.21
+*** END OF LIBRARY ***
+************************************************************************************************************
+*WinID   Description                              Design         U-Value g-value T-sol Rf-sol T-vis-daylight
+************************************************************************************************************
+   201   2-WSV_#3_Ar90                            6/16/6           1.1  0.62  0.504  0.23  0.78
+  3202   GU_ClimaGuard_N_#3_Kr90                  4/10/4           1.09  0.66  0.562  0.239  0.8
+  3418   GU_Solar_Neutral_60_Ar90                 6/16/4           2.72  0.5  0.472  0.188  0.55
+  3421   GU_Solar_Rblue_20_#2_Ar90                6/16/4           2.14  0.23  0.162  0.184  0.2
+_EXTENSION_WINPOOL_END_
+
+_EXTENSION_BuildingGeometry_START_
+vertex 1 3.530000000000 6.200000000000 2.500000000000
+vertex 2 3.530000000000 6.200000000000 0.000000000000
+vertex 3 0.000000000000 6.200000000000 0.000000000000
+vertex 4 0.000000000000 6.200000000000 2.500000000000
+vertex 5 3.080000000000 6.200000000000 1.950000000000
+vertex 6 3.080000000000 6.200000000000 0.600000000000
+vertex 7 0.450000000000 6.200000000000 0.600000000000
+vertex 8 0.450000000000 6.200000000000 1.950000000000
+vertex 9 3.530000000000 3.140000000000 0.000000000000
+vertex 10 0.000000000000 3.140000000000 0.000000000000
+vertex 11 0.000000000000 3.140000000000 2.500000000000
+vertex 12 3.530000000000 3.140000000000 2.500000000000
+vertex 13 -2.080000000000 0.000000000000 2.500000000000
+vertex 14 -2.080000000000 0.000000000000 0.000000000000
+vertex 15 0.000000000000 0.000000000000 0.000000000000
+vertex 16 0.000000000000 0.000000000000 2.500000000000
+vertex 17 -2.080000000000 3.140000000000 0.000000000000
+vertex 18 -2.080000000000 3.140000000000 2.500000000000
+vertex 19 -2.080000000000 6.200000000000 2.500000000000
+vertex 20 -2.080000000000 6.200000000000 0.000000000000
+vertex 21 0.000000000000 6.200000000000 4.850000000000
+vertex 22 -2.080000000000 6.200000000000 4.850000000000
+vertex 23 -0.100000000000 6.200000000000 4.350000000000
+vertex 24 -0.100000000000 6.200000000000 3.100000000000
+vertex 25 -1.580000000000 6.200000000000 3.100000000000
+vertex 26 -1.580000000000 6.200000000000 4.350000000000
+vertex 27 -2.080000000000 3.140000000000 4.850000000000
+vertex 28 0.000000000000 3.140000000000 4.850000000000
+vertex 29 -2.080000000000 0.000000000000 4.850000000000
+vertex 30 0.000000000000 0.000000000000 4.850000000000
+vertex 31 3.530000000000 3.140000000000 4.850000000000
+vertex 32 3.530000000000 0.000000000000 2.500000000000
+vertex 33 3.530000000000 0.000000000000 4.850000000000
+vertex 34 0.500000000000 0.000000000000 4.350000000000
+vertex 35 0.500000000000 0.000000000000 3.100000000000
+vertex 36 3.330000000000 0.000000000000 3.100000000000
+vertex 37 3.330000000000 0.000000000000 4.350000000000
+vertex 38 3.530000000000 6.200000000000 4.850000000000
+vertex 39 3.330000000000 6.200000000000 4.350000000000
+vertex 40 3.330000000000 6.200000000000 3.100000000000
+vertex 41 0.500000000000 6.200000000000 3.100000000000
+vertex 42 0.500000000000 6.200000000000 4.350000000000
+vertex 43 0.000000000000 3.140000000000 6.646516129032
+vertex 44 0.000000000000 3.100000000000 6.670000000000
+vertex 45 -2.080000000000 3.140000000000 6.646516129032
+vertex 46 -2.080000000000 3.100000000000 6.670000000000
+vertex 47 3.530000000000 3.140000000000 6.646516129032
+vertex 48 3.530000000000 3.100000000000 6.670000000000
+vertex 49 3.530000000000 0.000000000000 0.000000000000
+vertex 50 0.500000000000 0.000000000000 1.850000000000
+vertex 51 0.500000000000 0.000000000000 0.600000000000
+vertex 52 3.330000000000 0.000000000000 0.600000000000
+vertex 53 3.330000000000 0.000000000000 1.850000000000
+
+
+zone BG_Entree
+wall 7 18 17 14 13
+wall 8 11 10 17 18
+wall 9 16 15 10 11
+wall 10 13 14 15 16
+floor 11 10 15 14 17
+ceiling 12 18 13 16 11
+
+zone BG_Kitchen
+wall 13 18 17 10 11
+wall 14 19 20 17 18
+ceiling 15 19 18 11 4
+floor 16 3 10 17 20
+wall 17 11 10 3 4
+wall 18 4 3 20 19
+
+zone 1e_Bedroom3
+wall 19 21 4 19 22
+window 25 23 24 25 26
+wall 20 27 18 11 28
+wall 21 28 11 4 21
+floor 22 4 11 18 19
+wall 23 22 19 18 27
+ceiling 24 22 27 28 21
+
+zone 1e_Stairwell
+wall 26 27 18 13 29
+floor 27 11 16 13 18
+wall 28 30 16 11 28
+ceiling 29 27 29 30 28
+wall 30 28 11 18 27
+wall 31 29 13 16 30
+
+zone 1e_Bedroom1
+wall 32 31 12 11 28
+floor 33 12 32 16 11
+wall 34 33 32 12 31
+wall 35 28 11 16 30
+ceiling 36 28 30 33 31
+wall 37 30 16 32 33
+window 38 34 35 36 37
+
+zone 1e_Bedroom2
+wall 39 28 11 12 31
+wall 40 21 4 11 28
+ceiling 41 21 28 31 38
+floor 42 1 12 11 4
+wall 43 31 12 1 38
+wall 44 38 1 4 21
+window 45 39 40 41 42
+
+zone Attic1
+roof 53 44 30 33 48
+floor 54 31 33 30 28
+wall 55 33 31 47 48
+roof 56 48 47 43 44
+wall 57 47 31 38
+floor 58 38 31 28 21
+roof 59 47 38 21 43
+floor 50 21 28 27 22
+roof 51 43 21 22 45
+wall 52 22 27 45
+floor 46 28 30 29 27
+roof 47 44 43 45 46
+roof 48 46 29 30 44
+wall 49 45 27 29 46
+
+zone BG_living_room1
+wall 60 32 49 9 12
+wall 61 16 15 49 32
+window 65 50 51 52 53
+floor 62 9 49 15 10
+wall 63 11 10 15 16
+ceiling 64 11 16 32 12
+wall 1 1 2 3 4
+window 6 5 6 7 8
+floor 2 2 9 10 3
+wall 3 12 9 2 1
+ceiling 4 4 11 12 1
+wall 5 4 3 10 11
+_EXTENSION_BuildingGeometry_END_
+
+
+_EXTENSION_VirtualSurfaceGeometry_START_
+airnode BG_Living_room2
+wall 20000 11 10 9 12
+
+airnode Attic4
+wall 20001 30 28 43 44
+wall 20002 43 28 27 45
+
+airnode Attic3
+wall 20003 43 28 21
+wall 20004 45 27 28 43
+
+airnode Attic1
+wall 20005 47 31 28 43
+wall 20006 43 28 30 44
+
+airnode Attic2
+wall 20007 21 28 43
+wall 20008 43 28 31 47
+
+airnode BG_living_room1
+wall 20009 12 9 10 11
+
+_EXTENSION_VirtualSurfaceGeometry_END_
+
+
+_EXTENSION_ExternalShadingGeometry_START_
+
+_EXTENSION_ExternalShadingGeometry_END_
+
+
+_EXTENSION_GeoPositionGeometry_START_
+_EXTENSION_GeoPositionGeometry_END_
+
+
+_EXTENSION_DaylightSensorPoints_START_
+_EXTENSION_DaylightSensorPoints_END_
+
+
+_EXTENSION_AdditionalDaylightGeometry_START_
+_EXTENSION_AdditionalDaylightGeometry_END_
+
+
+_EXTENSION_VAMPARAMS_START_
+_EXTENSION_VAMPARAMS_END_
+
+
+
