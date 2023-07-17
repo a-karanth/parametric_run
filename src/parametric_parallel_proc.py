@@ -23,77 +23,91 @@ matplotlib.rcParams["figure.autolayout"] = True
 
 DT = '6min'
 
-global directory, folder
+global directory, folder, res_folder
 directory = (os.path.dirname(os.path.realpath(__file__)))
-folder = '\\with_summer_loop'
+folder = '\\src'
+res_folder = 'res\\'
 mod56 = ModifyType56()
-mod56.change_r('House_copy.b18', 'r0')
+mod56.change_r(directory+'\\House.b18', 'r0')
 # mod56.change_r('House_internal_heating.b18', 'r0')
 
-os.chdir(directory + folder)
 
-dfsobol = pd.read_csv('Sobol_samples2_missed_sims.csv')
-dfsobol = dfsobol.drop_duplicates()
-dfsobol.index = np.arange(len(dfsobol))
+#%% reading CSVs with samples
+# df1 = pd.read_csv(res_folder+'morris_st_sample.csv')
+# df2 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
+# dfmorris = pd.concat([df1,df2])
+dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
+dfmorris.index = np.arange(len(dfmorris))
 
-batt0 = dict(cell_cap=1, ncell=1, chargeI=1, max_batt_in=0.01, max_batt_out=-0.01, dcv=0.01, ccv=125)
-batt6 = dict(cell_cap=48, ncell=50, chargeI=15, max_batt_in=7000, max_batt_out=-4250, dcv=90, ccv=125) 
-batt9 = dict(cell_cap=28, ncell=140, chargeI=10, max_batt_in=12000, max_batt_out=-9000, dcv=250, ccv=350)
+df = dfmorris.drop_duplicates()
+df.index = np.arange(len(df))
 
-dfsobol['file'], dfsobol['py_file'] = [None]*len(dfsobol), [None]*len(dfsobol)
-dfsobol['coll_eff'], dfsobol['pack'] = [None]*len(dfsobol), [None]*len(dfsobol)
-dfsobol['batt'], dfsobol['py_label'] = [None]*len(dfsobol), [None]*len(dfsobol)
+#%% preparing variables for parametric run
+batt0 = dict(cell_cap=1, ncell=1, chargeI=1, dischargeI=-1, max_batt_in=0.01, max_batt_out=-0.01, dcv=0.01, ccv=125)
+batt6 = dict(cell_cap=48, ncell=50, chargeI=15, dischargeI=-15, max_batt_in=7000, max_batt_out=-4250, dcv=90, ccv=125) 
+batt9 = dict(cell_cap=28, ncell=140, chargeI=10, dischargeI=-15, max_batt_in=12000, max_batt_out=-9000, dcv=250, ccv=350)
 
-for i in range(len(dfsobol)):
+df['file'], df['py_file'] = [None]*len(df), [None]*len(df)
+df['coll_eff'], df['pack'] = [None]*len(df), [None]*len(df)
+df['batt'], df['py_label'] = [None]*len(df), [None]*len(df)
 
-    match dfsobol['design_case'][i]:
+for i in range(len(df)):
+
+    match df['design_case'][i]:
         case 'ST':  
-            dfsobol['file'][i] = 'wwhp.dck'
-            dfsobol['py_file'][i] = 'zpy_wwhp.dck'
-            dfsobol['coll_eff'][i] = 0.8
-            dfsobol['pack'][i] = 0
-            dfsobol['batt'][i] = batt0
+            df['file'][i] = 'wwhp.dck'
+            df['py_file'][i] = 'zpy_wwhp.dck'
+            df['coll_eff'][i] = 0.8
+            df['pack'][i] = 0
+            df['batt'][i] = batt0
         
         case 'PVT':
-            dfsobol['file'][i] = 'wwhp.dck'
-            dfsobol['py_file'][i] = 'zpy_wwhp.dck'
-            dfsobol['coll_eff'][i] = 0.7
-            dfsobol['pack'][i] = 0.7
-            dfsobol['batt'][i] = batt0
+            df['file'][i] = 'wwhp.dck'
+            df['py_file'][i] = 'zpy_wwhp.dck'
+            df['coll_eff'][i] = 0.7
+            df['pack'][i] = 0.7
+            df['batt'][i] = batt0
     
         case 'PVT_Batt_6':
-            dfsobol['file'][i] = 'wwhp.dck'
-            dfsobol['py_file'][i] = 'zpy_wwhp.dck'
-            dfsobol['coll_eff'][i] = 0.7
-            dfsobol['pack'][i] = 0.7
-            dfsobol['batt'][i] = batt9
+            df['file'][i] = 'wwhp.dck'
+            df['py_file'][i] = 'zpy_wwhp.dck'
+            df['coll_eff'][i] = 0.7
+            df['pack'][i] = 0.7
+            df['batt'][i] = batt9
         
         case 'PVT_Batt_9':
-            dfsobol['file'][i] = 'wwhp.dck'
-            dfsobol['py_file'][i] = 'zpy_wwhp.dck'
-            dfsobol['coll_eff'][i] = 0.7
-            dfsobol['pack'][i] = 0.7
-            dfsobol['batt'][i] = batt9
+            df['file'][i] = 'wwhp.dck'
+            df['py_file'][i] = 'zpy_wwhp.dck'
+            df['coll_eff'][i] = 0.7
+            df['pack'][i] = 0.7
+            df['batt'][i] = batt9
         
-        case 'base':
-            dfsobol['file'][i] = 'cp.dck'
-            dfsobol['py_file'][i] = 'zpy_cp.dck'
-            dfsobol['coll_eff'][i] = 0.05
-            dfsobol['pack'][i] = 0
-            dfsobol['batt'][i] = batt0
+        case 'cp':
+            df['file'][i] = 'wwhp_cp.dck'
+            df['py_file'][i] = 'zpy_wwhp_cp.dck'
+            df['coll_eff'][i] = 0.05
+            df['pack'][i] = 0
+            df['batt'][i] = batt0
         
-        case 'base_PV':
-            dfsobol['file'][i] = 'cp.dck'
-            dfsobol['py_file'][i] = 'zpy_cp.dck'
-            dfsobol['coll_eff'][i] = 0.05
-            dfsobol['pack'][i] = 0.7
-            dfsobol['batt'][i] = batt0
+        case 'cp_PV':
+            df['file'][i] = 'wwhp_cp.dck'
+            df['py_file'][i] = 'zpy_wwhp_cp.dck'
+            df['coll_eff'][i] = 0.05
+            df['pack'][i] = 0.7
+            df['batt'][i] = batt0
      
-    dfsobol['py_label'][i] = dfsobol['design_case'][i]+'_V'+str(dfsobol['volume'][i]).replace('.','_')+'_A'+str(dfsobol['coll_area'][i])  
-
+    df['py_label'][i] = str(i)  
+    
+#%% define parametric run function
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
     print(values['py_label'])
+    
+    with open(res_folder+values['py_label']+'.txt', 'w') as f:
+        f.write('flow_rate\t'+str(values['flow_rate'])+
+                '\nvolume\t'+str(values['volume'])+
+                '\narea\t'+str(values['coll_area']))
+        f.close()
     label_no=0
     with open(values['py_file'], 'r') as file_in:
         filedata = file_in.read()
@@ -111,12 +125,17 @@ def run_parametric(values):
     filedata = filedata.replace('py_cell_cap', str(values.batt['cell_cap']))
     filedata = filedata.replace('py_ncell', str(values.batt['ncell']))
     filedata = filedata.replace('py_charge_current', str(values.batt['chargeI']))
+    filedata = filedata.replace('py_discharge_current', str(values.batt['dischargeI']))
     filedata = filedata.replace('py_max_batt_in', str(values.batt['max_batt_in']))
     filedata = filedata.replace('py_max_batt_out', str(values.batt['max_batt_out']))
     filedata = filedata.replace('py_dcv', str(values.batt['dcv']))
     filedata = filedata.replace('py_ccv', str(values.batt['ccv']))
     
     filedata = filedata.replace('py_vol', str(values['volume']))
+    filedata = filedata.replace('py_flow', str(values['flow_rate']))
+    filedata = filedata.replace('py_inf', str(1))
+    filedata = filedata.replace('py_db_low', str(2))
+    filedata = filedata.replace('py_db_high', str(10))
 
     #  - (over)writing the modified template .dck file to the original .dck file (to be run by TRNSYS) 
     with open(values['file'], 'w') as dckfile_out:
@@ -136,42 +155,40 @@ def run_parametric(values):
 
     return 1
 
+#%% Run multiprocessing
+# t1 = time.time()
+# print(t1)
 
+# # multiprocessing that works
+# if __name__ == "__main__":
+#     pool = mp.Pool(8)
+#     results = []
 
-t1 = time.time()
-print(t1)
+#     for i in range(len(df)):
+#         time.sleep(15)  # Delay of 15 seconds
+#         value = df.iloc[i]
+#         result = pool.apply_async(run_parametric, (value,))
+#         results.append(result)
 
-
-# multiprocessing that works
-if __name__ == "__main__":
-    pool = mp.Pool(8)
-    results = []
-
-    for i in range(len(dfsobol)):
-        time.sleep(15)  # Delay of 15 seconds
-        value = dfsobol.iloc[i]
-        result = pool.apply_async(run_parametric, (value,))
-        results.append(result)
-
-    pool.close()
-    pool.join()
+#     pool.close()
+#     pool.join()
     
-    # Wait for the multiprocessing tasks to complete
-    for result in results:
-        result.get()
+#     # Wait for the multiprocessing tasks to complete
+#     for result in results:
+#         result.get()
        
 # t2 = time.time()
 # print((t2-t1)/60)
 
-
+#%% Run if multiprocessing is not needed
 # no multiprocessing
-# for i in range(len(dfsobol)):
-#     t1 = time.time()
-#     value = dfsobol.iloc[i]
-#     print(value['py_label'])
-#     run_parametric(value)
-#     t2 = time.time()
-#     print((t2-t1)/60)
-# pp = pf(DT)
-# t_start = datetime(2001,1,1, 0,0,0)
-# t_end = datetime(2002,1,1, 0,0,0)
+for i in range(len(df)):
+    t1 = time.time()
+    value = df.iloc[i]
+    print(value['py_label'])
+    run_parametric(value)
+    t2 = time.time()
+    print((t2-t1)/60)
+pp = pf(DT)
+t_start = datetime(2001,1,1, 0,0,0)
+t_end = datetime(2002,1,1, 0,0,0)
