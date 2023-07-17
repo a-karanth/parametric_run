@@ -26,12 +26,13 @@ matplotlib.rcParams['lines.linewidth'] = 1
 matplotlib.rcParams["figure.autolayout"] = True
 
 global directory, folder
-directory = (os.path.dirname(os.path.realpath(__file__)))
+directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1'
+result_folder = '\\src2'
 
 
 # %%
 
-result_folder = '\\with_summer_loop\\2parameterSA_volume_area'
+# result_folder = '\\with_summer_loop\\2parameterSA_volume_area'
 os.chdir(directory+result_folder)
 test = os.listdir(directory+result_folder)
 labels = []
@@ -42,6 +43,8 @@ for i in test:
         prefix = i[:-19]
     elif '_energy' in i:
         prefix = i[:-11]
+    else:
+        continue
     labels.append(prefix)
 
 labels = np.array(labels)
@@ -54,7 +57,7 @@ t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
 
 def parallel_pp(label):
-    if 'base' in label:
+    if 'cp' in label:
         controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(label)
         
     else:
@@ -74,8 +77,8 @@ def parallel_pp(label):
     return el_bill, gas_bill, el_em, gas_em, energy_annual
 
 
-results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual'])
-count = 0
+# results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual'])
+# count = 0
 # for i in labels:
 #     el_bill, gas_bill, el_em, gas_em, energy_annual = parallel_pp(i)
 #     results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual
@@ -91,24 +94,40 @@ results['volume'] = [float(label[label.find('_V')+2:label.find('_A')].replace('_
 results['coll_area'] = [int(label[label.find('_A')+2:]) for label in results.index]
 results['design_case'] = [label[:label.find('_V')] for label in results.index]
 
-dfsobol = pd.read_csv('Sobol_samples2.csv')
+dfsobol = pd.read_csv('morris_pvt_sample.csv')
 dfresults = results.copy()
 
 sobol_out = pd.merge(dfsobol, dfresults, on = ['volume','coll_area','design_case'], how = 'left')
 
-list_volume = [0.1, 0.15, 0.2, 0.25, 0.3]
-list_coll_area = [10, 12, 14, 16, 18, 20]
-list_design_case = ['base','base_PV', 'ST', 'PVT', 'PVT_Batt_6', 'PVT_Batt_9']
-problem = {
-    'num_vars': 3,
-    'names':['tank_volume', 'coll_area', 'design_case'],#, 'r_values'],
+list_volume = [0.1, 0.2, 0.3, 0.4]
+list_coll_area = [8, 16, 20]
+list_design_case_st = ['cp','cp_PV', 'ST']
+list_design_case_pvt = ['cp','cp_PV', 'PVT']
+list_design_case_pvt_batt = ['PVT_Batt_6', 'PVT_Batt_9']
+list_flow = [50, 100, 200]
+
+problem_pvt = {
+    'num_vars': 4,
+    'names':['tank_volume', 'coll_area', 'design_case', 'flow'],
     'bounds':[[0, len(list_volume)-1],
               [0, len(list_coll_area)-1],
-              [0, len(list_design_case)-1],]}
-Si_cost = sobol.analyze(problem, np.ravel(sobol_out['total_costs']), calc_second_order=True)
-Si_em = sobol.analyze(problem, np.ravel(sobol_out['total_emission']), calc_second_order=True)
+              [0, len(list_design_case_pvt)-1],
+              [0, len(list_flow)-1],]}
 
-Si_cost.plot()
-plt.suptitle('KPI: Energy Cost')
-Si_em.plot()
-plt.suptitle('KPI: Emissions')
+# list_volume = [0.1, 0.15, 0.2, 0.25, 0.3]
+# list_coll_area = [10, 12, 14, 16, 18, 20]
+# list_design_case = ['base','base_PV', 'ST', 'PVT', 'PVT_Batt_6', 'PVT_Batt_9']
+# problem = {
+#     'num_vars': 3,
+#     'names':['tank_volume', 'coll_area', 'design_case'],#, 'r_values'],
+#     'bounds':[[0, len(list_volume)-1],
+#               [0, len(list_coll_area)-1],
+#               [0, len(list_design_case)-1],]}
+
+Si_cost = morris.analyze(problem, np.ravel(sobol_out['total_costs']), calc_second_order=True)
+# Si_em = sobol.analyze(problem, np.ravel(sobol_out['total_emission']), calc_second_order=True)
+
+# Si_cost.plot()
+# plt.suptitle('KPI: Energy Cost')
+# Si_em.plot()
+# plt.suptitle('KPI: Emissions')

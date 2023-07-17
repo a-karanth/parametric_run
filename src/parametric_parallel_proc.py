@@ -33,10 +33,10 @@ mod56.change_r(directory+'\\House.b18', 'r0')
 
 
 #%% reading CSVs with samples
-# df1 = pd.read_csv(res_folder+'morris_st_sample.csv')
-# df2 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
-# dfmorris = pd.concat([df1,df2])
-dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
+df1 = pd.read_csv(res_folder+'morris_st_sample.csv')
+df2 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
+dfmorris = pd.concat([df1,df2])
+# dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
 dfmorris.index = np.arange(len(dfmorris))
 
 df = dfmorris.drop_duplicates()
@@ -103,7 +103,7 @@ def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
     print(values['py_label'])
     
-    with open(res_folder+values['py_label']+'.txt', 'w') as f:
+    with open(res_folder+'trn\\'+values['py_label']+'.txt', 'w') as f:
         f.write('flow_rate\t'+str(values['flow_rate'])+
                 '\nvolume\t'+str(values['volume'])+
                 '\narea\t'+str(values['coll_area']))
@@ -142,7 +142,7 @@ def run_parametric(values):
         dckfile_out.write(filedata)
     # 2) Running TRNSYS simulation
     start_time=time.time()                  # Measuring time (start point)
-    location = directory + folder + '\\' + values['file']
+    location = directory + '\\' + values['file']
     subprocess.run([r"C:\TRNSYS18\Exe\TrnEXE64.exe", location, "/h"])
     elapsed_time = time.time() - start_time # Measuring time (end point)
     print(elapsed_time/60)
@@ -156,39 +156,39 @@ def run_parametric(values):
     return 1
 
 #%% Run multiprocessing
-# t1 = time.time()
-# print(t1)
+t1 = time.time()
+print(t1)
 
-# # multiprocessing that works
-# if __name__ == "__main__":
-#     pool = mp.Pool(8)
-#     results = []
+# multiprocessing that works
+if __name__ == "__main__":
+    pool = mp.Pool(8)
+    results = []
 
-#     for i in range(len(df)):
-#         time.sleep(15)  # Delay of 15 seconds
-#         value = df.iloc[i]
-#         result = pool.apply_async(run_parametric, (value,))
-#         results.append(result)
+    for i in range(len(df)):
+        time.sleep(15)  # Delay of 15 seconds
+        value = df.iloc[i]
+        result = pool.apply_async(run_parametric, (value,))
+        results.append(result)
 
-#     pool.close()
-#     pool.join()
+    pool.close()
+    pool.join()
     
-#     # Wait for the multiprocessing tasks to complete
-#     for result in results:
-#         result.get()
+    # Wait for the multiprocessing tasks to complete
+    for result in results:
+        result.get()
        
-# t2 = time.time()
-# print((t2-t1)/60)
+t2 = time.time()
+print((t2-t1)/60)
 
 #%% Run if multiprocessing is not needed
 # no multiprocessing
-for i in range(len(df)):
-    t1 = time.time()
-    value = df.iloc[i]
-    print(value['py_label'])
-    run_parametric(value)
-    t2 = time.time()
-    print((t2-t1)/60)
-pp = pf(DT)
-t_start = datetime(2001,1,1, 0,0,0)
-t_end = datetime(2002,1,1, 0,0,0)
+# for i in range(len(df)):
+#     t1 = time.time()
+#     value = df.iloc[i]
+#     print(value['py_label'])
+#     run_parametric(value)
+#     t2 = time.time()
+#     print((t2-t1)/60)
+# pp = pf(DT)
+# t_start = datetime(2001,1,1, 0,0,0)
+# t_end = datetime(2002,1,1, 0,0,0)

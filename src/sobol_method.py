@@ -5,7 +5,6 @@ Created on Wed Jun 28 15:49:51 2023
 @author: 20181270
 """
 
-
 # # Perform the sensitivity analysis using the model output
 # # Specify which column of the output file to analyze (zero-indexed)
 # Si = morris.analyze(
@@ -43,7 +42,7 @@ from collections import OrderedDict
 
 
 directory = (os.path.dirname(os.path.realpath(__file__)))
-results_SAn_DA = directory
+sample_folder = '\\res'
 
 #create one list for each variable indicating their input values
 input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
@@ -107,17 +106,16 @@ morris_sample_pvt = morris_sample_st.round().astype(int)
 
 
 #%%
-
-def assign_indices(sample, inp, design_case):
-    # sample: sample created by morris or sobol classes
+def assign_indices(samples, inp, design_case):
+    # samples: sample created by morris or sobol classes
     # inp: dictionary if inputs containing the different parameters
     # design_case: since design case could not be added in the input, adding 
     # last column as the name of the design case
     keys = list(inp.keys())
     result = pd.DataFrame(columns=keys)
-    for row in np.arange(len(sample)):
-        result.loc[row] = sample[row]
-        for i,k in zip(sample[row], keys):
+    for row in np.arange(len(samples)):
+        result.loc[row] = samples[row]
+        for i,k in zip(samples[row], keys):
             result[k].loc[row] = inp[k][i]
     result.columns = keys
     result['design_case'] = design_case
@@ -128,30 +126,11 @@ def assign_indices(sample, inp, design_case):
 st_out = assign_indices(morris_sample_st, input_st, 'ST')
 pvt_out = assign_indices(morris_sample_pvt, input_pvt, 'PVT')
 
+os.chdir(directory+sample_folder)
 st_out.to_csv('morris_st_sample'+'.csv', index=False)
 pvt_out.to_csv('morris_pvt_sample'+'.csv', index=False)
 
 #%%
-            
-
-
-# pvt_batt_out = pd.DataFrame()
-# pvt_batt_out['volume'] = [list_volume[int(morris_sample[i][0])] for i in range(len(morris_sample))]
-# pvt_batt_out['coll_area'] = [list_coll_area[int(morris_sample[i][1])] for i in range(len(morris_sample))]
-# pvt_batt_out['design_case'] = [list_design_case_pvt_batt[int(morris_sample[i][2])] for i in range(len(morris_sample))]
-# pvt_batt_out['flow'] = [list_flow[int(morris_sample[i][3])] for i in range(len(morris_sample))]
-
-#to create an excel file with the Sobol sample, first create empty lists with the outputs name
-   
-# variable_out = pd.DataFrame()
-# variable_out['volume'] = [list_volume[int(sobol_sample[i][0])] for i in range(len(sobol_sample))]
-# variable_out['coll_area'] = [list_coll_area[int(sobol_sample[i][1])] for i in range(len(sobol_sample))]
-# variable_out['design_case'] = [list_design_case[int(sobol_sample[i][2])] for i in range(len(sobol_sample))]
-# variable_out['R_values'] = [list_r[int(sobol_sample[i][3])] for i in range(len(sobol_sample))]
-
-# #Create a csv file with the SA outputs
-# os.chdir(results_SAn_DA)
-# variable_out.to_csv('SAn_DA_sample'+'.csv', index=False)
 
 # #Give names to the file containing all the simulation outputs (DS_results.csv) and 
 # #the one containing the Sobol sample (SA_sample.csv)
