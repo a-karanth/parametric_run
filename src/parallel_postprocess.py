@@ -50,7 +50,8 @@ for i in temp:
 labels = np.array(labels)
 labels = np.unique(labels)
 labels = np.arange(86)
-
+# labels = list(labels)
+labels= labels.astype(str)
 DT = '6min'
 
 
@@ -63,6 +64,7 @@ from Plots import Plots
 from PlotGroups import PlotGroups
 pp = pf(DT)
 def parallel_pp(label):
+    
     if 'cp' in label:
         controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(label)
         
@@ -79,7 +81,7 @@ def parallel_pp(label):
         
     el_bill, gas_bill = pf.cal_costs(energy)
     el_em, gas_em = pf.cal_emissions(energy)
-    
+    print(label)
     return el_bill, gas_bill, el_em, gas_em, energy_annual, label
 
 #%% 
@@ -102,21 +104,22 @@ def parallel_pp(label):
 t1 = time.time()
 if __name__ == "__main__":
     pool = mp.Pool(8)
-    results = []
+    # results = []
 
-    for i in range(1,10):
-        time.sleep(3)  # Delay of 15 seconds
-        result = pool.apply_async(parallel_pp, (str(i),))
-        results.append(result)
-
+    # for i in range(len(labels)):
+        # time.sleep(3)  # Delay of 15 seconds
+        # result = pool.apply_async(parallel_pp, (str(i),))
+        # results.append(result)
+    results = pool.map(parallel_pp, labels)
+    
     pool.close()
     pool.join()
     
-    output = [result.get() for result in results]
+    # output = [result.get() for result in results]
     
     # Wait for the multiprocessing tasks to complete
-    for result in results:
-        result.get()
+    # for result in results:
+    #     result.get()
         
 
 t2 = time.time()
