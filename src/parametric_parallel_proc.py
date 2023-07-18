@@ -27,6 +27,7 @@ global directory, folder, res_folder
 directory = (os.path.dirname(os.path.realpath(__file__)))
 folder = '\\src'
 res_folder = 'res\\'
+starting_label = 86
 mod56 = ModifyType56()
 mod56.change_r(directory+'\\House.b18', 'r0')
 # mod56.change_r('House_internal_heating.b18', 'r0')
@@ -96,18 +97,17 @@ for i in range(len(df)):
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
      
-    df['py_label'][i] = str(i)  
+    df['py_label'][i] = str(starting_label+i)  
     
 #%% define parametric run function
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
     print(values['py_label'])
     
-    with open(res_folder+'trn\\'+values['py_label']+'.txt', 'w') as f:
-        f.write('flow_rate\t'+str(values['flow_rate'])+
-                '\nvolume\t'+str(values['volume'])+
-                '\narea\t'+str(values['coll_area']))
-        f.close()
+    df = pd.read_csv('list_of_inputs.csv', delimiter=',', header=0)
+    new_row = value[['volume', 'flow_rate', 'coll_area','design_case']]
+    df.loc[int(value['py_label'])] = new_row
+    
     label_no=0
     with open(values['py_file'], 'r') as file_in:
         filedata = file_in.read()
