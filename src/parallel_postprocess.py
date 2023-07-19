@@ -20,21 +20,22 @@ import pandas as pd
 import matplotlib
 from matplotlib import pyplot as plt
 from datetime import datetime
-from SALib.analyze import sobol
+from SALib.analyze import sobol, morris
 pd.options.mode.chained_assignment = None  
 matplotlib.rcParams['lines.linewidth'] = 1
 matplotlib.rcParams["figure.autolayout"] = True
 
 global directory, result_folder
-directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1'
-result_folder = '\\src\\res\\trn'
-
+directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src'
+res_folder = 'res'
+trn_folder = '\\res\\trn'
+print('start')
 
 # %%
 
 # result_folder = '\\with_summer_loop\\2parameterSA_volume_area'
 
-temp = os.listdir(directory+result_folder)
+temp = os.listdir(directory+trn_folder)
 labels = []
 for i in temp:
     if '_temp_flow' in i:
@@ -59,19 +60,19 @@ t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
 
 #%%
+os.chdir(directory)
 from PostprocessFunctions import PostprocessFunctions as pf
-from Plots import Plots
-from PlotGroups import PlotGroups
 pp = pf(DT)
 def parallel_pp(label):
+    
     
     if 'cp' in label:
         controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(label)
         
     else:
-        temp_flow = pd.read_csv(directory+result_folder+'\\'+label+'_temp_flow.txt', delimiter=",",index_col=0)
-        energy = pd.read_csv(directory+result_folder+'\\'+label+'_energy.txt', delimiter=",", index_col=0)
-        controls = pd.read_csv(directory+result_folder+'\\'+label+'_control_signal.txt', delimiter=",",index_col=0)
+        temp_flow = pd.read_csv(directory+trn_folder+'\\'+label+'_temp_flow.txt', delimiter=",",index_col=0)
+        energy = pd.read_csv(directory+trn_folder+'\\'+label+'_energy.txt', delimiter=",", index_col=0)
+        controls = pd.read_csv(directory+trn_folder+'\\'+label+'_control_signal.txt', delimiter=",",index_col=0)
         
         controls = pp.modify_df(controls, t_start, t_end)
         temp_flow = pp.modify_df(temp_flow, t_start, t_end)
@@ -99,37 +100,99 @@ def parallel_pp(label):
 # results.to_csv('sim_results'+'.csv', index=True)
 
 #%%
-# multiprocessing that works
-# os.chdir(directory + result_folder)
-t1 = time.time()
-if __name__ == "__main__":
-    pool = mp.Pool(8)
-    # results = []
+# # multiprocessing that works
+# t1 = time.time()
+# if __name__ == "__main__":
+#     pool = mp.Pool(8)
+#     results = pool.map(parallel_pp, labels)
+    
+#     pool.close()
+#     pool.join()
+#     # results = []
 
-    # for i in range(len(labels)):
-        # time.sleep(3)  # Delay of 15 seconds
-        # result = pool.apply_async(parallel_pp, (str(i),))
-        # results.append(result)
-    results = pool.map(parallel_pp, labels)
+#     # for i in range(len(labels)):
+#         # time.sleep(3)  # Delay of 15 seconds
+#         # result = pool.apply_async(parallel_pp, (str(i),))
+#         # results.append(result)
+#     # output = [result.get() for result in results]
     
-    pool.close()
-    pool.join()
-    
-    # output = [result.get() for result in results]
-    
-    # Wait for the multiprocessing tasks to complete
-    # for result in results:
-    #     result.get()
+#     # Wait for the multiprocessing tasks to complete
+#     # for result in results:
+#     #     result.get()
         
+# t2 = time.time()
+# print(t2-t1)
 
-t2 = time.time()
-print(t2-t1)
+#%% exporting the results in a csv
+# output = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','lab'])
+# for i in range(len(results)):
+#     output.loc[i] = results[i]
+# output.to_csv(res_folder+'\\'+'sim_results'+'.csv', index=True)
 
 #%%
-# results = pd.read_csv('sim_results.csv', index_col=0)
-# results['volume'] = [float(label[label.find('_V')+2:label.find('_A')].replace('_','.')) for label in results.index]
-# results['coll_area'] = [int(label[label.find('_A')+2:]) for label in results.index]
-# results['design_case'] = [label[:label.find('_V')] for label in results.index]
+results = pd.read_csv(res_folder+ '\\'+'sim_results.csv', index_col=0)
+results['total_costs'] = results['el_bill']+results['gas_bill']
+results['total_emission'] = (results['el_em']+results['gas_em'])/1000
+existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
+dfresults = pd.concat([existing, results],axis=1)
+
+
+dfmorris_st = pd.read_csv('res\\morris_st_sample.csv')
+morris_out_st = pd.merge(dfmorris_st, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
+dfmorris_pvt = pd.read_csv('res\\morris_pvt_sample.csv')
+morris_out_pvt = pd.merge(dfmorris_pvt, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
+
+
+sample_st= dfmorris_st.copy()
+sample_st.drop(columns=['design_case'], inplace=True)
+sample_pvt= dfmorris_pvt.copy()
+sample_pvt.drop(columns=['design_case'], inplace=True)
+
+#%% recreating problem - copied from sobol_method
+input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
+              'coll_area': [4, 8, 16,20],
+              'flow_rate': [50, 100, 200],
+              'r_level': ['r0','r1']}
+
+input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
+              'coll_area': [4, 8, 16,20],
+              'flow_rate': [50, 100, 200],
+              'r_level': ['r0','r1']}
+
+def cal_bounds_scenarios(dct):
+    key = list(dct.keys())
+    bounds = []
+    nscenarios = 1
+    for i in key:
+        bounds.append([0, len(input_st[i])-1])
+        nscenarios = nscenarios*len(input_st[i])
+    return bounds, nscenarios
+
+#%% Creating bounds and scenarios
+bounds_st, nscenarios_st = cal_bounds_scenarios(input_st)
+bounds_pvt, nscenarios_pvt = cal_bounds_scenarios(input_pvt)
+
+#%% Creating problems
+problem_st = {
+    'num_vars': len(input_st),
+    'names':list(input_st.keys()),
+    'bounds':bounds_st}
+
+problem_pvt = {
+    'num_vars': len(input_pvt),
+    'names':list(input_pvt.keys()),
+    'bounds':bounds_pvt}
+
+#%% analysing morris samples
+Si = morris.analyze(
+    problem_pvt,
+    sample_pvt,
+    np.ravel(morris_out_pvt['total_costs']),
+    conf_level=0.95,
+    print_to_console=True,
+    num_levels=4,
+    num_resamples=100,
+)
 
 # dfsobol = pd.read_csv('morris_pvt_sample.csv')
 # dfresults = results.copy()
