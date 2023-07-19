@@ -195,6 +195,60 @@ problem_pvt = {
 #     num_resamples=100,
 # )
 
+#%% Scatter plots
+
+# morris_out_pvt['volume'] = morris_out_pvt['volume']+0.004
+# morris_out_st['volume'] = morris_out_st['volume']-0.004
+
+fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))
+pvt1 = ax1.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+st1 = ax1.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+
+pvt2 = ax2.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+st2 = ax2.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+
+pvt3 = ax3.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+st3 = ax3.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+
+pvt4 = ax4.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+st4 = ax4.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+
+c1=fig.colorbar(pvt1, ax=ax1)
+c2=fig.colorbar(pvt2, ax=ax2)
+c3=fig.colorbar(pvt3, ax=ax3)
+c4=fig.colorbar(pvt4, ax=ax4)
+
+c1.ax.get_yaxis().labelpad = 5
+c1.ax.set_ylabel('coll_area [m2]', rotation=90)
+c2.ax.get_yaxis().labelpad = 5
+c2.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
+c3.ax.get_yaxis().labelpad = 5
+c3.ax.set_ylabel('coll_area [m2]', rotation=90)
+c4.ax.get_yaxis().labelpad = 5
+c4.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
+
+ax1.set_xlabel('Volume [m3]')
+ax2.set_xlabel('Volume [m3]')
+ax3.set_xlabel('Volume [m3]')
+ax4.set_xlabel('Volume [m3]')
+
+ax1.set_ylabel('Annual cost [EUR]')
+ax2.set_ylabel('Annual cost [EUR]')
+ax3.set_ylabel('Annual emissions [kgCO2]')
+ax4.set_ylabel('Annual emissions [kgCO2]')
+
+ax1.legend()
+ax2.legend()
+ax3.legend()
+ax4.legend()
+
+ax1.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+ax2.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+ax3.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+ax4.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+
+
+#%%
 # dfsobol = pd.read_csv('morris_pvt_sample.csv')
 # dfresults = results.copy()
 
