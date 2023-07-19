@@ -129,7 +129,8 @@ def parallel_pp(label):
 #     output.loc[i] = results[i]
 # output.to_csv(res_folder+'\\'+'sim_results'+'.csv', index=True)
 
-#%%
+#%% Reading resuls and calculating fianl kpis for comparison, assigning results 
+#   based on samples 
 results = pd.read_csv(res_folder+ '\\'+'sim_results.csv', index_col=0)
 results['total_costs'] = results['el_bill']+results['gas_bill']
 results['total_emission'] = (results['el_em']+results['gas_em'])/1000
@@ -184,15 +185,15 @@ problem_pvt = {
     'bounds':bounds_pvt}
 
 #%% analysing morris samples
-Si = morris.analyze(
-    problem_pvt,
-    sample_pvt,
-    np.ravel(morris_out_pvt['total_costs']),
-    conf_level=0.95,
-    print_to_console=True,
-    num_levels=4,
-    num_resamples=100,
-)
+# Si = morris.analyze(
+#     problem_pvt,
+#     sample_pvt,
+#     np.ravel(morris_out_pvt['total_costs']),
+#     conf_level=0.95,
+#     print_to_console=True,
+#     num_levels=4,
+#     num_resamples=100,
+# )
 
 # dfsobol = pd.read_csv('morris_pvt_sample.csv')
 # dfresults = results.copy()
