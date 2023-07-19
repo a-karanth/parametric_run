@@ -11,12 +11,6 @@ import numpy as np
 directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src\\res'
 trn_results = '\\trn'
 os.chdir(directory)
-# df = pd.read_csv('1.txt', delimiter='\t', header=None)
-# df2=df.transpose()
-# df2.columns = df2.iloc[0]
-# df2 = df2.drop(df2.index[0])
-
-# df2.to_csv('1.txt', index=False)
 
 # check original sample files
 df1 = pd.read_csv('morris_st_sample.csv')
