@@ -32,16 +32,25 @@ mod56 = ModifyType56()
 mod56.change_r(directory+'\\House.b18', 'r0')
 # mod56.change_r('House_internal_heating.b18', 'r0')
 
+#%% existing simulations
+existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
+
 
 #%% reading CSVs with samples
-df1 = pd.read_csv(res_folder+'morris_st_sample.csv')
-df2 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
-dfmorris = pd.concat([df1,df2])
+df1 = pd.read_csv(res_folder+'morris_st_sample2.csv')
+df2 = pd.read_csv(res_folder+'morris_pvt_sample2.csv')
+df3 = pd.read_csv(res_folder+'morris_st_sample.csv')
+df4 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
+dfnew = pd.concat([df1,df2,df3,df4])
 # dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
-dfmorris.index = np.arange(len(dfmorris))
+dfnew.index = np.arange(len(dfnew))
 
-df = dfmorris.drop_duplicates()
-df.index = np.arange(len(df))
+dfnew = dfnew.drop_duplicates()
+dfnew.index = np.arange(len(dfnew))
+
+df=pd.merge(dfnew, existing, how='outer', indicator=True)
+df = df[df['_merge'] == 'left_only']
+df.drop(columns=['_merge'], inplace=True)
 
 #%% preparing variables for parametric run
 batt0 = dict(cell_cap=1, ncell=1, chargeI=1, dischargeI=-1, max_batt_in=0.01, max_batt_out=-0.01, dcv=0.01, ccv=125)
@@ -102,6 +111,7 @@ for i in range(len(df)):
 #%% define parametric run function
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
+    mod56.change_r(directory+'\\House.b18', values['r_level'])
     print(values['py_label'])
     
     df = pd.read_csv('list_of_inputs.csv', delimiter=',', header=0)
