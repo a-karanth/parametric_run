@@ -21,6 +21,13 @@ os.chdir(directory)
 # check original sample files
 df1 = pd.read_csv('morris_st_sample.csv')
 df2 = pd.read_csv('morris_pvt_sample.csv')
+
+# adding the parameter in the old sample files
+df1['r_level'] = 'r0'
+df2['r_level'] = 'r0'
+df1.to_csv('morris_st_sample.csv', index=False)
+df2.to_csv('morris_pvt_sample.csv', index=False)
+
 og = pd.concat([df1,df2])
 og = og.drop_duplicates()
 og.index = np.arange(len(og))
@@ -28,19 +35,24 @@ og.dtypes #check the datatypes of all columns for comparison later
 #%%
 os.chdir(directory+trn_results)
 
+df = pd.read_csv('list_of_inputs.csv',header=0)
+
+# adding a new column.
+# df['r_level'] = 'r0'
+# df.to_csv('list_of_inputs.csv', index=False)
 #%% combine all .txt files into 1 file
-df_ip = pd.DataFrame(columns=['flow_rate','volume','coll_area','design_case'])
-for i in np.arange(0,86):
-    df = pd.read_csv(str(i)+'.txt', delimiter=',', header=0)
-    df_ip.loc[i] = df.iloc[0]
-df_ip = df_ip[['volume', 'coll_area', 'flow_rate', 'design_case']]
+# df_ip = pd.DataFrame(columns=['flow_rate','volume','coll_area','design_case'])
+# for i in np.arange(0,86):
+#     df = pd.read_csv(str(i)+'.txt', delimiter=',', header=0)
+#     df_ip.loc[i] = df.iloc[0]
+# df_ip = df_ip[['volume', 'coll_area', 'flow_rate', 'design_case']]
 
-df_ip['volume'] = df_ip['volume'].astype('float64')
-df_ip['coll_area'] = df_ip['coll_area'].astype('int64')
-df_ip['flow_rate'] = df_ip['flow_rate'].astype('int64')
+# df_ip['volume'] = df_ip['volume'].astype('float64')
+# df_ip['coll_area'] = df_ip['coll_area'].astype('int64')
+# df_ip['flow_rate'] = df_ip['flow_rate'].astype('int64')
 
-if df_ip.equals(og) == True:
-    df_ip.to_csv('list_of_inputs.csv', index=False)
+# if df_ip.equals(og) == True:
+#     df_ip.to_csv('list_of_inputs.csv', index=False)
 #%% transpose all .txt files to make the data row data. and add a column for design case
 # for i in np.arange(0,86):
 #     df = pd.read_csv(str(i)+'.txt', delimiter='\t', header=None)
