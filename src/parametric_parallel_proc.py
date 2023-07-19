@@ -37,7 +37,7 @@ mod56.change_r(directory+'\\House.b18', 'r0')
 
 #%% existing simulations
 existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
-
+keys = existing.columns.values
 
 #%% reading CSVs with samples
 df1 = pd.read_csv(res_folder+'morris_st_sample2.csv')
@@ -120,7 +120,7 @@ def run_parametric(values):
     print(values['py_label'])
     
     df = pd.read_csv('res\\trn\\list_of_inputs.csv', delimiter=',', header=0)
-    new_row = value[['volume', 'flow_rate', 'coll_area','design_case']]
+    new_row = value[keys]
     df.loc[int(value['py_label'])] = new_row
     df.to_csv('res\\trn\\list_of_inputs.csv', index=False)
     
@@ -172,39 +172,39 @@ def run_parametric(values):
     return 1
 
 #%% Run multiprocessing
-# t1 = time.time()
-# print(t1)
+t1 = time.time()
+print(t1)
 
-# # multiprocessing that works
-# if __name__ == "__main__":
-#     pool = mp.Pool(8)
-#     results = []
+# multiprocessing that works
+if __name__ == "__main__":
+    pool = mp.Pool(8)
+    results = []
 
-#     for i in range(len(df)):
-#         time.sleep(15)  # Delay of 15 seconds
-#         value = df.iloc[i]
-#         result = pool.apply_async(run_parametric, (value,))
-#         results.append(result)
+    for i in range(len(df)):
+        time.sleep(15)  # Delay of 15 seconds
+        value = df.iloc[i]
+        result = pool.apply_async(run_parametric, (value,))
+        results.append(result)
 
-#     pool.close()
-#     pool.join()
+    pool.close()
+    pool.join()
     
-#     # Wait for the multiprocessing tasks to complete
-#     for result in results:
-#         result.get()
+    # Wait for the multiprocessing tasks to complete
+    for result in results:
+        result.get()
        
-# t2 = time.time()
-# print((t2-t1)/60)
+t2 = time.time()
+print((t2-t1)/60)
 
 #%% Run if multiprocessing is not needed
 # no multiprocessing
-for i in range(len(df)):
-    t1 = time.time()
-    value = df.iloc[i]
-    print(value['py_label'])
-    run_parametric(value)
-    t2 = time.time()
-    print((t2-t1)/60)
-pp = pf(DT)
-t_start = datetime(2001,1,1, 0,0,0)
-t_end = datetime(2002,1,1, 0,0,0)
+# for i in range(len(df)):
+#     t1 = time.time()
+#     value = df.iloc[i]
+#     print(value['py_label'])
+#     run_parametric(value)
+#     t2 = time.time()
+#     print((t2-t1)/60)
+# pp = pf(DT)
+# t_start = datetime(2001,1,1, 0,0,0)
+# t_end = datetime(2002,1,1, 0,0,0)
