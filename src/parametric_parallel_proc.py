@@ -7,11 +7,8 @@ import subprocess           # to run the TRNSYS simulation
 import shutil               # to duplicate the output txt file
 import time                 # to measure the computation time
 import os 
+import sys
 import multiprocessing as mp
-from ModifyType56 import ModifyType56
-from PostprocessFunctions import PostprocessFunctions as pf
-from Plots import Plots
-from PlotGroups import PlotGroups
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -20,6 +17,12 @@ from datetime import datetime
 pd.options.mode.chained_assignment = None  
 matplotlib.rcParams['lines.linewidth'] = 1
 matplotlib.rcParams["figure.autolayout"] = True
+
+sys.path.append(os.getcwd())
+from ModifyType56 import ModifyType56
+from PostprocessFunctions import PostprocessFunctions as pf
+from Plots import Plots
+from PlotGroups import PlotGroups
 
 DT = '6min'
 
@@ -51,6 +54,7 @@ dfnew.index = np.arange(len(dfnew))
 df=pd.merge(dfnew, existing, how='outer', indicator=True)
 df = df[df['_merge'] == 'left_only']
 df.drop(columns=['_merge'], inplace=True)
+df.index = np.arange(len(df))
 
 #%% preparing variables for parametric run
 batt0 = dict(cell_cap=1, ncell=1, chargeI=1, dischargeI=-1, max_batt_in=0.01, max_batt_out=-0.01, dcv=0.01, ccv=125)
@@ -109,6 +113,7 @@ for i in range(len(df)):
     df['py_label'][i] = str(starting_label+i)  
     
 #%% define parametric run function
+os.chdir(directory)
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
     mod56.change_r(directory+'\\House.b18', values['r_level'])
