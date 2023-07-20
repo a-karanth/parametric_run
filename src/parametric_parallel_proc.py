@@ -120,8 +120,8 @@ def run_parametric(values):
     print(values['py_label'])
     
     df = pd.read_csv('res\\trn\\list_of_inputs.csv', delimiter=',', header=0)
-    new_row = value[keys]
-    df.loc[int(value['py_label'])] = new_row
+    new_row = values[keys]
+    df.loc[int(values['py_label'])] = new_row
     df.to_csv('res\\trn\\list_of_inputs.csv', index=False)
     
     label_no=0
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     results = []
 
     for i in range(len(df)):
-        time.sleep(10)  # Delay of 15 seconds
+        time.sleep(15)  # Delay of 15 seconds
         value = df.iloc[i]
         result = pool.apply_async(run_parametric, (value,))
         # result = pool.apply_async(trial_parallel, (i,))
