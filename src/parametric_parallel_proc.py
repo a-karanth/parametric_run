@@ -30,7 +30,7 @@ global directory, folder, res_folder
 directory = (os.path.dirname(os.path.realpath(__file__)))
 folder = '\\src'
 res_folder = 'res\\'
-starting_label = 86
+starting_label = 87
 mod56 = ModifyType56()
 mod56.change_r(directory+'\\House.b18', 'r0')
 # mod56.change_r('House_internal_heating.b18', 'r0')
@@ -171,6 +171,12 @@ def run_parametric(values):
 
     return 1
 
+
+def trial_parallel(i):
+    df = pd.DataFrame(columns=['file number'])
+    df.loc[0] = i
+    df.to_csv('trial_'+str(i)+'.csv')
+    return 1
 #%% Run multiprocessing
 t1 = time.time()
 print(t1)
@@ -181,9 +187,10 @@ if __name__ == "__main__":
     results = []
 
     for i in range(len(df)):
-        time.sleep(15)  # Delay of 15 seconds
+        time.sleep(10)  # Delay of 15 seconds
         value = df.iloc[i]
         result = pool.apply_async(run_parametric, (value,))
+        # result = pool.apply_async(trial_parallel, (i,))
         results.append(result)
 
     pool.close()
