@@ -48,8 +48,7 @@ dfnew = pd.concat([df1,df2,df3,df4])
 # dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
 dfnew.index = np.arange(len(dfnew))
 
-dfnew = dfnew.drop_duplicates()
-dfnew.index = np.arange(len(dfnew))
+dfnew = dfnew.drop_duplicates(ignore_index=True)
 
 df=pd.merge(dfnew, existing, how='outer', indicator=True)
 df = df[df['_merge'] == 'left_only']

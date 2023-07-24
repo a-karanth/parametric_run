@@ -19,12 +19,11 @@ df2 = pd.read_csv('morris_pvt_sample.csv')
 # adding the parameter in the old sample files
 df1['r_level'] = 'r0'
 df2['r_level'] = 'r0'
-df1.to_csv('morris_st_sample.csv', index=False)
-df2.to_csv('morris_pvt_sample.csv', index=False)
+# df1.to_csv('morris_st_sample.csv', index=False)
+# df2.to_csv('morris_pvt_sample.csv', index=False)
 
 og = pd.concat([df1,df2])
-og = og.drop_duplicates()
-og.index = np.arange(len(og))
+og = og.drop_duplicates(ignore_index=True)
 og.dtypes #check the datatypes of all columns for comparison later
 #%%
 os.chdir(directory+trn_results)
