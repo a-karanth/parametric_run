@@ -26,13 +26,12 @@ matplotlib.rcParams['lines.linewidth'] = 1
 matplotlib.rcParams["figure.autolayout"] = True
 
 global directory, result_folder
-directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src'
-res_folder = 'res'
-trn_folder = '\\res\\trn'
+directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src\\'
+res_folder = 'res\\'
+trn_folder = 'res\\trn\\'
 print('start')
 
 # %%
-
 # result_folder = '\\with_summer_loop\\2parameterSA_volume_area'
 
 temp = os.listdir(directory+trn_folder)
@@ -50,12 +49,19 @@ for i in temp:
 
 labels = np.array(labels)
 labels = np.unique(labels)
-labels = np.arange(86)
-# labels = list(labels)
-labels= labels.astype(str)
+
+
+#%% 
+sim_yn =  os.listdir(directory+res_folder)
+if 'sim_results.csv' in sim_yn:
+    existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col=0)
+    existing_labels = np.array(existing_res.index.astype(str).tolist())
+    new_labels = list(set(labels)-set(existing_labels))
+    labels = new_labels
+else:
+    existing_res = pd.DataFrame()
+#%%
 DT = '6min'
-
-
 t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
 
@@ -65,14 +71,13 @@ from PostprocessFunctions import PostprocessFunctions as pf
 pp = pf(DT)
 def parallel_pp(label):
     
-    
     if 'cp' in label:
         controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(label)
         
     else:
-        temp_flow = pd.read_csv(directory+trn_folder+'\\'+label+'_temp_flow.txt', delimiter=",",index_col=0)
-        energy = pd.read_csv(directory+trn_folder+'\\'+label+'_energy.txt', delimiter=",", index_col=0)
-        controls = pd.read_csv(directory+trn_folder+'\\'+label+'_control_signal.txt', delimiter=",",index_col=0)
+        temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
+        energy = pd.read_csv(directory+trn_folder + label+'_energy.txt', delimiter=",", index_col=0)
+        controls = pd.read_csv(directory+trn_folder + label+'_control_signal.txt', delimiter=",",index_col=0)
         
         controls = pp.modify_df(controls, t_start, t_end)
         temp_flow = pp.modify_df(temp_flow, t_start, t_end)
@@ -85,7 +90,7 @@ def parallel_pp(label):
     print(label)
     return el_bill, gas_bill, el_em, gas_em, energy_annual, label
 
-#%% 
+#%% Results using sequential processing
 # os.chdir(directory + result_folder)
 # results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','lab'])
 # count = 0
@@ -101,88 +106,91 @@ def parallel_pp(label):
 
 #%%
 # # multiprocessing that works
-# t1 = time.time()
-# if __name__ == "__main__":
-#     pool = mp.Pool(8)
-#     results = pool.map(parallel_pp, labels)
+t1 = time.time()
+if __name__ == "__main__":
+    pool = mp.Pool(8)
+    results = pool.map(parallel_pp, labels)
     
-#     pool.close()
-#     pool.join()
-#     # results = []
+    pool.close()
+    pool.join()
+    # results = []
 
-#     # for i in range(len(labels)):
-#         # time.sleep(3)  # Delay of 15 seconds
-#         # result = pool.apply_async(parallel_pp, (str(i),))
-#         # results.append(result)
-#     # output = [result.get() for result in results]
+    # for i in range(len(labels)):
+        # time.sleep(3)  # Delay of 15 seconds
+        # result = pool.apply_async(parallel_pp, (str(i),))
+        # results.append(result)
+    # output = [result.get() for result in results]
     
-#     # Wait for the multiprocessing tasks to complete
-#     # for result in results:
-#     #     result.get()
+    # Wait for the multiprocessing tasks to complete
+    # for result in results:
+    #     result.get()
         
-# t2 = time.time()
-# print(t2-t1)
+t2 = time.time()
+print(t2-t1)
 
 #%% exporting the results in a csv
 # output = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','lab'])
 # for i in range(len(results)):
 #     output.loc[i] = results[i]
-# output.to_csv(res_folder+'\\'+'sim_results'+'.csv', index=True)
+# output['lab']=output['lab'].astype(int)
+# output=output.sort_values(by='lab', ignore_index=True)
+# output = pd.concat([existing_res,output])
+# output.to_csv(res_folder+'sim_results'+'.csv', index=True)
 
 #%% Reading resuls and calculating fianl kpis for comparison, assigning results 
 #   based on samples 
-results = pd.read_csv(res_folder+ '\\'+'sim_results.csv', index_col=0)
-results['total_costs'] = results['el_bill']+results['gas_bill']
-results['total_emission'] = (results['el_em']+results['gas_em'])/1000
-existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
-dfresults = pd.concat([existing, results],axis=1)
+# results = pd.read_csv(res_folder+ '\\'+'sim_results.csv', index_col=0)
+# results['total_costs'] = results['el_bill']+results['gas_bill']
+# results['total_emission'] = (results['el_em']+results['gas_em'])/1000
+# existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
+# dfresults = pd.concat([existing, results],axis=1)
 
 
-dfmorris_st = pd.read_csv('res\\morris_st_sample.csv')
-morris_out_st = pd.merge(dfmorris_st, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
-dfmorris_pvt = pd.read_csv('res\\morris_pvt_sample.csv')
-morris_out_pvt = pd.merge(dfmorris_pvt, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
+# dfmorris_st = pd.read_csv('res\\morris_st_sample.csv')
+# morris_out_st = pd.merge(dfmorris_st, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
+# dfmorris_pvt = pd.read_csv('res\\morris_pvt_sample.csv')
+# morris_out_pvt = pd.merge(dfmorris_pvt, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
 
 
-sample_st= dfmorris_st.copy()
-sample_st.drop(columns=['design_case'], inplace=True)
-sample_pvt= dfmorris_pvt.copy()
-sample_pvt.drop(columns=['design_case'], inplace=True)
+# sample_st= dfmorris_st.copy()
+# sample_st.drop(columns=['design_case'], inplace=True)
+# sample_pvt= dfmorris_pvt.copy()
+# sample_pvt.drop(columns=['design_case'], inplace=True)
 
 #%% recreating problem - copied from sobol_method
-input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
-              'coll_area': [4, 8, 16,20],
-              'flow_rate': [50, 100, 200],
-              'r_level': ['r0','r1']}
+# input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
+#               'coll_area': [4, 8, 16,20],
+#               'flow_rate': [50, 100, 200],
+#               'r_level': ['r0','r1']}
 
-input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
-              'coll_area': [4, 8, 16,20],
-              'flow_rate': [50, 100, 200],
-              'r_level': ['r0','r1']}
+# input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
+#               'coll_area': [4, 8, 16,20],
+#               'flow_rate': [50, 100, 200],
+#               'r_level': ['r0','r1']}
 
-def cal_bounds_scenarios(dct):
-    key = list(dct.keys())
-    bounds = []
-    nscenarios = 1
-    for i in key:
-        bounds.append([0, len(input_st[i])-1])
-        nscenarios = nscenarios*len(input_st[i])
-    return bounds, nscenarios
+# def cal_bounds_scenarios(dct):
+#     key = list(dct.keys())
+#     bounds = []
+#     nscenarios = 1
+#     for i in key:
+#         bounds.append([0, len(input_st[i])-1])
+#         nscenarios = nscenarios*len(input_st[i])
+    # return bounds, nscenarios
 
 #%% Creating bounds and scenarios
-bounds_st, nscenarios_st = cal_bounds_scenarios(input_st)
-bounds_pvt, nscenarios_pvt = cal_bounds_scenarios(input_pvt)
+# bounds_st, nscenarios_st = cal_bounds_scenarios(input_st)
+# bounds_pvt, nscenarios_pvt = cal_bounds_scenarios(input_pvt)
 
 #%% Creating problems
-problem_st = {
-    'num_vars': len(input_st),
-    'names':list(input_st.keys()),
-    'bounds':bounds_st}
+# problem_st = {
+#     'num_vars': len(input_st),
+#     'names':list(input_st.keys()),
+#     'bounds':bounds_st}
 
-problem_pvt = {
-    'num_vars': len(input_pvt),
-    'names':list(input_pvt.keys()),
-    'bounds':bounds_pvt}
+# problem_pvt = {
+#     'num_vars': len(input_pvt),
+#     'names':list(input_pvt.keys()),
+#     'bounds':bounds_pvt}
 
 #%% analysing morris samples
 # Si = morris.analyze(
@@ -200,52 +208,52 @@ problem_pvt = {
 # morris_out_pvt['volume'] = morris_out_pvt['volume']+0.004
 # morris_out_st['volume'] = morris_out_st['volume']-0.004
 
-fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))
-pvt1 = ax1.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st1 = ax1.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+# fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))
+# pvt1 = ax1.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+# st1 = ax1.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
 
-pvt2 = ax2.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st2 = ax2.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+# pvt2 = ax2.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+# st2 = ax2.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
 
-pvt3 = ax3.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st3 = ax3.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+# pvt3 = ax3.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+# st3 = ax3.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
 
-pvt4 = ax4.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st4 = ax4.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
+# pvt4 = ax4.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
+# st4 = ax4.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
 
-c1=fig.colorbar(pvt1, ax=ax1)
-c2=fig.colorbar(pvt2, ax=ax2)
-c3=fig.colorbar(pvt3, ax=ax3)
-c4=fig.colorbar(pvt4, ax=ax4)
+# c1=fig.colorbar(pvt1, ax=ax1)
+# c2=fig.colorbar(pvt2, ax=ax2)
+# c3=fig.colorbar(pvt3, ax=ax3)
+# c4=fig.colorbar(pvt4, ax=ax4)
 
-c1.ax.get_yaxis().labelpad = 5
-c1.ax.set_ylabel('coll_area [m2]', rotation=90)
-c2.ax.get_yaxis().labelpad = 5
-c2.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
-c3.ax.get_yaxis().labelpad = 5
-c3.ax.set_ylabel('coll_area [m2]', rotation=90)
-c4.ax.get_yaxis().labelpad = 5
-c4.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
+# c1.ax.get_yaxis().labelpad = 5
+# c1.ax.set_ylabel('coll_area [m2]', rotation=90)
+# c2.ax.get_yaxis().labelpad = 5
+# c2.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
+# c3.ax.get_yaxis().labelpad = 5
+# c3.ax.set_ylabel('coll_area [m2]', rotation=90)
+# c4.ax.get_yaxis().labelpad = 5
+# c4.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
 
-ax1.set_xlabel('Volume [m3]')
-ax2.set_xlabel('Volume [m3]')
-ax3.set_xlabel('Volume [m3]')
-ax4.set_xlabel('Volume [m3]')
+# ax1.set_xlabel('Volume [m3]')
+# ax2.set_xlabel('Volume [m3]')
+# ax3.set_xlabel('Volume [m3]')
+# ax4.set_xlabel('Volume [m3]')
 
-ax1.set_ylabel('Annual cost [EUR]')
-ax2.set_ylabel('Annual cost [EUR]')
-ax3.set_ylabel('Annual emissions [kgCO2]')
-ax4.set_ylabel('Annual emissions [kgCO2]')
+# ax1.set_ylabel('Annual cost [EUR]')
+# ax2.set_ylabel('Annual cost [EUR]')
+# ax3.set_ylabel('Annual emissions [kgCO2]')
+# ax4.set_ylabel('Annual emissions [kgCO2]')
 
-ax1.legend()
-ax2.legend()
-ax3.legend()
-ax4.legend()
+# ax1.legend()
+# ax2.legend()
+# ax3.legend()
+# ax4.legend()
 
-ax1.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
-ax2.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
-ax3.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
-ax4.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+# ax1.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+# ax2.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+# ax3.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+# ax4.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
 
 
 #%%
