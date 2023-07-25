@@ -92,11 +92,11 @@ def parallel_pp(label):
 
 #%% Results using sequential processing
 # os.chdir(directory + result_folder)
-# results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','lab'])
+# results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
 # count = 0
 # for i in labels:
-#     el_bill, gas_bill, el_em, gas_em, energy_annual, lab = parallel_pp(str(i))
-#     results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, lab
+#     el_bill, gas_bill, el_em, gas_em, energy_annual, label = parallel_pp(str(i))
+#     results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, label
 #     count = count+1
 #     print(count)
 
@@ -129,11 +129,11 @@ t2 = time.time()
 print(t2-t1)
 
 #%% exporting the results in a csv
-# output = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','lab'])
+# output = pd.Datgit pushaFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
 # for i in range(len(results)):
 #     output.loc[i] = results[i]
-# output['lab']=output['lab'].astype(int)
-# output=output.sort_values(by='lab', ignore_index=True)
+# output['label']=output['label'].astype(int)
+# output=output.sort_values(by='label', ignore_index=True)
 # output = pd.concat([existing_res,output])
 # output.to_csv(res_folder+'sim_results'+'.csv', index=True)
 
