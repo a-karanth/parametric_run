@@ -30,13 +30,13 @@ global directory, folder, res_folder
 directory = (os.path.dirname(os.path.realpath(__file__)))
 folder = '\\src'
 res_folder = 'res\\'
-starting_label = 87
+starting_label = 86
 mod56 = ModifyType56()
 mod56.change_r(directory+'\\House.b18', 'r0')
 # mod56.change_r('House_internal_heating.b18', 'r0')
 
 #%% existing simulations
-existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
+existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0,index_col=0)
 keys = existing.columns.values
 
 #%% reading CSVs with samples
@@ -118,10 +118,10 @@ def run_parametric(values):
     mod56.change_r(directory+'\\House.b18', values['r_level'])
     print(values['py_label'])
     
-    df = pd.read_csv('res\\trn\\list_of_inputs.csv', delimiter=',', header=0)
+    df = pd.read_csv('res\\trn\\list_of_inputs.csv', header=0, index_col=0)
     new_row = values[keys]
     df.loc[int(values['py_label'])] = new_row
-    df.to_csv('res\\trn\\list_of_inputs.csv', index=False)
+    df.to_csv('res\\trn\\list_of_inputs.csv', index=True, index_label='label')
     
     label_no=0
     with open(values['py_file'], 'r') as file_in:
