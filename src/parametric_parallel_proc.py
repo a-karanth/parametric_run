@@ -30,34 +30,36 @@ global directory, folder, res_folder
 directory = (os.path.dirname(os.path.realpath(__file__)))
 folder = '\\src'
 res_folder = 'res\\'
-starting_label = 86
+starting_label = 0
 mod56 = ModifyType56()
-mod56.change_r(directory+'\\House.b18', 'r0')
-# mod56.change_r('House_internal_heating.b18', 'r0')
 
 #%% existing simulations
 existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0,index_col=0)
 keys = existing.columns.values
 
 #%% reading CSVs with samples
-df1 = pd.read_csv(res_folder+'morris_st_sample2.csv')
-df2 = pd.read_csv(res_folder+'morris_pvt_sample2.csv')
-df3 = pd.read_csv(res_folder+'morris_st_sample.csv')
-df4 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
-dfnew = pd.concat([df1,df2,df3,df4])
-# dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
-dfnew.index = np.arange(len(dfnew))
+new_sim = False
+if new_sim:
+    df1 = pd.read_csv(res_folder+'morris_st_sample2.csv')
+    df2 = pd.read_csv(res_folder+'morris_pvt_sample2.csv')
+    df3 = pd.read_csv(res_folder+'morris_st_sample.csv')
+    df4 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
+    dfnew = pd.concat([df1,df2,df3,df4])
+    # dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
+    dfnew.index = np.arange(len(dfnew))
+    
+    dfnew = dfnew.drop_duplicates(ignore_index=True)
+    
+    df=pd.merge(dfnew, existing, how='outer', indicator=True)
+    df = df[df['_merge'] == 'left_only']
+    df.drop(columns=['_merge'], inplace=True)
+    df.index = np.arange(len(df))
+    save = False
+    if save:
+        df.to_csv('current_list.csv', index=True, index_label='label')
 
-dfnew = dfnew.drop_duplicates(ignore_index=True)
-
-df=pd.merge(dfnew, existing, how='outer', indicator=True)
-df = df[df['_merge'] == 'left_only']
-df.drop(columns=['_merge'], inplace=True)
-df.index = np.arange(len(df))
-save = False
-if save:
-    df.to_csv('current_list.csv', index=True, index_label='label')
-
+else:
+    df = pd.read_csv('res\\missed_sims.csv', index_col=0)
 
 #%% preparing variables for parametric run
 batt0 = dict(cell_cap=1, ncell=1, chargeI=1, dischargeI=-1, max_batt_in=0.01, max_batt_out=-0.01, dcv=0.01, ccv=125)
@@ -68,7 +70,7 @@ df['file'], df['py_file'] = [None]*len(df), [None]*len(df)
 df['coll_eff'], df['pack'] = [None]*len(df), [None]*len(df)
 df['batt'], df['py_label'] = [None]*len(df), [None]*len(df)
 
-for i in range(len(df)):
+for i in df.index:
 
     match df['design_case'][i]:
         case 'ST':  
