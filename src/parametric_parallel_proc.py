@@ -54,6 +54,10 @@ df=pd.merge(dfnew, existing, how='outer', indicator=True)
 df = df[df['_merge'] == 'left_only']
 df.drop(columns=['_merge'], inplace=True)
 df.index = np.arange(len(df))
+save = False
+if save:
+    df.to_csv('current_list.csv', index=True, index_label='label')
+
 
 #%% preparing variables for parametric run
 batt0 = dict(cell_cap=1, ncell=1, chargeI=1, dischargeI=-1, max_batt_in=0.01, max_batt_out=-0.01, dcv=0.01, ccv=125)
