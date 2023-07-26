@@ -89,66 +89,14 @@ morris_out_pvt = pd.merge(dfmorris_pvt, dfresults, on = ['volume','coll_area','f
 #     num_resamples=100,
 # )
 
-#%% Scatter plots
-
-morris_out_pvt['volume'] = morris_out_pvt['volume']+0.004
-morris_out_st['volume'] = morris_out_st['volume']-0.004
-
-fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))
-pvt1 = ax1.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st1 = ax1.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
-
-pvt2 = ax2.scatter(morris_out_pvt['volume'], morris_out_pvt['total_costs'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st2 = ax2.scatter(morris_out_st['volume'], morris_out_st['total_costs'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
-
-pvt3 = ax3.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['coll_area'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st3 = ax3.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['coll_area'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
-
-pvt4 = ax4.scatter(morris_out_pvt['volume'], morris_out_pvt['total_emission'],marker='^', c=morris_out_pvt['flow_rate'],cmap='viridis_r', alpha=0.7, label='PVT', s=70)
-st4 = ax4.scatter(morris_out_st['volume'], morris_out_st['total_emission'],marker='P', c=morris_out_st['flow_rate'],cmap='viridis_r', alpha=0.7, label='ST', s=70)
-
-c1=fig.colorbar(pvt1, ax=ax1)
-c2=fig.colorbar(pvt2, ax=ax2)
-c3=fig.colorbar(pvt3, ax=ax3)
-c4=fig.colorbar(pvt4, ax=ax4)
-
-c1.ax.get_yaxis().labelpad = 5
-c1.ax.set_ylabel('coll_area [m2]', rotation=90)
-c2.ax.get_yaxis().labelpad = 5
-c2.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
-c3.ax.get_yaxis().labelpad = 5
-c3.ax.set_ylabel('coll_area [m2]', rotation=90)
-c4.ax.get_yaxis().labelpad = 5
-c4.ax.set_ylabel('flow_rate [kg/hr]', rotation=90)
-
-ax1.set_xlabel('Volume [m3]')
-ax2.set_xlabel('Volume [m3]')
-ax3.set_xlabel('Volume [m3]')
-ax4.set_xlabel('Volume [m3]')
-
-ax1.set_ylabel('Annual cost [EUR]')
-ax2.set_ylabel('Annual cost [EUR]')
-ax3.set_ylabel('Annual emissions [kgCO2]')
-ax4.set_ylabel('Annual emissions [kgCO2]')
-
-ax1.legend()
-ax2.legend()
-ax3.legend()
-ax4.legend()
-
-ax1.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
-ax2.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
-ax3.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
-ax4.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
-
 #%% Focussing on one volume
 
 # morris_out_pvt['volume'] = morris_out_pvt['volume']-0.004
 # morris_out_st['volume'] = morris_out_st['volume']+0.004
-result_pvt = morris_out_pvt[morris_out_pvt['volume']==0.2]
-result_st = morris_out_st[morris_out_st['volume']==0.2]
+fil_pvt = morris_out_pvt[morris_out_pvt['volume']==0.2]
+fil_st = morris_out_st[morris_out_st['volume']==0.2]
 
-#%% trial of function
+#%% Scatter plots
 
 fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))   
 scatter1, cbar1 = pt.scatter_plot(morris_out_pvt, morris_out_st, ax=ax1,
@@ -160,6 +108,80 @@ scatter2, cbar2 = pt.scatter_plot(morris_out_pvt, morris_out_st, ax=ax2,
                        marker=['^', 'P'], 
                        xkey='volume', ykey='total_costs',ckey='flow_rate',
                        xlabel='Volume [m3]', ylabel='Total cost [EUR]', clabel='Flow rate [kg/hr]')
+
+scatter3, cbar3 = pt.scatter_plot(fil_pvt, ax=ax3,
+                       marker=['^', 'P'], 
+                       xkey='flow_rate', ykey='total_costs',ckey='coll_area',
+                       xlabel='Flow rate [kg/hr]', ylabel='Total cost [EUR]', clabel='Coll area [m2]')
+
+#%%
+# def plotly_plots():
+import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
+from plotly.subplots import make_subplots
+import plotly.express as px
+pio.renderers.default = 'browser'
+
+fil_pvt['label'] = fil_pvt.index
+fil_pvt['r_number'] = fil_pvt['r_level']
+fil_pvt['r_number']=fil_pvt['r_number'].replace('r0',0+1)
+fil_pvt['r_number']=fil_pvt['r_number'].replace('r1',1+3)
+
+fil_st['label'] = fil_st.index
+fig = px.scatter(fil_pvt, x="flow_rate", y="total_costs", color='coll_area', size='r_number',  
+                 hover_data=['label'], size_max=20)
+fig.update_traces(marker=dict(symbol='square'))
+
+st =  px.scatter(fil_st, x="flow_rate", y="total_costs", color='coll_area',  
+                 hover_data=['label'], size_max=20)
+st.update_traces(marker=dict(symbol='triangle-up', size=20))
+fig.add_trace(st.data[0])
+fig.show()
+
+#%%
+# pd.options.plotting.backend = "plotly"
+fig = make_subplots(rows=2, shared_xaxes=True, vertical_spacing=0.05, 
+                    row_heights=[0.5,0.05],
+                    specs=[[{"secondary_y":True}],[{"secondary_y":True}],
+                            [{"secondary_y":True}],[{"secondary_y":True}],[{"secondary_y":False}]],
+                    subplot_titles=("flow rate [kg/hr]", "coll area [m2]"))
+
+temperatures = ['Thp_load_out','Tsh_in','Tdhw_in', 'Thp_load_in']
+mass_flow = ['mhp_load_out','msh_in', 'mdhw_in', 'mhp_load_in']
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tamb'], name='Tamb'), secondary_y=False,row=1, col=1)
+fig.add_trace(go.Scatter(x=energy.index, y=energy['Qirr'], name='Qirr'), secondary_y=True,row=1, col=1)
+fig.update_layout(yaxis=dict(title="temperature [deg C]"), yaxis2=dict(title="irradiance [kW]"))
+
+for i in temperatures:
+    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=2, col=1)
+for i in mass_flow:
+    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=2, col=1)
+fig.update_layout(yaxis3=dict(title="temperature [deg C]"), yaxis4=dict(title="flow rate [kg/hr]"))
+
+temperatures = ['T1_sh','Tavg_sh','T6_sh', 'Tsh_cold_out', 'Trad1_in','Tsh_return','Tfloor1','Tfloor2']
+mass_flow = ['msh_cold_out','mrad1_in','mrad2_in', 'msh_return']
+for i in temperatures:
+    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=3, col=1)
+for i in mass_flow:
+    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=3, col=1)
+fig.update_layout(yaxis5=dict(title="temperature [deg C]"), yaxis6=dict(title="flow rate [kg/hr]"))
+
+temperatures = ['T1_dhw','Tavg_dhw','T6_dhw', 'Tdhw_cold_out', 'Tdhw2tap','Tat_tap']
+mass_flow = ['mdhw_cold_out','mdhw2tap','mcold2tap', 'mat_tap']
+for i in temperatures:
+    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=4, col=1)
+for i in mass_flow:
+    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=4, col=1)
+fig.update_layout(yaxis7=dict(title="temperature [deg C]"), yaxis8=dict(title="flow rate [kg/hr]"))
+
+cntr = ['hp_pump','hp_div','ctr_sh','ctr_dhw','heatingctr1','heatingctr2']
+for i in cntr:
+    fig.append_trace(go.Scatter(x=temp_flow.index, y=controls[i], name=i),row=5, col=1)
+fig.update_layout(title_text='Output files: ' + output_prefix)
+fig.update_layout(xaxis_range=[t1,t2])
+fig.show()
+#temp_flow.plot(y=['Thp_load_out','Tsh_in','Tdhw_in', 'Thp_load_in'])
+#offline.plot(fig,filename='temp.html')
 #%%S
 # dfsobol = pd.read_csv('morris_pvt_sample.csv')
 # dfresults = results.copy()
