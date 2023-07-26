@@ -279,4 +279,23 @@ class Plots:
         self.temp_flow[['Tfloor1','Tfloor1_2']].plot(ax=csh, color=['red','green'])
         pf.plot_specs(csh, t1,t2,8,30, title='Living room temp', ygrid=True)
         
-    
+    def scatter_plot(*args, ax, marker, xkey, ykey, ckey, xlabel, ylabel, clabel):
+        n = []
+        for i in range(len(args)):
+            value = (i - (len(args)-1)/2)*0.008
+            n.append(value)
+        scatter = []
+        for df2, m, delta in zip(args, marker, n):
+            df = df2.copy()
+            df[xkey] = df[xkey] + delta
+            scatter.append(ax.scatter(df[xkey], df[ykey],
+                                       c=df[ckey], cmap='viridis_r',
+                                       marker=m,  alpha=0.7, s=70,
+                                       label=df['design_case'][0]))
+        cbar = plt.colorbar(scatter[0], ax=ax)
+        cbar.ax.get_yaxis().labelpad = 5
+        cbar.ax.set_ylabel(clabel, rotation=90)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+        return scatter, cbar
