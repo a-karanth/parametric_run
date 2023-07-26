@@ -54,7 +54,7 @@ labels = np.unique(labels)
 #%% 
 sim_yn =  os.listdir(directory+res_folder)
 if 'sim_results.csv' in sim_yn:
-    existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col=0)
+    existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col='label')
     existing_labels = np.array(existing_res.index.astype(str).tolist())
     new_labels = list(set(labels)-set(existing_labels))
     labels = new_labels
