@@ -129,13 +129,14 @@ t2 = time.time()
 print(t2-t1)
 
 #%% exporting the results in a csv
-# output = pd.Datgit pushaFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
+# output = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
 # for i in range(len(results)):
 #     output.loc[i] = results[i]
 # output['label']=output['label'].astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
+# output = output.set_index('label')
 # output = pd.concat([existing_res,output])
-# output.to_csv(res_folder+'sim_results'+'.csv', index=True)
+# output.to_csv(res_folder+'sim_results'+'.csv', index=True, index_label='label')
 
 #%% Reading resuls and calculating fianl kpis for comparison, assigning results 
 #   based on samples 
