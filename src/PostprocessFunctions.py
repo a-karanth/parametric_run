@@ -18,20 +18,22 @@ matplotlib.rcParams["figure.autolayout"] = True
 
 class PostprocessFunctions:
     
-    def __init__(self, timestep):
-        # self.DT = dt
-        # self.dt = int(''.join([i for i in dt if i.isdigit()])) #convert the string to integer - minutes
-        global DT, dt
-        DT = timestep
-        dt = int(''.join([i for i in DT if i.isdigit()]))/60
+    global DT, dt
+    # def __init__():
+    #     global DT,dt
       
     @staticmethod    
     def modify_df(df2, t_start, t_end):
+        global DT,dt
         # to identify headers from txt file and use them as DF headers
         # to add timestamp column for one year, and to remove the last timestamp 31-12-2001 24:00:00
         # if you have used timestep as 0.125 in trnsys, do not use freq. instead use
         # periods = len(df)-1. Note that with this method, you get decimals in the seconds field. 
         df=df2.copy()
+        timestep = int((df.index[2] - df.index[1])*60)
+        dt = timestep/60
+        DT = str(timestep)+'min'
+        
         headers = [i.strip() for i in df.columns]
         df.columns = headers
         df= df.drop(columns = df.columns[-1])
@@ -65,6 +67,21 @@ class PostprocessFunctions:
         #                         'ltg_bed3', 'ltg_attic']].sum(axis = 1, skipna = True)       
         return energy
     
+    @staticmethod
+    def create_dfs(prefix):
+        t_start = datetime(2001,1,1, 0,0,0)
+        t_end = datetime(2002,1,1, 0,0,0)
+        temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter = ",", index_col=0)
+        energy = pd.read_csv(prefix+'_energy.txt', delimiter = ",", index_col=0)
+        controls = pd.read_csv(prefix+'_control_signal.txt', delimiter = ",", index_col=0)
+        
+        controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
+        temp_flow = PostprocessFunctions.modify_df(temp_flow, t_start, t_end)
+        energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+        energy = PostprocessFunctions.cal_energy(energy, controls)
+        return controls, energy, temp_flow
+    
+    
     def create_base_dfs(controls, energy, temp_flow, t_start, t_end):
         controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
         energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600
@@ -82,6 +99,8 @@ class PostprocessFunctions:
     
     @staticmethod
     def cal_integrals(energy):
+        global dt
+        print(dt)
         #calculate monthly and yearly. and drop the last row which is for the next year
         energy_monthly = energy.resample('M').sum()*dt
         energy_annual = energy.resample('Y').sum()*dt
