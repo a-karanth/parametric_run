@@ -1,431 +1,831 @@
-,el_bill,gas_bill,el_em,gas_em,energy_annual,lab
-0,2469.657736003559,0.0,2099209.0756030246,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+label,el_bill,gas_bill,el_em,gas_em,energy_annual
+0,2469.657736,0.0,2099209.076,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      52.5  4789.983018  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",0
-1,2467.709349280798,0.0,2097552.9468886782,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+1,2467.709349,0.0,2097552.947,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     148.5  4529.423478  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",1
-2,2426.505945099068,0.0,2062530.0533342075,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+2,2426.505945,0.0,2062530.053,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    131.85  4806.832499  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",2
-3,2366.205420026876,0.0,2011274.6070228443,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+3,2366.20542,0.0,2011274.607,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
 Time                                       ...                               
 2001-12-31      0.0      33.9  5046.87578  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",3
-4,2468.813902859044,0.0,2098491.8174301866,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+4,2468.813903,0.0,2098491.817,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     241.5  4493.235738  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",4
-5,2417.7511192077877,0.0,2055088.4513266191,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+5,2417.751119,0.0,2055088.451,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
 Time                                       ...                               
 2001-12-31      0.0     217.5  4841.12092  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",5
-6,2382.970825251258,0.0,2025525.2014635687,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+6,2382.970825,0.0,2025525.201,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     23.55  5214.550084  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",6
-7,2420.983342459124,0.0,2057835.841090255,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+7,2420.983342,0.0,2057835.841,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      87.6  5006.739819  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",7
-8,2454.3925113299974,0.0,2086233.634630498,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+8,2454.392511,0.0,2086233.635,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     32.85  4812.327309  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",8
-9,2478.857825109473,0.0,2107029.1513430513,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+9,2478.857825,0.0,2107029.151,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
 Time                                       ...                               
 2001-12-31      0.0     248.7  4407.08663  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",9
-10,2527.447262095695,0.0,2148330.1727813403,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+10,2527.447262,0.0,2148330.173,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     335.4  4190.342432  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",10
-11,2472.493775494925,0.0,2101619.7091706856,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+11,2472.493775,0.0,2101619.709,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    309.15  4416.397828  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",11
-12,2470.016534097421,0.0,2099514.0539828073,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+12,2470.016534,0.0,2099514.054,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     299.1  4512.299633  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",12
-13,2467.426155432533,0.0,2097312.2321176524,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+13,2467.426155,0.0,2097312.232,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      97.2  4674.751315  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",13
-14,2409.9081342619534,0.0,2048421.9141226606,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+14,2409.908134,0.0,2048421.914,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     31.35  4853.608021  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",14
-15,2412.4984230308396,0.0,2050623.6595762128,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+15,2412.498423,0.0,2050623.66,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    168.15  4847.877368  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",15
-16,2328.1752993917557,0.0,1978949.004482992,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+16,2328.175299,0.0,1978949.004,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     156.9  5259.268105  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",16
-17,2296.823755501202,0.0,1952300.192176021,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+17,2296.823756,0.0,1952300.192,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      0.45  5646.470108  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",17
-18,2380.345157391795,0.0,2023293.3837830261,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+18,2380.345157,0.0,2023293.384,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      4.05  5168.364213  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",18
-19,2391.9909024575322,0.0,2033192.2670889022,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+19,2391.990902,0.0,2033192.267,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5347.245569  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",19
-20,2411.8878743488904,0.0,2050104.6931965565,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+20,2411.887874,0.0,2050104.693,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      0.75  4983.085511  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",20
-21,2434.556892059201,0.0,2069373.35825032,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+21,2434.556892,0.0,2069373.358,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    230.25  4755.049908  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",21
-22,2339.3357807214343,0.0,1988435.4136132188,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+22,2339.335781,0.0,1988435.414,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    160.35  5137.758525  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",22
-23,2373.4299660523293,0.0,2017415.4711444792,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+23,2373.429966,0.0,2017415.471,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5259.625096  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",23
-24,2454.946289549532,0.0,2086704.346117102,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+24,2454.94629,0.0,2086704.346,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  4916.489617  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",24
-25,2396.9670199168154,0.0,2037421.9669292932,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+25,2396.96702,0.0,2037421.967,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5102.187416  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",25
-26,2378.632819432406,0.0,2021837.8965175448,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+26,2378.632819,0.0,2021837.897,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       5.4  4950.415914  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",26
-27,2316.3609432176563,0.0,1968906.801735008,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+27,2316.360943,0.0,1968906.802,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      0.15  5546.027095  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",27
-28,2447.141064229541,0.0,2080069.9045951099,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+28,2447.141064,0.0,2080069.905,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     57.15  4680.195354  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",28
-29,2381.5162993187746,0.0,2024288.8544209586,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+29,2381.516299,0.0,2024288.854,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     48.45  4994.883235  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",29
-30,2406.8200998785715,0.0,2045797.0848967852,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+30,2406.8201,0.0,2045797.085,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      40.8  5109.904198  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",30
-31,2415.8965584424973,0.0,2053512.0746761225,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+31,2415.896558,0.0,2053512.075,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     55.65  4734.252866  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",31
-32,2281.129826324735,0.0,1938960.3523760245,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+32,2281.129826,0.0,1938960.352,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       3.9  5579.160504  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",32
-33,2296.342608294223,0.0,1951891.217050089,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+33,2296.342608,0.0,1951891.217,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5648.690417  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",33
-34,2377.2472059747447,0.0,2020660.1250785326,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+34,2377.247206,0.0,2020660.125,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     25.35  5135.306554  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",34
-35,2414.1332662747595,0.0,2052013.2763335456,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+35,2414.133266,0.0,2052013.276,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     171.6  4719.847276  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",35
-36,2395.5024351161437,0.0,2036177.0698487218,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+36,2395.502435,0.0,2036177.07,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      2.85  5036.261279  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",36
-37,2437.0662702599275,0.0,2071506.3297209386,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+37,2437.06627,0.0,2071506.33,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     135.6  4747.277876  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",37
-38,2421.040045363362,0.0,2057884.0385588575,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+38,2421.040045,0.0,2057884.039,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      42.9  5026.526378  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",38
-39,2517.90433030553,0.0,2140218.6807596995,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+39,2517.90433,0.0,2140218.681,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     323.4  4276.890922  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",39
-40,2329.7624867450645,0.0,1980298.1137333037,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+40,2329.762487,0.0,1980298.114,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5636.133974  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",40
-41,2302.376831401267,0.0,1957020.306691076,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+41,2302.376831,0.0,1957020.307,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       3.0  5434.659994  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",41
-42,2425.873963942016,0.0,2061992.8693507127,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+42,2425.873964,0.0,2061992.869,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     90.45  4890.262864  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",42
-43,2320.0213788632614,0.0,1972018.1720337719,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+43,2320.021379,0.0,1972018.172,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      62.4  4724.678725  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",43
-44,2325.4272114209075,0.0,1976613.129707771,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+44,2325.427211,0.0,1976613.13,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    178.95  4447.981614  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",44
-45,2191.205626206543,0.0,1862524.7822755612,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+45,2191.205626,0.0,1862524.782,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     163.8  4681.552146  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",45
-46,2125.54300257851,0.0,1806711.5521917336,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+46,2125.543003,0.0,1806711.552,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      55.5  5047.906572  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",46
-47,2319.808075564803,0.0,1971836.8642300824,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+47,2319.808076,0.0,1971836.864,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
 Time                                       ...                               
 2001-12-31      0.0    282.15  4454.23974  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",47
-48,2178.674030895377,0.0,1851872.9262610702,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+48,2178.674031,0.0,1851872.926,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    245.55  4752.413569  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",48
-49,2115.849539424635,0.0,1798472.1085109399,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+49,2115.849539,0.0,1798472.109,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      34.5  5131.725292  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",49
-50,2175.329134920141,0.0,1849029.7646821202,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+50,2175.329135,0.0,1849029.765,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    102.45  4841.347897  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",50
-51,2358.4507405094405,0.0,2004683.129433024,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+51,2358.450741,0.0,2004683.129,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     49.65  4791.176857  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",51
-52,2388.3215586654724,0.0,2030073.3248656513,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+52,2388.321559,0.0,2030073.325,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     283.2  4407.888393  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",52
-53,2425.1532389806002,0.0,2061380.2531335102,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+53,2425.153239,0.0,2061380.253,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     381.9  4123.964769  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",53
-54,2279.869053014405,0.0,1937888.695062244,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+54,2279.869053,0.0,1937888.695,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    367.05  4339.450747  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",54
-55,2238.7153434760507,0.0,1902908.041954643,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+55,2238.715343,0.0,1902908.042,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     362.4  4391.292894  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",55
-56,2318.876953062188,0.0,1971045.41010286,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+56,2318.876953,0.0,1971045.41,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    120.75  4605.699858  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",56
-57,2267.627297260034,0.0,1927483.2026710284,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+57,2267.627297,0.0,1927483.203,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      48.6  4813.212495  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",57
-58,2297.7127076325482,0.0,1953055.8014876656,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+58,2297.712708,0.0,1953055.801,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     233.1  4675.576558  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",58
-59,2099.9479234005,0.0,1784955.7348904246,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+59,2099.947923,0.0,1784955.735,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     182.1  5181.249953  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",59
-60,2037.1673589380325,0.0,1731592.2550973275,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+60,2037.167359,0.0,1731592.255,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
 Time                                       ...                               
 2001-12-31      0.0       0.0  5483.98768  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",60
-61,2206.0033377627833,0.0,1875102.8370983654,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+61,2206.003338,0.0,1875102.837,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      0.15  5045.261567  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",61
-62,2109.814945363754,0.0,1793342.7035591905,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+62,2109.814945,0.0,1793342.704,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5251.088982  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",62
-63,2261.3377199617203,0.0,1922137.0619674623,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+63,2261.33772,0.0,1922137.062,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.9  4940.212587  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",63
-64,2224.699149800775,0.0,1890994.2773306586,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+64,2224.69915,0.0,1890994.277,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     267.9  4667.975662  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",64
-65,2136.557442066815,0.0,1816073.825756793,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+65,2136.557442,0.0,1816073.826,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    182.55  5039.802621  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",65
-66,2147.1417473407964,0.0,1825070.4852396771,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+66,2147.141747,0.0,1825070.485,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5170.287847  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",66
-67,2346.892085275072,0.0,1994858.2724838108,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+67,2346.892085,0.0,1994858.272,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.3  4876.080069  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",67
-68,2292.7095931808867,0.0,1948803.1542037532,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+68,2292.709593,0.0,1948803.154,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5100.673354  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",68
-69,2276.35223462265,0.0,1934899.3994292521,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+69,2276.352235,0.0,1934899.399,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       5.4  4944.839645  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",69
-70,2081.6197241757623,0.0,1769376.765549398,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+70,2081.619724,0.0,1769376.766,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5387.993627  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",70
-71,2341.0571232345496,0.0,1989898.554749367,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+71,2341.057123,0.0,1989898.555,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     70.35  4641.446622  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",71
-72,2159.2647079459307,0.0,1835375.001754041,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+72,2159.264708,0.0,1835375.002,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     63.15  4892.218144  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",72
-73,2168.638188199373,0.0,1843342.4599694675,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+73,2168.638188,0.0,1843342.46,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     56.85  4947.531275  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",73
-74,2256.7031558605704,0.0,1918197.6824814845,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+74,2256.703156,0.0,1918197.682,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      66.0  4683.420076  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",74
-75,2034.421576137194,0.0,1729258.339716615,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+75,2034.421576,0.0,1729258.34,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       2.1  5417.708464  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",75
-76,2043.6214558527795,0.0,1737078.2374748623,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+76,2043.621456,0.0,1737078.237,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
 Time                                       ...                               
 2001-12-31      0.0       0.0  5594.07172  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",76
-77,2155.265874927545,0.0,1831975.9936884136,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+77,2155.265875,0.0,1831975.994,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      41.1  5038.224857  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",77
-78,2326.359329784214,0.0,1977405.4303165816,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+78,2326.35933,0.0,1977405.43,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
 Time                                       ...                               
 2001-12-31      0.0     201.0  4718.97074  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",78
-79,2287.321022135351,0.0,1944222.8688150481,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+79,2287.321022,0.0,1944222.869,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5026.404661  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",79
-80,2224.4224779243254,0.0,1890759.1062356767,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+80,2224.422478,0.0,1890759.106,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0    167.55  4602.804532  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",80
-81,2204.4604664650683,0.0,1873791.3964953073,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+81,2204.460466,0.0,1873791.396,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     58.05  4870.895562  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",81
-82,2368.2514072365398,0.0,2013013.6961510591,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+82,2368.251407,0.0,2013013.696,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     391.2  4199.517227  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",82
-83,2093.071324914928,0.0,1779110.6261776884,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+83,2093.071325,0.0,1779110.626,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0       0.0  5498.418198  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",83
-84,2076.878457817082,0.0,1765346.6891445199,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+84,2076.878458,0.0,1765346.689,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0      2.25  5337.651725  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",84
-85,2204.1313389116563,0.0,1873511.6380749082,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+[1 rows x 47 columns]"
+85,2204.131339,0.0,1873511.638,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
 Time                                        ...                               
 2001-12-31      0.0     111.0  4733.198834  ...  0.0  1739.329105  1012.382185
 
-[1 rows x 47 columns]",85
+[1 rows x 47 columns]"
+86,1828.5300887240808,0.0,1554250.5754154683,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0       0.0  4067.25123  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+87,1799.1586540238256,0.0,1529284.8559202515,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       3.0  3870.817044  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+88,1882.8414705397188,0.0,1600415.2499587603,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     33.75  3552.567623  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+89,1909.8634783290695,0.0,1623383.9565797092,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      43.8  3273.221694  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+90,1994.6998475893256,0.0,1695494.870450926,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0    308.55  2818.60884  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+91,1960.6376604601346,0.0,1666542.011391114,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      93.6  3219.591332  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+92,1905.9482793940047,0.0,1620056.0374849036,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      75.9  3439.862958  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+93,2491.157969956307,0.0,2117484.2744628605,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     96.45  4571.819679  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+94,1937.3089893240046,0.0,1646712.6409254037,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0     31.65  3331.05664  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+95,1877.8818437967648,0.0,1596199.56722725,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      23.7  3611.535886  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+96,1935.4052392826434,0.0,1645094.4533902463,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     210.9  3234.387122  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+97,1913.6796033635255,0.0,1626627.6628589965,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    117.75  3276.233695  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+98,1972.1717218832375,0.0,1676345.9636007517,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     233.7  2978.718774  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+99,1883.5856413347753,0.0,1601047.795134559,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0      17.4  3669.10071  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+100,1962.4418742539872,0.0,1668075.5931158888,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     281.4  3008.840126  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+101,1937.8892540420588,0.0,1647205.86593575,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0       0.0  3432.44523  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+102,1990.5091318387622,0.0,1691932.7620629475,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      47.1  3245.476551  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+103,1933.907816571611,0.0,1643821.6440858694,0.0,"            Qaux_sh  Qaux_dhw     QuColl  ...  gas         Qdev         Qltg
+Time                                      ...                               
+2001-12-31      0.0     48.15  3214.6865  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+104,1882.89225758265,0.0,1600458.4189452522,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     38.25  3462.693197  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+105,1871.4972598777197,0.0,1590772.6708960612,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3728.286614  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+106,1913.0253680329847,0.0,1626071.562828037,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     39.15  3520.409366  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+107,1813.45916484395,0.0,1541440.2901173574,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       3.0  3799.235681  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+108,1838.321543258673,0.0,1562573.311769872,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  4003.327995  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+109,1895.154693421077,0.0,1610881.489407915,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3616.248046  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+110,2496.0869395662953,0.0,2121673.8986313506,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     49.65  4671.901022  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+111,1921.892276339992,0.0,1633608.4348889925,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     203.1  3306.405855  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+112,1956.161215944068,0.0,1662737.0335524573,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     227.1  3033.431545  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+113,1907.5898934030197,0.0,1621451.4093925667,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      30.3  3395.040314  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+114,1908.1662236490645,0.0,1621941.2901017044,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3517.118962  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+115,1967.4135067023108,0.0,1672301.480696964,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0    133.35  2991.22307  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+116,1921.0824093788692,0.0,1632920.0479720384,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    118.05  3215.408538  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+117,1872.7976118604856,0.0,1591877.9700814127,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      0.75  3625.057321  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+118,1814.395262638136,0.0,1542235.9732424153,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3961.723537  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+119,1863.6728712431159,0.0,1584121.9405566482,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      3.45  3535.016144  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+120,1982.3792590498176,0.0,1685022.3701923452,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      91.2  3142.430983  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+121,1898.2141519590348,0.0,1613482.029165179,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     38.55  3566.984215  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+122,1891.1725733125074,0.0,1607496.6873156307,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3787.630976  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+123,2374.523489694245,0.0,2018344.9662401073,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      0.75  5235.470573  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+124,1971.6073786294737,0.0,1675866.2718350524,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     292.8  2944.722201  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+125,2007.1336285616694,0.0,1706063.5842774187,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    312.75  2750.416249  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+126,1580.452905580577,0.0,1343384.96974349,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3995.879169  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+127,1573.4234575828177,0.0,1337409.938945395,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0       5.1  3812.97528  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+128,1637.5025967845309,0.0,1391877.2072668509,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     49.95  3473.995552  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+129,1754.4301031335717,0.0,1491265.5876635357,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     56.25  3213.559421  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+130,1852.3940162569656,0.0,1574534.9138184206,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    357.45  2737.299145  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+131,1807.2492479204511,0.0,1536161.860732383,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     112.5  3141.075854  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+132,1682.8789764276198,0.0,1430447.129963477,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0      93.9  3317.00481  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+133,2395.1358807329448,0.0,2035865.4986230023,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     120.9  4551.695493  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+134,1835.661890968017,0.0,1560312.6073228142,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      40.5  3301.208757  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+135,1661.3421679327164,0.0,1412140.842742809,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      34.8  3518.619693  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+136,1721.618178869894,0.0,1463375.4520394104,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0     243.0  3148.66677  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+137,1691.3960339371076,0.0,1437686.628846541,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     141.9  3166.061995  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+138,1868.2422583082837,0.0,1588005.9195620406,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     259.5  2947.943487  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+139,1632.0014425803272,0.0,1387201.226193278,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     28.95  3587.633803  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+140,1747.807788475229,0.0,1485636.6202039442,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    335.85  2903.083031  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+141,1830.6607865235187,0.0,1556061.668544991,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3395.330045  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+142,1883.9270398022109,0.0,1601337.983831879,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     58.65  3195.554978  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+143,1835.661890968017,0.0,1560312.6073228142,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      40.5  3301.208757  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+144,1668.132269354805,0.0,1417912.4289515843,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     48.15  3378.300536  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+145,1649.0322153154518,0.0,1401677.3830181337,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.3  3613.608224  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+146,1709.3468483089655,0.0,1452944.8210626207,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     55.05  3372.651039  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+147,1609.0073691815423,0.0,1367656.2638043102,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       4.5  3738.272973  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+148,1613.9989659989699,0.0,1371899.1210991244,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3923.301653  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+149,1783.9322554513456,0.0,1516342.4171336438,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3604.374909  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+150,2405.1409316240147,0.0,2044369.791880412,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     63.45  4669.623702  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+151,1687.34890604164,0.0,1434246.570135394,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    229.65  3231.812466  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+152,1805.900745729652,0.0,1535015.6338702042,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     258.0  2984.857943  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+153,1755.699380913124,0.0,1492344.4737761554,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      38.7  3332.367682  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+154,1750.2557124739697,0.0,1487717.3556028742,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3444.784274  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+155,1879.0228284900268,0.0,1597169.4042165224,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    156.15  2965.269736  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+156,1723.8921884075114,0.0,1465308.3601463845,0.0,"            Qaux_sh  Qaux_dhw      QuColl  ...  gas         Qdev         Qltg
+Time                                       ...                               
+2001-12-31      0.0     151.2  3122.01447  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+157,1708.103545299525,0.0,1451888.0135045957,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.3  3556.433759  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+158,1577.5150862040718,0.0,1340887.8232734608,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3901.877043  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+159,1699.5378000734281,0.0,1444607.1300624136,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       3.3  3478.885577  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+160,1881.7458373455459,0.0,1599483.9617437138,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     111.6  3101.925907  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+161,1678.9173041977838,0.0,1427079.7085681162,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0      53.7  3432.128948  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+162,1624.464530957468,0.0,1380794.8513138478,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  3684.355107  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+163,2202.999975999887,0.0,1872549.979599904,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0       0.0  5127.704524  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+164,1777.752115903835,0.0,1511089.2985182595,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0    346.65  2848.204859  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
+165,1910.1079719081781,0.0,1623591.776121951,0.0,"            Qaux_sh  Qaux_dhw       QuColl  ...  gas         Qdev         Qltg
+Time                                        ...                               
+2001-12-31      0.0     360.0  2683.283122  ...  0.0  1739.329105  1012.382185
+
+[1 rows x 47 columns]"
