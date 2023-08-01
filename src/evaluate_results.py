@@ -9,7 +9,7 @@ import time                 # to measure the computation time
 import os 
 import multiprocessing as mp
 # from PostprocessFunctions import PostprocessFunctions as pf
-from Plots import Plots sa pt
+from Plots import Plots as pt
 import numpy as np
 import pandas as pd
 import matplotlib

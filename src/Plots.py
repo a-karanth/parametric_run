@@ -291,7 +291,7 @@ class Plots:
             scatter.append(ax.scatter(df[xkey], df[ykey],
                                        c=df[ckey], cmap='viridis_r',
                                        marker=m,  alpha=0.7, s=70,
-                                       label=df['design_case'][0]))
+                                       label=df['design_case'].iloc[0]))
         cbar = plt.colorbar(scatter[0], ax=ax)
         cbar.ax.get_yaxis().labelpad = 5
         cbar.ax.set_ylabel(clabel, rotation=90)
