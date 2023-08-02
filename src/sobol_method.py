@@ -22,8 +22,8 @@ trn_folder = 'res\\trn\\'
 #create one list for each variable indicating their input values
 input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
               'coll_area': [4, 8, 16,20],
-              'flow_rate': [50, 100, 200],
-              'r_level': ['r0','r1']}
+              'flow_rate': [50, 100, 200]} #,
+             # 'r_level': ['r0','r1']}
 
 input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
               'coll_area': [4, 8, 16,20],
@@ -47,7 +47,7 @@ def cal_bounds_scenarios(dct):
         nscenarios = nscenarios*len(input_st[i])
     return bounds, nscenarios
 
-#%%
+#%% Function to assign index values to the samples
 def assign_indices(samples, inp, key_name, values):
     # samples: sample created by morris or sobol classes
     # inp: dictionary if inputs containing the different parameters
@@ -67,7 +67,7 @@ def assign_indices(samples, inp, key_name, values):
 #%% function for preparing SA variables
 from SALib.sample import sobol, morris
 
-def prepare_sa(sa_type, ip, N=2, prnt=False, prefix='x'):
+def prepare_sa(sa_type, ip, key_names, values, N=2, prnt=False, prefix='x'):
     #   Creating of bounds and number of scenarios
     bounds, nscenarios = cal_bounds_scenarios(ip)
     
@@ -89,20 +89,21 @@ def prepare_sa(sa_type, ip, N=2, prnt=False, prefix='x'):
             samp = morris.sample(problem, N, num_levels=4, optimal_trajectories=None)
         
     samp = samp.round().astype(int)
-    samp = assign_indices(samp, ip, ['design_case'], ['ST'])
+    samp = assign_indices(samp, ip, key_names, values)
     if prnt:
         samp.to_csv(sa_type+'_samples_'+ prefix +'.csv', index=False)
     return problem, samp
 
-#%%
+#%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
 from SALib.analyze import morris as morris_ana
 
-def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_number):
+def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_number=None):
     df = pd.merge(sample, sim_results, how='left')
     missing = df[np.isnan(df['el_bill'])]
     X = sample.drop(columns2drop, axis=1)
-    X[to_number] = (X[to_number].str.extract('(\d+)'))
+    if to_number:
+        X[to_number] = (X[to_number].str.extract('(\d+)'))
     X = X.to_numpy(dtype=float)
     Y = df[kpi].ravel()             #to flatten series into a numpy array
     if len(missing != 0):
@@ -134,10 +135,10 @@ existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='labe
 dfresults = pd.concat([existing, results],axis=1)
 
 #%% creating new samples
-problem, samp = prepare_sa('Sobol', input_st, N=2)
+problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=2)
 
 #%% running SA
-Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case'], 'r_level')
+Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
 
 #%%
 # Si.plot()
