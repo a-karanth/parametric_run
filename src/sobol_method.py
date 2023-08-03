@@ -134,22 +134,16 @@ results['total_emission'] = (results['el_em']+results['gas_em'])/1000
 existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 dfresults = pd.concat([existing, results],axis=1)
 
-#%% creating new samples
-# problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=4)
-
-#%% running SA
-# Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
-
-#%%
-# count = 0
-# while True:
-#     print(1)
-#     problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=4)
-#     Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
-#     count = count + 1
-#     if len(missing) == 0:
-#         Si.plot()
-#         break
+#%% Running a loop to find samples with all existing data
+count = 0
+while True:
+    print(1)
+    problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=4)
+    Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
+    count = count + 1
+    if len(missing) == 0:
+        Si.plot()
+        break
 #%%
 # Si.plot()
 
@@ -262,3 +256,10 @@ dfresults = pd.concat([existing, results],axis=1)
 #                    calc_second_order=True, 
 #                    conf_level=0.95, 
 #                    print_to_console=True)
+
+
+#%%% creating new samples using funtions
+# problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=4)
+
+#%% running SA
+# Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
