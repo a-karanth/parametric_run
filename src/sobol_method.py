@@ -136,10 +136,11 @@ dfresults = pd.concat([existing, results],axis=1)
 
 #%% Running a loop to find samples with all existing data
 count = 0
+sa_type = 'Morris'
 while True:
     print(1)
-    problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=4)
-    Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
+    problem, samp = prepare_sa(sa_type, input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=16)
+    Si, missing = perform_sa(sa_type, 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
     count = count + 1
     if len(missing) == 0:
         Si.plot()
