@@ -58,7 +58,7 @@ def assign_indices(samples, inp, key_name, values):
     for row in np.arange(len(samples)):
         result.loc[row] = samples[row]
         for i,k in zip(samples[row], keys):
-            result[k].loc[row] = inp[k][i]
+            result.loc[row,k] = inp[k][i]
     result.columns = keys
     for i,j in zip(key_name,values):
         result[i] = j
@@ -135,11 +135,21 @@ existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='labe
 dfresults = pd.concat([existing, results],axis=1)
 
 #%% creating new samples
-problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=2)
+# problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=4)
 
 #%% running SA
-Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
+# Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
 
+#%%
+# count = 0
+# while True:
+#     print(1)
+#     problem, samp = prepare_sa('Sobol', input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=4)
+#     Si, missing = perform_sa('Sobol', 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
+#     count = count + 1
+#     if len(missing) == 0:
+#         Si.plot()
+#         break
 #%%
 # Si.plot()
 
