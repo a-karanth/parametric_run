@@ -298,4 +298,5 @@ class Plots:
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
+        ax.legend()
         return scatter, cbar
