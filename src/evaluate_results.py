@@ -29,90 +29,36 @@ results['total_emission'] = (results['el_em']+results['gas_em'])/1000
 existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 
 dfresults = pd.concat([existing, results],axis=1)
-
-dfmorris_st = pd.read_csv('res\\morris_st_sample2.csv')
-morris_out_st = pd.merge(dfmorris_st, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
-
-
-dfmorris_pvt = pd.read_csv('res\\morris_pvt_sample2.csv')
-morris_out_pvt = pd.merge(dfmorris_pvt, dfresults, on = ['volume','coll_area','flow_rate','design_case','r_level'], how = 'left')
-
-
-# sample_st= dfmorris_st.copy()
-# sample_st.drop(columns=['design_case'], inplace=True)
-# sample_pvt= dfmorris_pvt.copy()
-# sample_pvt.drop(columns=['design_case'], inplace=True)
-
-#%% recreating problem - copied from sobol_method
-# input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
-#               'coll_area': [4, 8, 16,20],
-#               'flow_rate': [50, 100, 200],
-#               'r_level': ['r0','r1']}
-
-# input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
-#               'coll_area': [4, 8, 16,20],
-#               'flow_rate': [50, 100, 200],
-#               'r_level': ['r0','r1']}
-
-# def cal_bounds_scenarios(dct):
-#     key = list(dct.keys())
-#     bounds = []
-#     nscenarios = 1
-#     for i in key:
-#         bounds.append([0, len(input_st[i])-1])
-#         nscenarios = nscenarios*len(input_st[i])
-    # return bounds, nscenarios
-
-#%% Creating bounds and scenarios
-# bounds_st, nscenarios_st = cal_bounds_scenarios(input_st)
-# bounds_pvt, nscenarios_pvt = cal_bounds_scenarios(input_pvt)
-
-#%% Creating problems
-# problem_st = {
-#     'num_vars': len(input_st),
-#     'names':list(input_st.keys()),
-#     'bounds':bounds_st}
-
-# problem_pvt = {
-#     'num_vars': len(input_pvt),
-#     'names':list(input_pvt.keys()),
-#     'bounds':bounds_pvt}
-
-#%% analysing morris samples
-# Si = morris.analyze(
-#     problem_pvt,
-#     sample_pvt,
-#     np.ravel(morris_out_pvt['total_costs']),
-#     conf_level=0.95,
-#     print_to_console=True,
-#     num_levels=4,
-#     num_resamples=100,
-# )
+df = dfresults.copy()
 
 #%% Focussing on one volume
 
 # morris_out_pvt['volume'] = morris_out_pvt['volume']-0.004
 # morris_out_st['volume'] = morris_out_st['volume']+0.004
-fil_pvt = morris_out_pvt[morris_out_pvt['volume']==0.2]
-fil_st = morris_out_st[morris_out_st['volume']==0.2]
+fil = df[df['volume']==0.2]
 
 #%% Scatter plots
 
 fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))   
-scatter1, cbar1 = pt.scatter_plot(morris_out_pvt, morris_out_st, ax=ax1,
-                       marker=['^', 'P'], 
-                       xkey='volume', ykey='total_costs',ckey='coll_area',
-                       xlabel='Volume [m3]', ylabel='Total cost [EUR]', clabel='Coll area [m2]')
+scatter1, cbar1 = pt.scatter_plot(df[(df['design_case']=='ST') & (df['r_level']=='r1')], 
+                                  df[(df['design_case']=='PVT') & (df['r_level']=='r1')], 
+                                  ax=ax1, marker=['^', 'P'], 
+                                  xkey='volume', ykey='total_costs',ckey='coll_area',
+                                  xlabel='Volume [m3]', ylabel='Total cost [EUR]', 
+                                  clabel='Coll area [m2]')
 
-scatter2, cbar2 = pt.scatter_plot(morris_out_pvt, morris_out_st, ax=ax2,
-                       marker=['^', 'P'], 
-                       xkey='volume', ykey='total_costs',ckey='flow_rate',
-                       xlabel='Volume [m3]', ylabel='Total cost [EUR]', clabel='Flow rate [kg/hr]')
+scatter2, cbar2 = pt.scatter_plot(df[df['design_case']=='ST'], 
+                                  df[df['design_case']=='PVT'], 
+                                  ax=ax2, marker=['^', 'P'], 
+                                  xkey='volume', ykey='total_costs',ckey='flow_rate',
+                                  xlabel='Volume [m3]', ylabel='Total cost [EUR]', 
+                                  clabel='Flow rate [kg/hr]')
 
-scatter3, cbar3 = pt.scatter_plot(fil_pvt, ax=ax3,
-                       marker=['^', 'P'], 
-                       xkey='flow_rate', ykey='total_costs',ckey='coll_area',
-                       xlabel='Flow rate [kg/hr]', ylabel='Total cost [EUR]', clabel='Coll area [m2]')
+scatter3, cbar3 = pt.scatter_plot(fil, ax=ax3,
+                                  marker=['^', 'P'], 
+                                  xkey='flow_rate', ykey='total_costs',ckey='coll_area',
+                                  xlabel='Flow rate [kg/hr]', ylabel='Total cost [EUR]', 
+                                  clabel='Coll area [m2]')
 
 #%%
 # def plotly_plots():
@@ -139,47 +85,47 @@ fig.show()
 
 #%%
 # pd.options.plotting.backend = "plotly"
-fig = make_subplots(rows=2, shared_xaxes=True, vertical_spacing=0.05, 
-                    row_heights=[0.5,0.05],
-                    specs=[[{"secondary_y":True}],[{"secondary_y":True}],
-                            [{"secondary_y":True}],[{"secondary_y":True}],[{"secondary_y":False}]],
-                    subplot_titles=("flow rate [kg/hr]", "coll area [m2]"))
+# fig = make_subplots(rows=2, shared_xaxes=True, vertical_spacing=0.05, 
+#                     row_heights=[0.5,0.05],
+#                     specs=[[{"secondary_y":True}],[{"secondary_y":True}],
+#                             [{"secondary_y":True}],[{"secondary_y":True}],[{"secondary_y":False}]],
+#                     subplot_titles=("flow rate [kg/hr]", "coll area [m2]"))
 
-temperatures = ['Thp_load_out','Tsh_in','Tdhw_in', 'Thp_load_in']
-mass_flow = ['mhp_load_out','msh_in', 'mdhw_in', 'mhp_load_in']
+# temperatures = ['Thp_load_out','Tsh_in','Tdhw_in', 'Thp_load_in']
+# mass_flow = ['mhp_load_out','msh_in', 'mdhw_in', 'mhp_load_in']
 
-fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tamb'], name='Tamb'), secondary_y=False,row=1, col=1)
-fig.add_trace(go.Scatter(x=energy.index, y=energy['Qirr'], name='Qirr'), secondary_y=True,row=1, col=1)
-fig.update_layout(yaxis=dict(title="temperature [deg C]"), yaxis2=dict(title="irradiance [kW]"))
+# fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tamb'], name='Tamb'), secondary_y=False,row=1, col=1)
+# fig.add_trace(go.Scatter(x=energy.index, y=energy['Qirr'], name='Qirr'), secondary_y=True,row=1, col=1)
+# fig.update_layout(yaxis=dict(title="temperature [deg C]"), yaxis2=dict(title="irradiance [kW]"))
 
-for i in temperatures:
-    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=2, col=1)
-for i in mass_flow:
-    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=2, col=1)
-fig.update_layout(yaxis3=dict(title="temperature [deg C]"), yaxis4=dict(title="flow rate [kg/hr]"))
+# for i in temperatures:
+#     fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=2, col=1)
+# for i in mass_flow:
+#     fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=2, col=1)
+# fig.update_layout(yaxis3=dict(title="temperature [deg C]"), yaxis4=dict(title="flow rate [kg/hr]"))
 
-temperatures = ['T1_sh','Tavg_sh','T6_sh', 'Tsh_cold_out', 'Trad1_in','Tsh_return','Tfloor1','Tfloor2']
-mass_flow = ['msh_cold_out','mrad1_in','mrad2_in', 'msh_return']
-for i in temperatures:
-    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=3, col=1)
-for i in mass_flow:
-    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=3, col=1)
-fig.update_layout(yaxis5=dict(title="temperature [deg C]"), yaxis6=dict(title="flow rate [kg/hr]"))
+# temperatures = ['T1_sh','Tavg_sh','T6_sh', 'Tsh_cold_out', 'Trad1_in','Tsh_return','Tfloor1','Tfloor2']
+# mass_flow = ['msh_cold_out','mrad1_in','mrad2_in', 'msh_return']
+# for i in temperatures:
+#     fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=3, col=1)
+# for i in mass_flow:
+#     fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=3, col=1)
+# fig.update_layout(yaxis5=dict(title="temperature [deg C]"), yaxis6=dict(title="flow rate [kg/hr]"))
 
-temperatures = ['T1_dhw','Tavg_dhw','T6_dhw', 'Tdhw_cold_out', 'Tdhw2tap','Tat_tap']
-mass_flow = ['mdhw_cold_out','mdhw2tap','mcold2tap', 'mat_tap']
-for i in temperatures:
-    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=4, col=1)
-for i in mass_flow:
-    fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=4, col=1)
-fig.update_layout(yaxis7=dict(title="temperature [deg C]"), yaxis8=dict(title="flow rate [kg/hr]"))
+# temperatures = ['T1_dhw','Tavg_dhw','T6_dhw', 'Tdhw_cold_out', 'Tdhw2tap','Tat_tap']
+# mass_flow = ['mdhw_cold_out','mdhw2tap','mcold2tap', 'mat_tap']
+# for i in temperatures:
+#     fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=False, row=4, col=1)
+# for i in mass_flow:
+#     fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow[i], name=i), secondary_y=True, row=4, col=1)
+# fig.update_layout(yaxis7=dict(title="temperature [deg C]"), yaxis8=dict(title="flow rate [kg/hr]"))
 
-cntr = ['hp_pump','hp_div','ctr_sh','ctr_dhw','heatingctr1','heatingctr2']
-for i in cntr:
-    fig.append_trace(go.Scatter(x=temp_flow.index, y=controls[i], name=i),row=5, col=1)
-fig.update_layout(title_text='Output files: ' + output_prefix)
-fig.update_layout(xaxis_range=[t1,t2])
-fig.show()
+# cntr = ['hp_pump','hp_div','ctr_sh','ctr_dhw','heatingctr1','heatingctr2']
+# for i in cntr:
+#     fig.append_trace(go.Scatter(x=temp_flow.index, y=controls[i], name=i),row=5, col=1)
+# fig.update_layout(title_text='Output files: ' + output_prefix)
+# fig.update_layout(xaxis_range=[t1,t2])
+# fig.show()
 #temp_flow.plot(y=['Thp_load_out','Tsh_in','Tdhw_in', 'Thp_load_in'])
 #offline.plot(fig,filename='temp.html')
 #%%S
