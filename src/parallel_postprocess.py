@@ -80,11 +80,15 @@ def parallel_pp(label):
         
     el_bill, gas_bill = pf.cal_costs(energy)
     el_em, gas_em = pf.cal_emissions(energy)
+    energy_out = {'Q2grid':energy_annual['Q2grid'][0],
+                  'Qfrom_grid':energy_annual['Qfrom_grid'][0],
+                  'Qload':energy_annual['Qload'][0],
+                  'SOC':energy_annual['SOC'][0]}
     print(label)
-    return el_bill, gas_bill, el_em, gas_em, energy_annual, label
+    return el_bill, gas_bill, el_em, gas_em, energy_out, label
 
 #%% Results using sequential processing
-# os.chdir(directory + result_folder)
+# os.chdir(directory + res_folder)
 # results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
 # count = 0
 # for i in labels:
@@ -122,12 +126,30 @@ t2 = time.time()
 print(t2-t1)
 
 #%% exporting the results in a csv
-# output = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
+# energy = results[0][4]
+# list_columns = ['el_bill','gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
+# columns = []
+# for item in list_columns:
+#     if isinstance(item, list):
+#         columns.extend(item)
+#     else:
+#         columns.append(item)
+        
+# output = pd.DataFrame(columns=columns)        
 # for i in range(len(results)):
-#     output.loc[i] = results[i]
+#     row = []
+#     row_data = results[i]
+#     for r in row_data:
+#         if isinstance(r,dict):
+#             row.extend(r.values())
+#         else:
+#             row.append(r)
+#     output.loc[i] = row
+
+
 # output['label']=output['label'].astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
 # output = pd.concat([existing_res,output])
-# output.to_csv(res_folder+'sim_results'+'.csv', index=True, index_label='label')
+# output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
