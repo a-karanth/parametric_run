@@ -45,7 +45,7 @@ labels = np.array(labels)
 labels = np.unique(labels)
 
 
-#%% 
+#%% check if sim_results.csv exists. create if it doesnt, add new values to it, if it does
 sim_yn =  os.listdir(directory+res_folder)
 if 'sim_results.csv' in sim_yn:
     existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col='label')
@@ -62,7 +62,6 @@ t_end = datetime(2002,1,1, 0,0,0)
 #%%
 os.chdir(directory)
 from PostprocessFunctions import PostprocessFunctions as pf
-pp = pf(DT)
 def parallel_pp(label):
     
     if 'cp' in label:
@@ -73,11 +72,11 @@ def parallel_pp(label):
         energy = pd.read_csv(directory+trn_folder + label+'_energy.txt', delimiter=",", index_col=0)
         controls = pd.read_csv(directory+trn_folder + label+'_control_signal.txt', delimiter=",",index_col=0)
         
-        controls = pp.modify_df(controls, t_start, t_end)
-        temp_flow = pp.modify_df(temp_flow, t_start, t_end)
-        energy = pp.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
-        energy = pp.cal_energy(energy, controls)
-        energy_monthly, energy_annual = pp.cal_integrals(energy)
+        controls = pf.modify_df(controls, t_start, t_end)
+        temp_flow = pf.modify_df(temp_flow, t_start, t_end)
+        energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+        energy = pf.cal_energy(energy, controls)
+        energy_monthly, energy_annual = pf.cal_integrals(energy)
         
     el_bill, gas_bill = pf.cal_costs(energy)
     el_em, gas_em = pf.cal_emissions(energy)
