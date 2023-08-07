@@ -8,6 +8,7 @@ Created on Tue May  2 17:45:46 2023
 import os
 import numpy as np
 import pandas as pd
+import math
 import matplotlib
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
@@ -100,7 +101,7 @@ class PostprocessFunctions:
     @staticmethod
     def cal_integrals(energy):
         global dt
-        print(dt)
+        print('DT = '+ str(dt))
         #calculate monthly and yearly. and drop the last row which is for the next year
         energy_monthly = energy.resample('M').sum()*dt
         energy_annual = energy.resample('Y').sum()*dt
@@ -250,10 +251,31 @@ class PostprocessFunctions:
                    'ldc': ldc}
         return controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc
     
-    def cal_costs(energy, el_cost=0.4, gas_cost=1.45):
+    def cal_costs(energy, nm=100, el_cost=0.4, feedin_tariff=0.07, gas_cost=1.45):
+        global dt
         # returns energy bill in EUR. 
         # Costs are in EUR/kWh for electricity, EUR/m3 for gas
-        el_bill = (energy['Qfrom_grid']*el_cost).sum()*dt
+        el_import = math.ceil(energy['Qfrom_grid'].sum()*dt)
+        energy['export'] = energy['Q2grid'] * nm
+        energy['excess'] = energy['Q2grid'] * (1-nm)
+        el_export = math.ceil(energy['export'].sum()*dt)
+        el_excess = math.ceil(energy['excess'].sum()*dt)
+        # short form
+        # el_bill = ((el_import >= el_export)*((el_import-el_export)*el_cost - el_excess*feedin_tariff)+
+        #            (el_import < el_export)*((el_import-el_export)*feedin_tariff- el_excess*feedin_tariff))
+        
+        # el_export = math.ceil(energy['Q2grid'] * nm).sum()*dt
+        # el_excess = math.ceil(energy['Q2grid'] * (1 - nm)).sum()*dt
+        
+        # long form
+        if el_import >= el_export:
+            net_metered_cost = (el_import - el_export) * el_cost
+            excess_cost = el_excess * feedin_tariff
+        else:
+            net_metered_cost = el_export * feedin_tariff
+            excess_cost = (el_export - el_import) * feedin_tariff
+    
+        el_bill = net_metered_cost + excess_cost
         gas_bill = (energy['gas']*gas_cost).sum()*dt
         return el_bill, gas_bill
     
