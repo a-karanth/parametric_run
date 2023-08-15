@@ -27,8 +27,8 @@ input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
 
 input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
               'coll_area': [4, 8, 16,20],
-              'flow_rate': [50, 100, 200],
-              'r_level': ['r0','r1']}
+              'flow_rate': [50, 100, 200]}
+           #   'r_level': ['r0','r1']}
 
 
 list_design_case_pvt_batt = ['PVT_Batt_6', 'PVT_Batt_9']
@@ -136,7 +136,7 @@ dfresults = pd.concat([existing, results],axis=1)
 
 #%% Running a loop to find samples with all existing data
 count = 0
-sa_type = 'Morris'
+sa_type = 'Sobol'
 while True:
     print(1)
     problem, samp = prepare_sa(sa_type, input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=16)
@@ -145,6 +145,10 @@ while True:
     if len(missing) == 0:
         Si.plot()
         break
+plt.gcf().set_size_inches(6,7)
+# plt.ylim([-95,120])
+plt.grid('both', linestyle='--')
+plt.tight_layout()
 #%%
 # Si.plot()
 
