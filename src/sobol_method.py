@@ -30,6 +30,9 @@ input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
               'flow_rate': [50, 100, 200]}
            #   'r_level': ['r0','r1']}
 
+input_cp = {'volume' : [0.1, 0.2, 0.3, 0.4],
+              'coll_area': [0.001, 4, 8, 16,20]}
+           #   'r_level': ['r0','r1']}
 
 list_design_case_pvt_batt = ['PVT_Batt_6', 'PVT_Batt_9']
 
