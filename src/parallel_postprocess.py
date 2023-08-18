@@ -65,7 +65,7 @@ from PostprocessFunctions import PostprocessFunctions as pf
 def parallel_pp(label):
     
     if 'cp' in label:
-        controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(label)
+        controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(directory+trn_folder + label)
         
     else:
         temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
@@ -82,6 +82,7 @@ def parallel_pp(label):
     el_em, gas_em = pf.cal_emissions(energy)
     energy_out = {'Q2grid':energy_annual['Q2grid'][0],
                   'Qfrom_grid':energy_annual['Qfrom_grid'][0],
+                  'Qpv': energy_annual['Qpv'][0],
                   'Qload':energy_annual['Qload'][0],
                   'SOC':energy_annual['SOC'][0]}
     print(label)
@@ -148,6 +149,7 @@ print(t2-t1)
 
 
 # output['label']=output['label'].astype(int)
+# output['label'] = output['label'].str.extract('(\d+)').astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
 # output = pd.concat([existing_res,output])
