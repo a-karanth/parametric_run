@@ -30,11 +30,16 @@ input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
               'flow_rate': [50, 100, 200]}
            #   'r_level': ['r0','r1']}
 
-input_cp = {'volume' : [0.1, 0.2, 0.3, 0.4],
-              'coll_area': [0.001, 4, 8, 16,20]}
-           #   'r_level': ['r0','r1']}
+input_cp = {'volume' : [0.15, 0.2, 0.25],
+              'coll_area': [0.001, 4, 8, 16,20],
+              'r_level': ['r0','r1']}
 
-list_design_case_pvt_batt = ['PVT_Batt_6', 'PVT_Batt_9']
+
+input_pvt_batt = {'volume' : [0.15, 0.2, 0.25],
+              'coll_area': [4, 8, 16,20],
+              'flow_rate': [50, 100, 200],
+              'batt': ['PVT_Batt_6', 'PVT_Batt_9'],
+              'r_level': ['r0','r1']}
 
 #%% Function for creating bounds and scenarios
 def cal_bounds_scenarios(dct):
@@ -46,8 +51,8 @@ def cal_bounds_scenarios(dct):
     bounds = []
     nscenarios = 1
     for i in key:
-        bounds.append([0, len(input_st[i])-1])
-        nscenarios = nscenarios*len(input_st[i])
+        bounds.append([0, len(dct[i])-1])
+        nscenarios = nscenarios*len(dct[i])
     return bounds, nscenarios
 
 #%% Function to assign index values to the samples
@@ -63,14 +68,15 @@ def assign_indices(samples, inp, key_name, values):
         for i,k in zip(samples[row], keys):
             result.loc[row,k] = inp[k][i]
     result.columns = keys
-    for i,j in zip(key_name,values):
-        result[i] = j
+    if key_name:
+        for i,j in zip(key_name,values):
+            result[i] = j
     return result
 
 #%% function for preparing SA variables
 from SALib.sample import sobol, morris
 
-def prepare_sa(sa_type, ip, key_names, values, N=2, prnt=False, prefix='x'):
+def prepare_sa(sa_type, ip, key_names=None, values=None, N=2, prnt=False, prefix='x'):
     #   Creating of bounds and number of scenarios
     bounds, nscenarios = cal_bounds_scenarios(ip)
     
@@ -86,16 +92,24 @@ def prepare_sa(sa_type, ip, key_names, values, N=2, prnt=False, prefix='x'):
     #    As the values defined by Sobol and Morris are floats, they need to be rounded 
     #   and converted to int in order to be used as indices
     match sa_type:
-        case 'Sobol':
+        case 'sobol':
             samp = sobol.sample(problem, N, calc_second_order=True)
-        case 'Morris':
+        case 'morris':
             samp = morris.sample(problem, N, num_levels=4, optimal_trajectories=None)
         
     samp = samp.round().astype(int)
     samp = assign_indices(samp, ip, key_names, values)
     if prnt:
-        samp.to_csv(sa_type+'_samples_'+ prefix +'.csv', index=False)
+        samp.to_csv('res\\'+sa_type+'_sample_'+ prefix +'.csv', index=False)
     return problem, samp
+
+#%% creating new samples
+problem, samp = prepare_sa('morris', input_cp, 
+                           ['design_case', 'flow_rate'], ['cp_PV', 200], 
+                           N=16, prefix='cp2', prnt=False)
+
+problem2, samp2 = prepare_sa('morris', input_pvt_batt, 
+                           N=16, prefix='batt1', prnt=False)
 
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
@@ -113,13 +127,13 @@ def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_numb
         return False, missing
     else:
         match sa_type:
-            case 'Sobol':
+            case 'sobol':
                 Si = sobol_ana.analyze(problem, 
                                    Y, 
                                    calc_second_order=True, 
                                    conf_level=0.95, 
                                    print_to_console=True)
-            case 'Morris':
+            case 'morris':
                 Si = morris_ana.analyze(problem,
                                     X,
                                     Y,
@@ -139,10 +153,10 @@ dfresults = pd.concat([existing, results],axis=1)
 
 #%% Running a loop to find samples with all existing data
 count = 0
-sa_type = 'Sobol'
+sa_type = 'morris'
 while True:
     print(1)
-    problem, samp = prepare_sa(sa_type, input_st, ['design_case', 'r_level'], ['ST', 'r0'], N=16)
+    problem, samp = prepare_sa(sa_type, input_pvt_batt, ['design_case', 'r_level'], ['PVT_Batt_6', 'r0'], N=16)
     Si, missing = perform_sa(sa_type, 'el_bill', problem, samp, dfresults, ['design_case','r_level'])
     count = count + 1
     if len(missing) == 0:
