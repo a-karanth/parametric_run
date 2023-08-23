@@ -27,26 +27,48 @@ from PlotGroups import PlotGroups
 DT = '6min'
 
 global directory, folder, res_folder
-directory = (os.path.dirname(os.path.realpath(__file__)))
-folder = '\\src'
+directory = (os.path.dirname(os.path.realpath(__file__)))+'\\'
+folder = 'src\\'
 res_folder = 'res\\'
-starting_label = 0
+trn_folder = 'res\\trn\\'
 mod56 = ModifyType56()
 
 #%% existing simulations
 existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0,index_col=0)
-keys = existing.columns.values
+keys = existing.columns.values      #to be used to identify rows while adding to list_of_inputs csv
+
+#%% Finding the last available label and calculating the new starting label
+op_labels = os.listdir(directory+trn_folder)
+avl_labels = []
+for i in op_labels:
+    if '_temp_flow' in i:
+        prefix = i[:-14]
+    elif '_control_signal' in i:
+        prefix = i[:-19]
+    elif '_energy' in i:
+        prefix = i[:-11]
+    else:
+        continue
+    avl_labels.append(prefix)
+    
+avl_labels = np.unique(np.array(avl_labels))
+avl_labels = np.array([int(''.join(filter(str.isdigit, s))) for s in avl_labels])
+starting_label = avl_labels.max()+1
 
 #%% reading CSVs with samples
-new_sim = False
+new_sim = True
 if new_sim:
-    df1 = pd.read_csv(res_folder+'morris_st_sample2.csv')
-    df2 = pd.read_csv(res_folder+'morris_pvt_sample2.csv')
-    df3 = pd.read_csv(res_folder+'morris_st_sample.csv')
-    df4 = pd.read_csv(res_folder+'morris_pvt_sample.csv')
-    dfnew = pd.concat([df1,df2,df3,df4])
+    df1 = pd.read_csv(res_folder+'morris_sample_st2.csv')
+    df2 = pd.read_csv(res_folder+'morris_sample_pvt2.csv')
+    df3 = pd.read_csv(res_folder+'morris_sample_st.csv')
+    df4 = pd.read_csv(res_folder+'morris_sample_pvt.csv')
+    dfnew = pd.concat([df1,df2,df3,df4,
+                       pd.read_csv(res_folder+'morris_sample_cp2.csv'),
+                       pd.read_csv(res_folder+'morris_sample_batt1.csv'),
+                       pd.read_csv(res_folder+'morris_sample_cp.csv')], ignore_index=True)
+    # dfnew = pd.read_csv(res_folder+'morris_sample_cp.csv')
     # dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
-    dfnew.index = np.arange(len(dfnew))
+    # dfnew.index = np.arange(len(dfnew))
     
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
@@ -54,12 +76,13 @@ if new_sim:
     df = df[df['_merge'] == 'left_only']
     df.drop(columns=['_merge'], inplace=True)
     df.index = np.arange(len(df))
-    save = False
+    save = True
     if save:
-        df.to_csv('current_list.csv', index=True, index_label='label')
+        df.to_csv(res_folder+'current_list.csv', index=True, index_label='label')
 
 else:
-    df = pd.read_csv('res\\missed_sims.csv', index_col=0)
+    df = pd.read_csv('res\\missed_sims2.csv', index_col=0)
+    starting_label = 0
 
 #%% preparing variables for parametric run
 batt0 = dict(cell_cap=1, ncell=1, chargeI=1, dischargeI=-1, max_batt_in=0.01, max_batt_out=-0.01, dcv=0.01, ccv=125)
@@ -121,7 +144,7 @@ for i in df.index:
 os.chdir(directory)
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
-    mod56.change_r(directory+'\\House.b18', values['r_level'])
+    mod56.change_r(directory+'House.b18', values['r_level'])
     print(values['py_label'])
     
     df = pd.read_csv('res\\trn\\list_of_inputs.csv', header=0, index_col=0)
@@ -163,7 +186,7 @@ def run_parametric(values):
         dckfile_out.write(filedata)
     # 2) Running TRNSYS simulation
     start_time=time.time()                  # Measuring time (start point)
-    location = directory + '\\' + values['file']
+    location = directory + values['file']
     subprocess.run([r"C:\TRNSYS18\Exe\TrnEXE64.exe", location, "/h"])
     elapsed_time = time.time() - start_time # Measuring time (end point)
     print(elapsed_time/60)
