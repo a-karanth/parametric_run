@@ -43,15 +43,15 @@ for i in temp:
 
 labels = np.array(labels)
 labels = np.unique(labels)
-
+check_labels = np.array([''.join(filter(str.isdigit, s)) for s in labels])
 
 #%% check if sim_results.csv exists. create if it doesnt, add new values to it, if it does
 sim_yn =  os.listdir(directory+res_folder)
 if 'sim_results.csv' in sim_yn:
     existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col='label')
     existing_labels = np.array(existing_res.index.astype(str).tolist())
-    new_labels = list(set(labels)-set(existing_labels))
-    labels = new_labels
+    new_labels = list(set(check_labels)-set(existing_labels))
+    labels = [i for i in labels if any(j in i for j in new_labels)]
 else:
     existing_res = pd.DataFrame()
 #%%
@@ -127,33 +127,33 @@ t2 = time.time()
 print(t2-t1)
 
 #%% exporting the results in a csv
-# energy = results[0][4]
-# list_columns = ['el_bill','gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
-# columns = []
-# for item in list_columns:
-#     if isinstance(item, list):
-#         columns.extend(item)
-#     else:
-#         columns.append(item)
+energy = results[0][4]
+list_columns = ['el_bill','gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
+columns = []
+for item in list_columns:
+    if isinstance(item, list):
+        columns.extend(item)
+    else:
+        columns.append(item)
         
-# output = pd.DataFrame(columns=columns)        
-# for i in range(len(results)):
-#     row = []
-#     row_data = results[i]
-#     for r in row_data:
-#         if isinstance(r,dict):
-#             row.extend(r.values())
-#         else:
-#             row.append(r)
-#     output.loc[i] = row
+output = pd.DataFrame(columns=columns)        
+for i in range(len(results)):
+    row = []
+    row_data = results[i]
+    for r in row_data:
+        if isinstance(r,dict):
+            row.extend(r.values())
+        else:
+            row.append(r)
+    output.loc[i] = row
 
 
-# # output['label']=output['label'].astype(int)
-# output['label'] = output['label'].str.extract('(\d+)').astype(int)
-# output=output.sort_values(by='label', ignore_index=True)
-# output = output.set_index('label')
-# output = pd.concat([existing_res,output])
-# output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
+# output['label']=output['label'].astype(int)
+output['label'] = output['label'].str.extract('(\d+)').astype(int)
+output=output.sort_values(by='label', ignore_index=True)
+output = output.set_index('label')
+output = pd.concat([existing_res,output])
+output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
 #%% tests
 # test = pd.DataFrame({'label':['1','12_cp','14','102','42_cp','65_cp']})
