@@ -148,10 +148,13 @@ print(t2-t1)
 #     output.loc[i] = row
 
 
-# output['label']=output['label'].astype(int)
+# # output['label']=output['label'].astype(int)
 # output['label'] = output['label'].str.extract('(\d+)').astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
 # output = pd.concat([existing_res,output])
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
+#%% tests
+# test = pd.DataFrame({'label':['1','12_cp','14','102','42_cp','65_cp']})
+# test['label'] = test['label'].str.extract('(\d+)').astype(int)
