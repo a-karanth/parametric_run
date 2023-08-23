@@ -1,0 +1,13 @@
+src/*.bld
+src/*.trn
+src/*.BAL
+src/*.inf
+src/*.txt
+src/*.PTI
+src/*.log
+src/*.lst
+
+src/res/*.txt
+
+# Ignore all .txt files in the trn folder
+src/res/trn/*.txt
