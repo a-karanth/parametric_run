@@ -207,6 +207,7 @@ class PostprocessFunctions:
     
     def cal_base_case(prefix):
         # without HP
+        print('cp')
         t_start = datetime(2001,1,1, 0,0,0)
         t_end = datetime(2002,1,1, 0,0,0)
 
@@ -251,7 +252,7 @@ class PostprocessFunctions:
                    'ldc': ldc}
         return controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc
     
-    def cal_costs(energy, nm=100, el_cost=0.4, feedin_tariff=0.07, gas_cost=1.45):
+    def cal_costs(energy, nm=1, el_cost=0.4, feedin_tariff=0.07, gas_cost=1.45):
         global dt
         # returns energy bill in EUR. 
         # Costs are in EUR/kWh for electricity, EUR/m3 for gas
