@@ -31,6 +31,10 @@ existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='labe
 dfresults = pd.concat([existing, results],axis=1)
 df = dfresults.copy()
 
+#%% add a column to calculate battery size
+df.insert(4,'batt',None)
+df['batt'] = df['design_case'].str.extract(r'(\d+)')
+df['batt'] = df['batt'].fillna(0).astype(int)
 #%% Focussing on one volume
 
 # morris_out_pvt['volume'] = morris_out_pvt['volume']-0.004
@@ -54,10 +58,12 @@ scatter2, cbar2 = pt.scatter_plot(df[df['design_case']=='ST'],
                                   xlabel='Volume [m3]', ylabel='Total cost [EUR]', 
                                   clabel='Flow rate [kg/hr]')
 
-scatter3, cbar3 = pt.scatter_plot(fil, ax=ax3,
-                                  marker=['^', 'P'], 
-                                  xkey='flow_rate', ykey='total_costs',ckey='coll_area',
-                                  xlabel='Flow rate [kg/hr]', ylabel='Total cost [EUR]', 
+scatter3, cbar3 = pt.scatter_plot(df[(df['design_case']=='ST') & (df['r_level']=='r0')],
+                                  df[(df['design_case']=='PVT') & (df['r_level']=='r0')],
+                                  df[(df['design_case']=='cp_PV') & (df['r_level']=='r0')], ax=ax3,
+                                  marker=['^', 'P', 's'], 
+                                  xkey='total_costs', ykey='total_emission',ckey='coll_area',
+                                  xlabel='Total cost [EUR]', ylabel='Total emission [kgCO2]', 
                                   clabel='Coll area [m2]')
 
 #%%
@@ -166,3 +172,11 @@ fig.show()
 # plt.suptitle('KPI: Energy Cost')
 # Si_em.plot()
 # plt.suptitle('KPI: Emissions')
+
+#%% check which is missing or repeated
+list_label = np.arange(264)
+check = pd.DataFrame(index=list_label)
+check['count'] = 0
+for i in existing.index:
+    if i in list_label:
+        check.loc[i] = check.loc[i]+1
