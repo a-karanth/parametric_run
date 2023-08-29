@@ -127,33 +127,38 @@ t2 = time.time()
 print(t2-t1)
 
 #%% exporting the results in a csv
-energy = results[0][4]
-list_columns = ['el_bill','gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
-columns = []
-for item in list_columns:
-    if isinstance(item, list):
-        columns.extend(item)
-    else:
-        columns.append(item)
+##    isolating the results that come as dictionaries: annual energy, electricity 
+##    bill for different net metering levels
+# energy = results[0][4]
+# el_bill = results[0][0]
+# el_bill = ['el_bill_'+i for i in el_bill]   #adding the label el_bill before each bill value
+# list_columns = [el_bill,'gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
+# columns = []
+##    converting the conbunation of dict an dlist, into a list
+# for item in list_columns:
+#     if isinstance(item, list):
+#         columns.extend(item)
+#     else:
+#         columns.append(item)
         
-output = pd.DataFrame(columns=columns)        
-for i in range(len(results)):
-    row = []
-    row_data = results[i]
-    for r in row_data:
-        if isinstance(r,dict):
-            row.extend(r.values())
-        else:
-            row.append(r)
-    output.loc[i] = row
+# output = pd.DataFrame(columns=columns)        
+# for i in range(len(results)):
+#     row = []
+#     row_data = results[i]
+#     for r in row_data:
+#         if isinstance(r,dict):
+#             row.extend(r.values())
+#         else:
+#             row.append(r)
+#     output.loc[i] = row
 
 
-# output['label']=output['label'].astype(int)
-output['label'] = output['label'].str.extract('(\d+)').astype(int)
-output=output.sort_values(by='label', ignore_index=True)
-output = output.set_index('label')
-output = pd.concat([existing_res,output])
-output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
+# # # output['label']=output['label'].astype(int)
+# output['label'] = output['label'].str.extract('(\d+)').astype(int)
+# output=output.sort_values(by='label', ignore_index=True)
+# output = output.set_index('label')
+# output = pd.concat([existing_res,output])
+# output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
 #%% tests
 # test = pd.DataFrame({'label':['1','12_cp','14','102','42_cp','65_cp']})
