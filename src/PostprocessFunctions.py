@@ -252,31 +252,26 @@ class PostprocessFunctions:
                    'ldc': ldc}
         return controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc
     
-    def cal_costs(energy, nm=1, el_cost=0.4, feedin_tariff=0.07, gas_cost=1.45):
+    def cal_costs(energy, nm=[1,0.5,0.1,0], el_cost=0.4, feedin_tariff=0.07, gas_cost=1.45):
         global dt
         # returns energy bill in EUR. 
         # Costs are in EUR/kWh for electricity, EUR/m3 for gas
         el_import = math.ceil(energy['Qfrom_grid'].sum()*dt)
-        energy['export'] = energy['Q2grid'] * nm
-        energy['excess'] = energy['Q2grid'] * (1-nm)
-        el_export = math.ceil(energy['export'].sum()*dt)
-        el_excess = math.ceil(energy['excess'].sum()*dt)
-        # short form
-        # el_bill = ((el_import >= el_export)*((el_import-el_export)*el_cost - el_excess*feedin_tariff)+
-        #            (el_import < el_export)*((el_import-el_export)*feedin_tariff- el_excess*feedin_tariff))
-        
-        # el_export = math.ceil(energy['Q2grid'] * nm).sum()*dt
-        # el_excess = math.ceil(energy['Q2grid'] * (1 - nm)).sum()*dt
-        
-        # long form
-        if el_import >= el_export:
-            net_metered_cost = (el_import - el_export) * el_cost
-            excess_cost = el_excess * feedin_tariff
-        else:
-            net_metered_cost = el_export * feedin_tariff
-            excess_cost = (el_export - el_import) * feedin_tariff
+
+        el_bill={}
+        for n in nm:     
+            energy['export'] = energy['Q2grid'] * n
+            energy['excess'] = energy['Q2grid'] * (1-n)
+            el_export = math.ceil(energy['export'].sum()*dt)
+            el_excess = math.ceil(energy['excess'].sum()*dt)
+            if el_import >= el_export:
+                net_metered_cost = (el_import - el_export) * el_cost
+                excess_cost = el_excess * feedin_tariff
+            else:
+                net_metered_cost = el_export * feedin_tariff
+                excess_cost = (el_export - el_import) * feedin_tariff
+            el_bill[str(n)] = net_metered_cost + excess_cost
     
-        el_bill = net_metered_cost + excess_cost
         gas_bill = (energy['gas']*gas_cost).sum()*dt
         return el_bill, gas_bill
     
