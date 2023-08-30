@@ -65,7 +65,10 @@ if new_sim:
     dfnew = pd.concat([df1,df2,df3,df4,
                        pd.read_csv(res_folder+'morris_sample_cp2.csv'),
                        pd.read_csv(res_folder+'morris_sample_batt1.csv'),
-                       pd.read_csv(res_folder+'morris_sample_cp.csv')], ignore_index=True)
+                       pd.read_csv(res_folder+'morris_sample_cp.csv'),
+                       pd.read_csv(res_folder+'morris_sample_cp3.csv'),
+                       pd.read_csv(res_folder+'morris_sample_pvt4.csv'),
+                       pd.read_csv(res_folder+'morris_sample_st4.csv')], ignore_index=True)
     # dfnew = pd.read_csv(res_folder+'morris_sample_cp.csv')
     # dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
     # dfnew.index = np.arange(len(dfnew))
