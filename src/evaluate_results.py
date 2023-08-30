@@ -109,7 +109,18 @@ ax.set_ylim(1200,2800)
 plt.xticks(x_values, ['1','0.5','0.1','0'])
 # ax.legend()
 #%%
-
+fig, axx = plt.subplots()
+df = dfresults.copy()
+scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
+                                  df[df['design_case']=='PVT'],
+                                  df[df['design_case']=='PVT_Batt_6'],
+                                  df[df['design_case']=='PVT_Batt_9'],
+                                  ax=axx,
+                                  marker=['^', 'o', 's','D'], 
+                                  xkey='flow_rate', ykey='el_bill_0',ckey='coll_area',
+                                  xlabel='flow_rate', ylabel='Total cost [EUR]', 
+                                  clabel='Coll area [m2]')
+axx.set_ylim([1000,2600])
 #%%
 # def plotly_plots():
 import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
