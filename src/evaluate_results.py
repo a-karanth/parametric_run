@@ -24,32 +24,30 @@ trn_folder = 'res\\trn\\'
 #%% Reading resuls and calculating fianl kpis for comparison, assigning results 
 #   based on samples 
 results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
-results['total_costs'] = results['el_bill']+results['gas_bill']
+results['total_costs'] = results['el_bill_1']+results['gas_bill']
 results['total_emission'] = (results['el_em']+results['gas_em'])/1000
 existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 
 dfresults = pd.concat([existing, results],axis=1)
-df = dfresults.copy()
 
 #%% add a column to calculate battery size
-df.insert(4,'batt',None)
-df['batt'] = df['design_case'].str.extract(r'(\d+)')
-df['batt'] = df['batt'].fillna(0).astype(int)
+dfresults.insert(4,'batt',None)
+dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
+dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
+df = dfresults.copy()
 #%% Focussing on one volume
-
-# morris_out_pvt['volume'] = morris_out_pvt['volume']-0.004
-# morris_out_st['volume'] = morris_out_st['volume']+0.004
-fil = df[df['volume']==0.2]
+df = dfresults[(dfresults['r_level']=='r0') & (dfresults['volume']==0.15)]
+fil = df[df['volume']==0.25]
 
 #%% Scatter plots
 
 fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))   
-scatter1, cbar1 = pt.scatter_plot(df[(df['design_case']=='ST') & (df['r_level']=='r1')], 
-                                  df[(df['design_case']=='PVT') & (df['r_level']=='r1')], 
-                                  ax=ax1, marker=['^', 'P'], 
-                                  xkey='volume', ykey='total_costs',ckey='coll_area',
-                                  xlabel='Volume [m3]', ylabel='Total cost [EUR]', 
-                                  clabel='Coll area [m2]')
+# scatter1, cbar1 = pt.scatter_plot(df[(df['design_case']=='ST') & (df['r_level']=='r1')], 
+#                                   df[(df['design_case']=='PVT') & (df['r_level']=='r1')], 
+#                                   ax=ax1, marker=['^', 'P'], 
+#                                   xkey='volume', ykey='total_costs',ckey='coll_area',
+#                                   xlabel='Volume [m3]', ylabel='Total cost [EUR]', 
+#                                   clabel='Coll area [m2]')
 
 scatter2, cbar2 = pt.scatter_plot(df[df['design_case']=='ST'], 
                                   df[df['design_case']=='PVT'], 
@@ -58,13 +56,59 @@ scatter2, cbar2 = pt.scatter_plot(df[df['design_case']=='ST'],
                                   xlabel='Volume [m3]', ylabel='Total cost [EUR]', 
                                   clabel='Flow rate [kg/hr]')
 
-scatter3, cbar3 = pt.scatter_plot(df[(df['design_case']=='ST') & (df['r_level']=='r0')],
-                                  df[(df['design_case']=='PVT') & (df['r_level']=='r0')],
-                                  df[(df['design_case']=='cp_PV') & (df['r_level']=='r0')], ax=ax3,
-                                  marker=['^', 'P', 's'], 
+scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
+                                  df[df['design_case']=='PVT'],
+                                  df[df['design_case']=='PVT_Batt_6'],
+                                  df[df['design_case']=='PVT_Batt_9'],
+                                  df[df['design_case']=='cp_PV'], ax=ax3,
+                                  marker=['^', 'o', 's','D'], 
                                   xkey='total_costs', ykey='total_emission',ckey='coll_area',
                                   xlabel='Total cost [EUR]', ylabel='Total emission [kgCO2]', 
                                   clabel='Coll area [m2]')
+
+#%%
+fig, ax = plt.subplots(figsize=(5,6))
+st = df[df['design_case']=='ST']
+pvt = df[df['design_case']=='PVT']
+batt6 = df[df['design_case']=='PVT_Batt_6']
+batt9 = df[df['design_case']=='PVT_Batt_9']
+cp = df[df['design_case']=='cp_PV']
+marker_size= 100
+
+df_plot = {'df':[cp,st,pvt,batt6, batt9],
+        'marker':['s','^','o','o','o'],
+        'color':['black','red','purple','orange','green'],
+        'alpha':[0.5,1,1,1,1],
+        'size':[50, marker_size,marker_size,marker_size,marker_size]}
+x_values = [1, 2, 3, 4]
+for i in x_values:
+    match i:
+        case 1:
+            kpi = 'el_bill_1'
+        case 2:
+            kpi = 'el_bill_0.5'
+        case 3:
+            kpi = 'el_bill_0.1'
+        case 4:
+            kpi = 'el_bill_0'
+    for data in range(len(df_plot)):
+        ax.scatter([i]*len(df_plot['df'][data]),
+                   df_plot['df'][data][kpi],
+                   marker = df_plot['marker'][data],
+                   c='white',
+                   edgecolors =df_plot['color'][data],
+                   s =df_plot['size'][data],
+                   alpha =df_plot['alpha'][data])
+                   # label = df_plot['df'][data]['design_case'].iloc[0])
+
+ax.legend(['cp_PV','ST', 'PVT','PVT_Batt_6','PVT_Batt_9'])
+ax.set_xlabel('% net metering')
+ax.set_ylabel('Energy bill')
+ax.set_title('Volume = 200 L')
+ax.set_ylim(1200,2800)
+plt.xticks(x_values, ['1','0.5','0.1','0'])
+# ax.legend()
+#%%
 
 #%%
 # def plotly_plots():
@@ -72,21 +116,23 @@ import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io 
 from plotly.subplots import make_subplots
 import plotly.express as px
 pio.renderers.default = 'browser'
+fil_pvt = dfresults[(dfresults['design_case']=='cp_PV') & (dfresults['r_level']=='r0') &
+                    (dfresults['volume']==0.2)]
+#%%
+fil_pvt['label2'] = fil_pvt.index
+# fil_pvt['r_number'] = fil_pvt['r_level']
+# fil_pvt['r_number']=fil_pvt['r_number'].replace('r0',0+1)
+# fil_pvt['r_number']=fil_pvt['r_number'].replace('r1',1+3)
 
-fil_pvt['label'] = fil_pvt.index
-fil_pvt['r_number'] = fil_pvt['r_level']
-fil_pvt['r_number']=fil_pvt['r_number'].replace('r0',0+1)
-fil_pvt['r_number']=fil_pvt['r_number'].replace('r1',1+3)
-
-fil_st['label'] = fil_st.index
-fig = px.scatter(fil_pvt, x="flow_rate", y="total_costs", color='coll_area', size='r_number',  
-                 hover_data=['label'], size_max=20)
+# fil_st['label'] = fil_st.index
+fig = px.scatter(fil_pvt, x="volume", y="total_costs", color='coll_area', size='coll_area',  
+                 hover_data=['label2'], size_max=20)
 fig.update_traces(marker=dict(symbol='square'))
 
-st =  px.scatter(fil_st, x="flow_rate", y="total_costs", color='coll_area',  
-                 hover_data=['label'], size_max=20)
-st.update_traces(marker=dict(symbol='triangle-up', size=20))
-fig.add_trace(st.data[0])
+# st =  px.scatter(fil_st, x="flow_rate", y="total_costs", color='coll_area',  
+#                  hover_data=['label'], size_max=20)
+# st.update_traces(marker=dict(symbol='triangle-up', size=20))
+# fig.add_trace(st.data[0])
 fig.show()
 
 #%%
