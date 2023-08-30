@@ -20,19 +20,19 @@ res_folder = 'res\\'
 trn_folder = 'res\\trn\\'
 
 #create one list for each variable indicating their input values
-input_st = {'volume' : [0.1, 0.2, 0.3, 0.4],
-              'coll_area': [4, 8, 16,20],
-              'flow_rate': [50, 100, 200]} #,
+input_st = {'volume' : [0.15, 0.2, 0.25],
+              'coll_area': [4, 8, 16,20]}
+              # 'flow_rate': [50, 100, 200]} #,
              # 'r_level': ['r0','r1']}
 
-input_pvt = {'volume' : [0.1, 0.2, 0.3, 0.4],
-              'coll_area': [4, 8, 16,20],
-              'flow_rate': [50, 100, 200]}
+input_pvt = {'volume' : [0.15, 0.2, 0.25],
+              'coll_area': [4, 8, 16,20]}
+             # 'flow_rate': [50, 100, 200]}
            #   'r_level': ['r0','r1']}
 
 input_cp = {'volume' : [0.15, 0.2, 0.25],
-              'coll_area': [0.001, 4, 8, 16,20],
-              'r_level': ['r0','r1']}
+              'coll_area': [0.001, 4, 8, 16,20]}
+              # 'r_level': ['r0','r1']}
 
 
 input_pvt_batt = {'volume' : [0.15, 0.2, 0.25],
@@ -75,6 +75,12 @@ def assign_indices(samples, inp, key_name, values):
     if key_name:
         for i,j in zip(key_name,values):
             result[i] = j
+            if isinstance(j,str) and 'PVT_Batt' in j: # if design_case contains PVT_batt
+                j = 'PVT_Batt_' + result['batt'].astype(str)
+                result[i] = j
+            else:
+                True
+            
     return result
 
 #%% function for preparing SA variables
@@ -108,12 +114,15 @@ def prepare_sa(sa_type, ip, key_names=None, values=None, N=2, prnt=False, prefix
     return problem, samp
 
 #%% creating new samples
-# problem, samp = prepare_sa('morris', input_cp, 
-#                            ['design_case', 'flow_rate'], ['cp_PV', 200], 
-#                            N=16, prefix='cp2', prnt=False)
-
-# problem2, samp2 = prepare_sa('morris', input_pvt_batt, 
-#                            N=16, prefix='batt1', prnt=False)
+problem, samp = prepare_sa('morris', input_cp, 
+                            ['design_case', 'flow_rate','r_level'], ['cp_PV', 100,'r0'], 
+                            N=16, prefix='cp3', prnt=True)
+problem2, samp2 = prepare_sa('morris', input_pvt, 
+                            ['design_case', 'flow_rate','r_level'], ['PVT', 100,'r0'], 
+                            N=16, prefix='pvt4', prnt=True)
+problem3, samp3 = prepare_sa('morris', input_st, 
+                            ['design_case', 'flow_rate','r_level'], ['ST', 100,'r0'], 
+                            N=16, prefix='st4', prnt=True)
 
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
@@ -122,14 +131,12 @@ from SALib.analyze import morris as morris_ana
 def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_number=None):
     # to_number: which column has to be converted from string to number
     df = pd.merge(sample, sim_results, how='left')
-    missing = df[np.isnan(df['el_bill'])]
+    missing = df[np.isnan(df[kpi])]
     X = sample.drop(columns2drop, axis=1)
     if to_number:
         X[to_number] = (X[to_number].str.extract('(\d+)'))
     X = X.to_numpy(dtype=float)
     Y = df[kpi].ravel()             #to flatten series into a numpy array
-    print(X.shape)
-    print(Y.shape)
     if len(missing != 0):
         return False, missing
     else:
@@ -152,7 +159,7 @@ def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_numb
 
 #%% collecting results
 results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
-results['total_costs'] = results['el_bill']+results['gas_bill']
+results['total_costs'] = results['el_bill_1']+results['gas_bill']
 results['total_emission'] = (results['el_em']+results['gas_em'])/1000
 
 existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
@@ -162,14 +169,15 @@ dfresults = pd.concat([existing, results],axis=1)
 dfresults.insert(4,'batt',None)
 dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
 dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
+dfresults = dfresults.drop_duplicates(ignore_index=True)
 
 #%% Running a loop to find samples with all existing data
 count = 0
 sa_type = 'morris'
 while True:
     print(count)
-    problem, samp = prepare_sa(sa_type, input_pvt_batt, ['r_level'], ['r0'], N=2)
-    Si, missing = perform_sa(sa_type, 'el_bill', problem, samp, dfresults, ['r_level'])
+    problem, samp = prepare_sa(sa_type, input_pvt_batt, ['r_level','design_case'], ['r0','PVT_Batt'], N=2)
+    Si, missing = perform_sa(sa_type, 'el_bill_0', problem, samp, dfresults, ['r_level','design_case'])
     count = count + 1
     if len(missing) == 0:
         Si.plot()
