@@ -12,7 +12,16 @@ directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publicat
 trn_results = '\\trn'
 os.chdir(directory)
 
-# check original sample files
+#%% open and change all csv files in res_folder
+allfiles = os.listdir()
+csv_files = list(filter(lambda f: f.endswith('.csv'), allfiles))
+csv_files = csv_files[:-1]
+for file in csv_files:
+    df = pd.read_csv(file)
+    df['design_case'] = df['design_case'].replace(['PVT','PVT_Batt_6','PVT_Batt_9'],['PVT_0','PVT_6','PVT_9'])
+    df.to_csv(file, index=False)
+
+#%% check original sample files
 df1 = pd.read_csv('morris_st_sample.csv')
 df2 = pd.read_csv('morris_pvt_sample.csv')
 
@@ -62,3 +71,8 @@ df = pd.read_csv('list_of_inputs.csv',header=0)
 #     df.rename(columns = {'desing_case':'design_case'}, inplace = True)
 #     df.to_csv(str(i)+'.txt', index=False)
 
+#%% add column to sim_results file
+res = pd.read_csv('sim_results.csv', index_col='label')
+res = res.rename(columns={'el_bill': 'el_bill_1'})
+#%% to extract net metering percentage
+nm = ''.join([i for i in test if i.isdigit() or i=='.'])
