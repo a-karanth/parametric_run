@@ -36,7 +36,7 @@ dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
 dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
 df = dfresults.copy()
 #%% Focussing on one volume
-df = dfresults[(dfresults['r_level']=='r0') & (dfresults['volume']==0.2)]
+df = dfresults[(dfresults['r_level']=='r0') ]#& (dfresults['volume']==0.25)]
 fil = df[df['volume']==0.25]
 
 #%% Scatter plots
@@ -66,8 +66,8 @@ scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
                                   xlabel='Total cost [EUR]', ylabel='Total emission [kgCO2]', 
                                   clabel='Coll area [m2]')
 
-#%%
-fig, ax = plt.subplots(figsize=(5,6))
+#%% Plot electricity bill for diff levels of net metering
+fig, ax = plt.subplots(figsize=(6,7))
 st = df[df['design_case']=='ST']
 pvt = df[df['design_case']=='PVT']
 batt6 = df[df['design_case']=='PVT_Batt_6']
@@ -98,20 +98,111 @@ for i in x_values:
                    marker = df_plot['marker'][data],
                    c='white',
                    edgecolors =df_plot['color'][data],
-                   s =df_plot['size'][data],
+                   s =df_plot['df'][data]['flow_rate'],
                    alpha =df_plot['alpha'][data])
                    # label = df_plot['df'][data]['design_case'].iloc[0])
 
-ax.legend(['ST', 'PVT','PVT_Batt_6','PVT_Batt_9','cp_PV'])
+ax.legend(['ST', 'PVT','PVT_Batt_6','PVT_Batt_9','cp_PV'],loc='best')
 ax.set_xlabel('% net metering')
 ax.set_ylabel('Energy bill')
-ax.set_title('Volume = 200 L')
+ax.set_title('Volume = 250 L')
 ax.set_ylim(1200,4300)
 plt.xticks(x_values, ['1','0.5','0.1','0'])
 # ax.legend()
+
+#%% plot emissions
+df = dfresults[(dfresults['r_level']=='r0') ]
+st = df[df['design_case']=='ST']
+pvt = df[df['design_case']=='PVT']
+batt6 = df[df['design_case']=='PVT_Batt_6']
+batt9 = df[df['design_case']=='PVT_Batt_9']
+cp = df[df['design_case']=='cp_PV']
+fig, ax = plt.subplots()
+ax.scatter(st['coll_area'],st['total_emission'],c='white',edgecolor='red',marker='^',label='ST')
+ax.scatter(pvt['coll_area'],pvt['total_emission'],c='white',edgecolor='purple',marker='o',label='PVT')
+ax.scatter(batt6['coll_area'],batt6['total_emission'],c='white',edgecolor='orange',marker='o',label='PVT_batt_6')
+ax.scatter(batt9['coll_area'],batt9['total_emission'],c='white',edgecolor='green',marker='o',label='PVT_Batt_9')
+ax.scatter(cp['coll_area'],cp['total_emission'],c='white',edgecolor='black',marker='s',label='cp_PV')
+
+ax.set_xlabel('collector area [m2]')
+ax.set_ylabel('Emissions kgCO2/year')
+ax.set_title('Carbon emissions')
+
+best_cp = cp[cp.el_bill_1==cp.el_bill_1.min()]
+best_st =st[st.el_bill_1==st.el_bill_1.min()] 
+best_pvt = pvt[pvt.el_bill_1==pvt.el_bill_1.min()]
+best_batt6 = batt6[batt6.el_bill_1==batt6.el_bill_1.min()]
+best_batt9 = batt9[batt9.el_bill_1==batt9.el_bill_1.min()]
+
+#%% parallel coordinate plot
+from pandas.plotting import parallel_coordinates
+
+df = dfresults.copy()
+df['design_case'] = df['design_case'].replace(['cp_PV','ST','PVT','PVT_Batt_6','PVT_Batt_9'],
+                                              [0,1,2,3,4])
+df['r_level'] = df['r_level'].replace(['r0','r1'],[0,1])
+
+parallel_coordinates(df[['volume','coll_area','flow_rate','r_level','design_case','el_bill_1']],
+                     'coll_area', colormap=plt.get_cmap("viridis"))
+
+#%% plotly express
+import plotly.express as px
+fig = px.parallel_coordinates(df, color="r_level", 
+                              labels={"coll_area": "Coll_area","volume": "Volume",
+                                      "flow_rate": "Flow rate","design_case": "Design Case",
+                                      "batt": "Batt size", },
+                              dimensions=['volume', 'coll_area', 'flow_rate','design_case',
+                                          'batt','r_level','el_bill_1','el_bill_0.5','el_bill_0.1',
+                                          'el_bill_0','total_emission'],
+                              color_continuous_scale=px.colors.sequential.Viridis,
+                              color_continuous_midpoint=0.5)
+fig.show()
+
+#%% plotly graph objects
+import plotly.graph_objects as go
+
+fig = go.Figure(data=
+                go.Parcoords(
+                    line = dict(color = df['coll_area'],
+                                colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']],
+                                # colorscare = 'Electric',
+                                showscale=True),
+                    dimensions = list([dict(#range = [1,5],
+                                            #constraintrange = [1,2], # change this range by dragging the pink line
+                                            label = 'Volume', values = df['volume']),
+                                       dict(#range = [1.5,5],
+                                            label = 'Coll area', values = df['coll_area']),
+                                       dict(#range = [1,5],
+                                            tickvals = [0,1,2,3,4],
+                                            label = 'Design case', values = df['design_case'],
+                                            ticktext = ['cp_PV', 'ST', 'PVT', 'PVT  6','PVT 9']),
+                                       dict(#range = [1,5],
+                                            label = 'El bill 1', values = df['el_bill_1'])
+                                       ])
+                    )
+                )
+fig.show()
+#%% tutorial on plotly.com
+fig = go.Figure(data=
+    go.Parcoords(
+        line = dict(color = df['species_id'],
+                   colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']]),
+        dimensions = list([
+            dict(range = [0,8],
+                constraintrange = [4,8],
+                label = 'Sepal Length', values = df['sepal_length']),
+            dict(range = [0,8],
+                label = 'Sepal Width', values = df['sepal_width']),
+            dict(range = [0,8],
+                label = 'Petal Length', values = df['petal_length']),
+            dict(range = [0,8],
+                label = 'Petal Width', values = df['petal_width'])
+        ])
+    )
+)
 #%%
 fig, axx = plt.subplots()
-df = dfresults.copy()
+# df = dfresults.copy()
 scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
                                   df[df['design_case']=='PVT'],
                                   df[df['design_case']=='PVT_Batt_6'],
@@ -122,7 +213,7 @@ scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
                                   xlabel='flow_rate', ylabel='Total cost [EUR]', 
                                   clabel='Coll area [m2]')
 axx.set_ylim([1000,2600])
-#%%
+#%% Plotlt plots
 # def plotly_plots():
 import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
 from plotly.subplots import make_subplots
@@ -130,7 +221,7 @@ import plotly.express as px
 pio.renderers.default = 'browser'
 fil_pvt = dfresults[(dfresults['design_case']=='cp_PV') & (dfresults['r_level']=='r0') &
                     (dfresults['volume']==0.2)]
-#%%
+
 fil_pvt['label2'] = fil_pvt.index
 # fil_pvt['r_number'] = fil_pvt['r_level']
 # fil_pvt['r_number']=fil_pvt['r_number'].replace('r0',0+1)
