@@ -6,6 +6,7 @@ src/*.txt
 src/*.PTI
 src/*.log
 src/*.lst
+src/*.b18
 
 src/res/*.txt
 
