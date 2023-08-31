@@ -36,7 +36,7 @@ dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
 dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
 df = dfresults.copy()
 #%% Focussing on one volume
-df = dfresults[(dfresults['r_level']=='r0') & (dfresults['volume']==0.15)]
+df = dfresults[(dfresults['r_level']=='r0') & (dfresults['volume']==0.2)]
 fil = df[df['volume']==0.25]
 
 #%% Scatter plots
@@ -73,13 +73,13 @@ pvt = df[df['design_case']=='PVT']
 batt6 = df[df['design_case']=='PVT_Batt_6']
 batt9 = df[df['design_case']=='PVT_Batt_9']
 cp = df[df['design_case']=='cp_PV']
-marker_size= 100
+marker_size= 50
 
-df_plot = {'df':[cp,st,pvt,batt6, batt9],
-        'marker':['s','^','o','o','o'],
-        'color':['black','red','purple','orange','green'],
-        'alpha':[0.5,1,1,1,1],
-        'size':[50, marker_size,marker_size,marker_size,marker_size]}
+df_plot = {'df':[st,pvt,batt6, batt9,cp],
+        'marker':['^','o','o','o','s'],
+        'color':['red','purple','orange','green','black'],
+        'alpha':[1,1,1,1,0.5],
+        'size':[marker_size,marker_size,marker_size,marker_size,50]}
 x_values = [1, 2, 3, 4]
 for i in x_values:
     match i:
@@ -92,8 +92,9 @@ for i in x_values:
         case 4:
             kpi = 'el_bill_0'
     for data in range(len(df_plot)):
+        total_cost = df_plot['df'][data][kpi] + df_plot['df'][data]['gas_bill']
         ax.scatter([i]*len(df_plot['df'][data]),
-                   df_plot['df'][data][kpi],
+                   total_cost,
                    marker = df_plot['marker'][data],
                    c='white',
                    edgecolors =df_plot['color'][data],
@@ -101,11 +102,11 @@ for i in x_values:
                    alpha =df_plot['alpha'][data])
                    # label = df_plot['df'][data]['design_case'].iloc[0])
 
-ax.legend(['cp_PV','ST', 'PVT','PVT_Batt_6','PVT_Batt_9'])
+ax.legend(['ST', 'PVT','PVT_Batt_6','PVT_Batt_9','cp_PV'])
 ax.set_xlabel('% net metering')
 ax.set_ylabel('Energy bill')
 ax.set_title('Volume = 200 L')
-ax.set_ylim(1200,2800)
+ax.set_ylim(1200,4300)
 plt.xticks(x_values, ['1','0.5','0.1','0'])
 # ax.legend()
 #%%
