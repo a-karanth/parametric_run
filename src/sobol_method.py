@@ -151,7 +151,7 @@ lhs_sample = assign_indices(lhs_sample, ip,None,None)
 unique = lhs_sample.drop_duplicates()
 perc = len(unique)/nscenarios
 print(perc)
-# lhs_sample.to_csv('lhs_sample_1.csv')
+# lhs_sample.to_csv('lhs_sample_1.csv', index=False)
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
 from SALib.analyze import morris as morris_ana
