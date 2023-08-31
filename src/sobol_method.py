@@ -45,6 +45,19 @@ input_db = {'db_high':[2,5,10],
             'db_low':[0,1,2],
             'r_level': ['r0','r1']}
 
+input_gen = {'volume' : [0.15, 0.2, 0.25],
+             'coll_area': [4, 8, 16,20],
+             'flow_rate': [50, 100, 200],
+             'design_case':['ST','PVT_0','PVT_6','PVT_9','cp_PV'],
+             'db_high':[2,5,10],
+             'db_low':[0,1,2],
+             'r_level': ['r0','r1']}
+
+input_gen2 = {'volume' : [0.15, 0.2, 0.25],
+             'coll_area': [4, 8, 16,20],
+             'flow_rate': [50, 100, 200],
+             'design_case':['ST','PVT_0','PVT_6','PVT_9','cp_PV'],
+             'r_level': ['r0','r1']}
 #%% Function for creating bounds and scenarios
 def cal_bounds_scenarios(dct):
     #   define problem to be analysed (number, name and range of the variables)
@@ -124,6 +137,21 @@ problem3, samp3 = prepare_sa('morris', input_st,
                             ['design_case', 'flow_rate','r_level'], ['ST', 100,'r0'], 
                             N=16, prefix='st4', prnt=True)
 
+#%% LHS method
+from SALib.sample import latin
+ip = input_gen2
+bounds, nscenarios = cal_bounds_scenarios(ip)
+problem = {'num_vars': len(ip),
+           'names':list(ip.keys()),
+           'bounds':bounds}
+lhs_sample = latin.sample(problem,N=1500)
+lhs_sample = lhs_sample.round().astype(int)
+lhs_sample = assign_indices(lhs_sample, ip,None,None)
+
+unique = lhs_sample.drop_duplicates()
+perc = len(unique)/nscenarios
+print(perc)
+# lhs_sample.to_csv('lhs_sample_1.csv')
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
 from SALib.analyze import morris as morris_ana
