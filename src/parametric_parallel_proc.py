@@ -106,21 +106,21 @@ for i in df.index:
             df['pack'][i] = 0
             df['batt'][i] = batt0
         
-        case 'PVT':
+        case 'PVT_0':
             df['file'][i] = 'wwhp.dck'
             df['py_file'][i] = 'zpy_wwhp.dck'
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
     
-        case 'PVT_Batt_6':
+        case 'PVT_6':
             df['file'][i] = 'wwhp.dck'
             df['py_file'][i] = 'zpy_wwhp.dck'
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt9
         
-        case 'PVT_Batt_9':
+        case 'PVT_9':
             df['file'][i] = 'wwhp.dck'
             df['py_file'][i] = 'zpy_wwhp.dck'
             df['coll_eff'][i] = 0.7
