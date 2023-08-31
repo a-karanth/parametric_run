@@ -68,11 +68,10 @@ if new_sim:
                        pd.read_csv(res_folder+'morris_sample_cp.csv'),
                        pd.read_csv(res_folder+'morris_sample_cp3.csv'),
                        pd.read_csv(res_folder+'morris_sample_pvt4.csv'),
-                       pd.read_csv(res_folder+'morris_sample_st4.csv')], ignore_index=True)
-    # dfnew = pd.read_csv(res_folder+'morris_sample_cp.csv')
-    # dfmorris = pd.read_csv(res_folder+'samples_for_testing.csv')
-    # dfnew.index = np.arange(len(dfnew))
-    
+                       pd.read_csv(res_folder+'morris_sample_st4.csv'),
+                       pd.read_csv(res_folder+'lhs_sample_1.csv')],
+                       ignore_index=True)
+
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
     df=pd.merge(dfnew, existing, how='outer', indicator=True)
