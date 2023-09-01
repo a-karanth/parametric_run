@@ -117,7 +117,7 @@ for i in df.index:
             df['py_file'][i] = 'zpy_wwhp.dck'
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
-            df['batt'][i] = batt9
+            df['batt'][i] = batt6
         
         case 'PVT_9':
             df['file'][i] = 'wwhp.dck'
