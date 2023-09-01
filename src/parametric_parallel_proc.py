@@ -217,7 +217,7 @@ if __name__ == "__main__":
     results = []
 
     for i in range(len(df)):
-        time.sleep(15)  # Delay of 15 seconds
+        time.sleep(30)  # Delay of 15 seconds
         value = df.iloc[i]
         result = pool.apply_async(run_parametric, (value,))
         # result = pool.apply_async(trial_parallel, (i,))
