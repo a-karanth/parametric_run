@@ -50,8 +50,8 @@ sim_yn =  os.listdir(directory+res_folder)
 if 'sim_results.csv' in sim_yn:
     existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col='label')
     existing_labels = np.array(existing_res.index.astype(str).tolist())
-    new_labels = list(set(check_labels)-set(existing_labels))
-    labels = [i for i in labels if any(j in i for j in new_labels)]
+    new_labels = list(set(check_labels)-set(existing_labels)) # newly simulated labels
+    labels = [i for i in labels if any(j in i for j in new_labels)] #checks labels that exist, and copies the exact name (including _cp) for all new labels
 else:
     existing_res = pd.DataFrame()
 #%%
@@ -127,14 +127,14 @@ t2 = time.time()
 print(t2-t1)
 
 #%% exporting the results in a csv
-##    isolating the results that come as dictionaries: annual energy, electricity 
-##    bill for different net metering levels
+# #    isolating the results that come as dictionaries: annual energy, electricity 
+# #    bill for different net metering levels
 # energy = results[0][4]
 # el_bill = results[0][0]
 # el_bill = ['el_bill_'+i for i in el_bill]   #adding the label el_bill before each bill value
 # list_columns = [el_bill,'gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
 # columns = []
-##    converting the conbunation of dict an dlist, into a list
+# #    converting the conbunation of dict an dlist, into a list
 # for item in list_columns:
 #     if isinstance(item, list):
 #         columns.extend(item)
@@ -152,8 +152,6 @@ print(t2-t1)
 #             row.append(r)
 #     output.loc[i] = row
 
-
-# # # output['label']=output['label'].astype(int)
 # output['label'] = output['label'].str.extract('(\d+)').astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
