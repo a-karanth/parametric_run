@@ -56,7 +56,7 @@ avl_labels = np.array([int(''.join(filter(str.isdigit, s))) for s in avl_labels]
 starting_label = avl_labels.max()+1
 
 #%% reading CSVs with samples
-new_sim = True
+new_sim = False
 if new_sim:
     df1 = pd.read_csv(res_folder+'morris_sample_st2.csv')
     df2 = pd.read_csv(res_folder+'morris_sample_pvt2.csv')
@@ -83,7 +83,7 @@ if new_sim:
         df.to_csv(res_folder+'current_list.csv', index=True, index_label='label')
 
 else:
-    df = pd.read_csv('res\\missed_sims2.csv', index_col=0)
+    df = pd.read_csv('res\\redo.csv', index_col=0)
     starting_label = 0
 
 #%% preparing variables for parametric run
@@ -94,6 +94,7 @@ batt9 = dict(cell_cap=28, ncell=140, chargeI=10, dischargeI=-15, max_batt_in=120
 df['file'], df['py_file'] = [None]*len(df), [None]*len(df)
 df['coll_eff'], df['pack'] = [None]*len(df), [None]*len(df)
 df['batt'], df['py_label'] = [None]*len(df), [None]*len(df)
+df['house'] = [None]*len(df)
 
 for i in df.index:
 
@@ -104,6 +105,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.8
             df['pack'][i] = 0
             df['batt'][i] = batt0
+            df['house'] = 'House.b18'
         
         case 'PVT_0':
             df['file'][i] = 'wwhp.dck'
@@ -111,6 +113,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
+            df['house'] = 'House.b18'
     
         case 'PVT_6':
             df['file'][i] = 'wwhp.dck'
@@ -118,6 +121,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt6
+            df['house'] = 'House.b18'
         
         case 'PVT_9':
             df['file'][i] = 'wwhp.dck'
@@ -125,6 +129,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt9
+            df['house'] = 'House.b18'
         
         case 'cp':
             df['file'][i] = 'wwhp_cp.dck'
@@ -132,6 +137,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.05
             df['pack'][i] = 0
             df['batt'][i] = batt0
+            df['house'] = 'House_internal_heating.b18'
         
         case 'cp_PV':
             df['file'][i] = 'wwhp_cp.dck'
@@ -139,6 +145,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.05
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
+            df['house'] = 'House_internal_heating.b18'
      
     df['py_label'][i] = str(starting_label+i)  
     
@@ -146,7 +153,7 @@ for i in df.index:
 os.chdir(directory)
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
-    mod56.change_r(directory+'House.b18', values['r_level'])
+    mod56.change_r(directory+values['house'], values['r_level'])
     print(values['py_label'])
     
     df = pd.read_csv('res\\trn\\list_of_inputs.csv', header=0, index_col=0)
