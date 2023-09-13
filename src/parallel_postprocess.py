@@ -84,7 +84,9 @@ def parallel_pp(label):
                   'Qfrom_grid':energy_annual['Qfrom_grid'][0],
                   'Qpv': energy_annual['Qpv'][0],
                   'Qload':energy_annual['Qload'][0],
-                  'SOC':energy_annual['SOC'][0]}
+                  'Q4sh':energy_annual['Qhp4sh'][0],
+                  'Q4dhw':energy_annual['Qhp4dhw'][0],
+                  'Qaux':energy_annual['Qaux_dhw'][0]}
     print(label)
     return el_bill, gas_bill, el_em, gas_em, energy_out, label
 
