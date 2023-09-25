@@ -278,6 +278,11 @@ class PostprocessFunctions:
     def cal_emissions(energy, el_ef=340, gas_ef=2016):
         # returns emissions in gCO2, 
         # emission factor in gCO2/kWh for electricity, gCO2/m3 for gas
-        el_em = (energy['Qfrom_grid']*el_ef).sum()*dt
+        aef = pd.read_csv('AEF_annual.csv', index_col=0)
+        aef.columns=aef.columns.map(int)
+        energy['aef']=0
+        for index, imp in energy['aef'].items():
+            energy['aef'].loc[index] = aef[index.month][index.hour]
+        el_em = (energy['Qfrom_grid']*energy['aef']).sum()*dt
         gas_em = (energy['gas']*gas_ef).sum()*dt
         return el_em, gas_em
