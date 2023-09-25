@@ -154,6 +154,7 @@ print(t2-t1)
 #             row.append(r)
 #     output.loc[i] = row
 
+# output[['el_em','gas_em']] = output[['el_em','gas_em']]/1000
 # output['label'] = output['label'].str.extract('(\d+)').astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
