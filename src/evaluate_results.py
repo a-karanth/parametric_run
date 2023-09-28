@@ -24,7 +24,10 @@ trn_folder = 'res\\trn\\'
 #%% Reading resuls and calculating fianl kpis for comparison, assigning results 
 #   based on samples 
 results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
-results['total_costs'] = results['el_bill_1']+results['gas_bill']
+results['total_costs_1'] = results['el_bill_1']+results['gas_bill']
+results['total_costs_0.5'] = results['el_bill_0.5']+results['gas_bill']
+results['total_costs_0.1'] = results['el_bill_0.1']+results['gas_bill']
+results['total_costs_0'] = results['el_bill_0']+results['gas_bill']
 results['total_emission'] = (results['el_em']+results['gas_em'])/1000
 existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 
@@ -138,7 +141,7 @@ best_batt9 = batt9[batt9.el_bill_1==batt9.el_bill_1.min()]
 from pandas.plotting import parallel_coordinates
 
 df = dfresults.copy()
-df['design_case'] = df['design_case'].replace(['cp_PV','ST','PVT','PVT_Batt_6','PVT_Batt_9'],
+df['design_case'] = df['design_case'].replace(['cp_PV','ST','PVT_0','PVT_6','PVT_9'],
                                               [0,1,2,3,4])
 df['r_level'] = df['r_level'].replace(['r0','r1'],[0,1])
 
@@ -166,18 +169,26 @@ fig = go.Figure(data=
                     line = dict(color = df['coll_area'],
                                 colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']],
                                 # colorscare = 'Electric',
-                                showscale=True),
-                    dimensions = list([dict(#range = [1,5],
-                                            #constraintrange = [1,2], # change this range by dragging the pink line
-                                            label = 'Volume', values = df['volume']),
-                                       dict(#range = [1.5,5],
-                                            label = 'Coll area', values = df['coll_area']),
-                                       dict(#range = [1,5],
-                                            tickvals = [0,1,2,3,4],
+                                showscale=True,
+                                colorbar=dict(title='Coll area [m2]')),  # Add the colorbar title here,
+                    dimensions = list([dict(tickvals = [0,1,2,3,4],
                                             label = 'Design case', values = df['design_case'],
                                             ticktext = ['cp_PV', 'ST', 'PVT', 'PVT  6','PVT 9']),
+                                       dict(label = 'R level', values = df['r_level']),
                                        dict(#range = [1,5],
-                                            label = 'El bill 1', values = df['el_bill_1'])
+                                            #constraintrange = [1,2], # change this range by dragging the pink line
+                                            label = 'Volume', values = df['volume']),        
+                                       dict(label = 'Coll area', values = df['coll_area']),
+                                       dict(label = 'Flow rate', values = df['flow_rate']),
+                                       dict(label = 'Q4sh', values = df['Q4sh']),
+                                            # range = [1000,3500]),
+                                       dict(label = 'Q4dhw', values = df['Q4dhw']),
+                                            # range = [0,1000]),
+                                       dict(label = 'Qaux', values = df['Qaux']),
+                                       dict(label = 'El bill 0', values = df['el_bill_0']),
+                                       dict(label = 'El bill 1', values = df['el_bill_1']),
+                                       dict(label = 'Total cost 0', values = df['total_costs_0']),
+                                       dict(label = 'Total cost 1', values = df['total_costs_1'])
                                        ])
                     )
                 )
