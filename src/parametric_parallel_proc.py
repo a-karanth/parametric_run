@@ -130,6 +130,14 @@ for i in df.index:
             df['pack'][i] = 0.7
             df['batt'][i] = batt9
             df['house'] = 'House.b18'
+            
+        case 'ASHP':
+            df['file'][i] = 'ashp.dck'
+            df['py_file'][i] = 'zpy_ashp.dck'
+            df['coll_eff'][i] = 0.05
+            df['pack'][i] = 0.7
+            df['batt'][i] = batt0
+            df['house'] = 'House.b18'
         
         case 'cp':
             df['file'][i] = 'wwhp_cp.dck'
