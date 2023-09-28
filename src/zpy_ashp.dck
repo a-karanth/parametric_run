@@ -1429,7 +1429,7 @@ heatingctr1 heatingctr2 ctr_sh sh_div ctr_dhw ctr_hp hp_div coll_pump
 night emergency legionella ctr_irr pvt_load_loop dhw_load_signal sh_pump
 
 *** External files
-ASSIGN "py_label_control_signal.txt" 88
+ASSIGN "res\trn\py_label_control_signal.txt" 88
 *|? Output file for printed results |1000
 *------------------------------------------------------------------------------
 
@@ -1500,7 +1500,7 @@ dev_bed1 ltg_bed1 dev_bed2 ltg_bed2 dev_bed3 ltg_bed3 dev_attic ltg_attic
 dev_living2 ltg_living2 dev_entree ltg_entree dev_bath ltg_bath Qheat_living1
 Qheat_bed1 Qheat_bed2 COP Qhp_heating Qhp_cooling Qheat_living2 
 *** External files
-ASSIGN "py_label_energy.txt" 86
+ASSIGN "res\trn\py_label_energy.txt" 86
 *|? Output file for printed results |1000
 *------------------------------------------------------------------------------
 
@@ -1600,7 +1600,7 @@ Tsh_cold_out msh_cold_out Tdhw_cold_out mdhw_cold_out Tset1 Tset2
 TmixDHWin2 mmixDHWin2 TmixHPloadin2 mmixHPloadin2 TmixPVTin2 mmixPVTin2
 TmixPVTout mmixPVTout TmixDHWout mmixDHWout Tfloor1_2 
 *** External files
-ASSIGN "py_label_temp_flow.txt" 87
+ASSIGN "res\trn\py_label_temp_flow.txt" 87
 *|? Output file for printed results |1000
 *------------------------------------------------------------------------------
 
