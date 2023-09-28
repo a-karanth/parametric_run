@@ -58,6 +58,10 @@ input_gen2 = {'volume' : [0.15, 0.2, 0.25],
              'flow_rate': [50, 100, 200],
              'design_case':['ST','PVT_0','PVT_6','PVT_9','cp_PV'],
              'r_level': ['r0','r1']}
+
+input_ashp = {'volume': [0.15, 0.2, 0.25],
+              'coll_area': [4,8,16,20],
+              'r_level': ['r0','r1']}
 #%% Function for creating bounds and scenarios
 def cal_bounds_scenarios(dct):
     #   define problem to be analysed (number, name and range of the variables)
@@ -152,6 +156,15 @@ unique = lhs_sample.drop_duplicates()
 perc = len(unique)/nscenarios
 print(perc)
 # lhs_sample.to_csv('lhs_sample_1.csv', index=False)
+
+#%% full factorial
+from itertools import product
+combinations = list(product(*input_ashp.values()))
+ff = pd.DataFrame(combinations, columns=input_ashp.keys())
+ff['design_case'] = 'ASHP'
+ff['flow_rate'] = 100
+# ff.to_csv('res/ashp_sample.csv',index=False)
+
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
 from SALib.analyze import morris as morris_ana
