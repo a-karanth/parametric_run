@@ -56,7 +56,7 @@ avl_labels = np.array([int(''.join(filter(str.isdigit, s))) for s in avl_labels]
 starting_label = avl_labels.max()+1
 
 #%% reading CSVs with samples
-new_sim = False
+new_sim = True
 if new_sim:
     df1 = pd.read_csv(res_folder+'morris_sample_st2.csv')
     df2 = pd.read_csv(res_folder+'morris_sample_pvt2.csv')
@@ -69,7 +69,8 @@ if new_sim:
                        pd.read_csv(res_folder+'morris_sample_cp3.csv'),
                        pd.read_csv(res_folder+'morris_sample_pvt4.csv'),
                        pd.read_csv(res_folder+'morris_sample_st4.csv'),
-                       pd.read_csv(res_folder+'lhs_sample_1.csv')],
+                       pd.read_csv(res_folder+'lhs_sample_1.csv'),
+                       pd.read_csv(res_folder+'ashp_sample.csv')],
                        ignore_index=True)
 
     dfnew = dfnew.drop_duplicates(ignore_index=True)
@@ -78,7 +79,7 @@ if new_sim:
     df = df[df['_merge'] == 'left_only']
     df.drop(columns=['_merge'], inplace=True)
     df.index = np.arange(len(df))
-    save = True
+    save = False
     if save:
         df.to_csv(res_folder+'current_list.csv', index=True, index_label='label')
 
