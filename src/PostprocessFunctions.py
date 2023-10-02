@@ -286,3 +286,25 @@ class PostprocessFunctions:
         el_em = (energy['Qfrom_grid']*energy['aef']).sum()*dt
         gas_em = (energy['gas']*gas_ef).sum()*dt
         return el_em, gas_em
+    
+    def peak_load(energy):
+        # peak load, peak import
+        pl = energy['Qload'].max()
+        pe = energy['Q2grid'].max()
+        return pl,pe
+    
+    def cal_week(controls, energy, temp_flow, t1,t2):
+        global dt
+        energy = energy[t1:t2]
+        energy = PostprocessFunctions.cal_energy(energy, controls)
+        energy_annual = energy.sum()*dt
+        el_bill, gas_bill = PostprocessFunctions.cal_costs(energy)
+        el_em, gas_em = PostprocessFunctions.cal_emissions(energy)
+        # energy_out = {'Q2grid':energy_annual['Q2grid'][0],
+        #               'Qfrom_grid':energy_annual['Qfrom_grid'][0],
+        #               'Qpv': energy_annual['Qpv'][0],
+        #               'Qload':energy_annual['Qload'][0],
+        #               'Q4sh':energy_annual['Qhp4sh'][0],
+        #               'Q4dhw':energy_annual['Qhp4tank'][0],
+        #               'Qaux':energy_annual['Qaux_dhw'][0]}
+        return el_bill, gas_bill, el_em, gas_em
