@@ -43,6 +43,7 @@ for i in temp:
 
 labels = np.array(labels)
 labels = np.unique(labels)
+tot_labels = labels
 check_labels = np.array([''.join(filter(str.isdigit, s)) for s in labels])
 
 #%% check if sim_results.csv exists. create if it doesnt, add new values to it, if it does
@@ -90,6 +91,27 @@ def parallel_pp(label):
     print(label)
     return el_bill, gas_bill, el_em, gas_em, energy_out, label
 
+#%%
+def new_column(label):
+    t1 = datetime(2001,1,4, 0,0,0)
+    t2 = datetime(2001,1,8, 0,0,0)
+    if 'cp' in label:
+        controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(directory+trn_folder + label)
+        
+    else:
+        temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
+        energy = pd.read_csv(directory+trn_folder + label+'_energy.txt', delimiter=",", index_col=0)
+        controls = pd.read_csv(directory+trn_folder + label+'_control_signal.txt', delimiter=",",index_col=0)
+ 
+        controls = pf.modify_df(controls, t_start, t_end)
+        temp_flow = pf.modify_df(temp_flow, t_start, t_end)     
+        energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+    
+    pl,pe = pf.peak_load(energy)
+    el_bill, gas_bill, el_em, gas_em = pf.cal_week(controls, energy, temp_flow, t1, t2)
+
+    return pl, pe, el_bill, gas_bill, el_em, gas_em, label
+
 #%% Results using sequential processing
 # os.chdir(directory + res_folder)
 # results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
@@ -125,6 +147,18 @@ if __name__ == "__main__":
     # for result in results:
     #     result.get()
         
+t2 = time.time()
+print(t2-t1)
+
+#%%
+t1 = time.time()
+if __name__ == "__main__":
+    pool = mp.Pool(8)
+    results = pool.map(new_column, tot_labels)
+    
+    pool.close()
+    pool.join()
+
 t2 = time.time()
 print(t2-t1)
 
