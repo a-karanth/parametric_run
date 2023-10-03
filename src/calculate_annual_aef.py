@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from matplotlib import pyplot as plt
 
 # Sample DataFrame
 data = {'start': [1, 3, 5],
@@ -35,5 +36,11 @@ df[10] = df[4]
 df[11] = df[3]
 df[12] = df[2]
 
+df = df[[1,2,3,4,5,6,7,8,9,10,11,12]]
+#%%
+df.plot(colormap='inferno',xlabel='Hour of day', ylabel='gCO2eq / kWh',title='Annual AEF')
+plt.grid('both', linestyle='--')
+plt.xticks(np.arange(0, 23+1, 2))
+plt.ylim([0,600])
 #%% 
-df.to_csv('AEF_annual.csv',index=True)
+# df.to_csv('AEF_annual.csv',index=True)
