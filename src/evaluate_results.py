@@ -30,7 +30,7 @@ results['total_costs_0.1'] = results['el_bill_0.1']+results['gas_bill']
 results['total_costs_0'] = results['el_bill_0']+results['gas_bill']
 results['total_emission'] = (results['el_em']+results['gas_em'])/1000
 existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
-
+results['total_cost_march_0'] =  results['el_bill_march_0']+results['gas_bill_march']
 dfresults = pd.concat([existing, results],axis=1)
 
 #%% add a column to calculate battery size
@@ -38,6 +38,12 @@ dfresults.insert(4,'batt',None)
 dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
 dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
 df = dfresults.copy()
+
+#%%
+df = dfresults.copy()
+df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
+                                              [0,1,2,3,4,5])
+df['r_level'] = df['r_level'].replace(['r0','r1'],[0,1])
 #%% Focussing on one volume
 df = dfresults[(dfresults['r_level']=='r0') ]#& (dfresults['volume']==0.25)]
 fil = df[df['volume']==0.25]
@@ -140,10 +146,7 @@ best_batt9 = batt9[batt9.el_bill_1==batt9.el_bill_1.min()]
 #%% parallel coordinate plot
 from pandas.plotting import parallel_coordinates
 
-df = dfresults.copy()
-df['design_case'] = df['design_case'].replace(['cp_PV','ST','PVT_0','PVT_6','PVT_9'],
-                                              [0,1,2,3,4])
-df['r_level'] = df['r_level'].replace(['r0','r1'],[0,1])
+
 
 parallel_coordinates(df[['volume','coll_area','flow_rate','r_level','design_case','el_bill_1']],
                      'coll_area', colormap=plt.get_cmap("viridis"))
@@ -162,8 +165,8 @@ fig = px.parallel_coordinates(df, color="r_level",
 fig.show()
 
 #%% plotly graph objects
-import plotly.graph_objects as go
-
+import plotly.graph_objects as go, plotly.io as pio
+pio.renderers.default = 'browser'
 fig = go.Figure(data=
                 go.Parcoords(
                     line = dict(color = df['coll_area'],
@@ -171,9 +174,9 @@ fig = go.Figure(data=
                                 # colorscare = 'Electric',
                                 showscale=True,
                                 colorbar=dict(title='Coll area [m2]')),  # Add the colorbar title here,
-                    dimensions = list([dict(tickvals = [0,1,2,3,4],
+                    dimensions = list([dict(tickvals = [0,1,2,3,4,5],
                                             label = 'Design case', values = df['design_case'],
-                                            ticktext = ['cp_PV', 'ST', 'PVT', 'PVT  6','PVT 9']),
+                                            ticktext = ['cp_PV', 'ST','ASHP', 'PVT', 'PVT  6','PVT 9']),
                                        dict(label = 'R level', values = df['r_level']),
                                        dict(#range = [1,5],
                                             #constraintrange = [1,2], # change this range by dragging the pink line
@@ -183,7 +186,6 @@ fig = go.Figure(data=
                                        dict(label = 'Q4sh', values = df['Q4sh']),
                                             # range = [1000,3500]),
                                        dict(label = 'Q4dhw', values = df['Q4dhw']),
-                                            # range = [0,1000]),
                                        dict(label = 'Qaux', values = df['Qaux']),
                                        dict(label = 'El bill 0', values = df['el_bill_0']),
                                        dict(label = 'El bill 1', values = df['el_bill_1']),
@@ -193,6 +195,23 @@ fig = go.Figure(data=
                     )
                 )
 fig.show()
+
+#%%
+fig = go.Figure(data=
+                go.Parcoords(
+                    line = dict(color = df['coll_area'],
+                                colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']],
+                                # colorscare = 'Electric',
+                                showscale=True,
+                                colorbar=dict(title='Coll area [m2]')),  # Add the colorbar title here,
+                    dimensions = list([dict(tickvals = [0,1,2,3,4,5],
+                                            label = 'Design case', values = df['design_case'],
+                                            ticktext = ['cp_PV', 'ST','ASHP', 'PVT', 'PVT  6','PVT 9'])
+                                       ])
+                    )
+                )
+fig.show()
+
 #%% tutorial on plotly.com
 fig = go.Figure(data=
     go.Parcoords(
