@@ -61,6 +61,7 @@ class PostprocessFunctions:
                                  'dev_bed3', 'dev_attic', 'dev_entree', 'dev_bath']].sum(axis = 1, skipna = True)
         energy['Qltg'] = energy[['ltg_living', 'ltg_living2', 'ltg_kit', 'ltg_bed1', 'ltg_bed2',
                                  'ltg_bed3', 'ltg_attic', 'ltg_entree', 'ltg_bath']].sum(axis = 1, skipna = True)
+        energy['Qheat'] = energy['Qhp']*energy['COP']
         # for older results that did not have correct connections to printer
         #energy['Qdev'] = energy[['dev_living', 'dev_kit', 'dev_bed1', 'dev_bed2',
         #                         'dev_bed3', 'dev_attic']].sum(axis = 1, skipna = True)
@@ -226,6 +227,7 @@ class PostprocessFunctions:
         energy['Qheat'] = energy['Qheat_living1']+energy['Qheat_living2']+energy['Qheat_bed1']+energy['Qheat_bed2']+energy['Qaux_dhw']
         energy['Qhp4sh'] = energy['Qheat_living1']+energy['Qheat_living2']+energy['Qheat_bed1']+energy['Qheat_bed2']
         energy['Qhp4tank'] = energy['Qaux_dhw']
+        energy['Qhp'] = 1 # necessary to have a non zero value during the calculation of SPF
         energy['Qaux_dhw'] = 0
         energy['gas'] = energy['Qheat']/10
         
@@ -297,6 +299,7 @@ class PostprocessFunctions:
         global dt
         energy = energy[t1:t2]
         energy = PostprocessFunctions.cal_energy(energy, controls)
+        # energy['COP'] = energy['COP']/3600
         energy_annual = energy.sum()*dt
         el_bill, gas_bill = PostprocessFunctions.cal_costs(energy)
         el_em, gas_em = PostprocessFunctions.cal_emissions(energy)
@@ -307,4 +310,18 @@ class PostprocessFunctions:
         #               'Q4sh':energy_annual['Qhp4sh'][0],
         #               'Q4dhw':energy_annual['Qhp4tank'][0],
         #               'Qaux':energy_annual['Qaux_dhw'][0]}
-        return el_bill, gas_bill, el_em, gas_em
+        spf = PostprocessFunctions.cal_spf(energy)
+        return el_bill, gas_bill, el_em, gas_em, spf
+    
+    def cal_penalty(energy):
+        pen = pd.read_csv('penalty.csv', index_col=0)
+        pen.columns=pen.columns.map(int)
+        energy['pen']=0
+        for index, imp in energy['pen'].items():
+            energy['pen'].loc[index] = pen[index.month][index.hour]
+        penalty = (energy['Q2grid']*energy['pen']).sum()
+        return penalty
+    
+    def cal_spf(energy):
+        spf = energy['Qheat'].sum()/energy['Qhp'].sum()
+        return spf
