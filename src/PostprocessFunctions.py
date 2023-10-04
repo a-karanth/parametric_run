@@ -314,13 +314,15 @@ class PostprocessFunctions:
         return el_bill, gas_bill, el_em, gas_em, spf
     
     def cal_penalty(energy):
+        global dt
         pen = pd.read_csv('penalty.csv', index_col=0)
         pen.columns=pen.columns.map(int)
         energy['pen']=0
-        for index, imp in energy['pen'].items():
+        for index, value in energy['pen'].items():
             energy['pen'].loc[index] = pen[index.month][index.hour]
-        penalty = (energy['Q2grid']*energy['pen']).sum()
-        return penalty
+        energy['penalty'] = energy['Q2grid']*energy['pen']
+        penalty = energy['penalty'].sum()*dt
+        return penalty, energy
     
     def cal_spf(energy):
         spf = energy['Qheat'].sum()/energy['Qhp'].sum()
