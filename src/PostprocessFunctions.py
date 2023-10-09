@@ -285,8 +285,8 @@ class PostprocessFunctions:
         energy['aef']=0
         for index, imp in energy['aef'].items():
             energy['aef'].loc[index] = aef[index.month][index.hour]
-        el_em = (energy['Qfrom_grid']*energy['aef']).sum()*dt
-        gas_em = (energy['gas']*gas_ef).sum()*dt
+        el_em = ((energy['Qfrom_grid']*energy['aef']).sum()*dt)/1000
+        gas_em = ((energy['gas']*gas_ef).sum()*dt)/1000
         return el_em, gas_em
     
     def peak_load(energy):
@@ -298,24 +298,14 @@ class PostprocessFunctions:
     def cal_week(controls, energy, temp_flow, t1,t2):
         global dt
         energy = energy[t1:t2]
-        energy = PostprocessFunctions.cal_energy(energy, controls)
-        # energy['COP'] = energy['COP']/3600
-        energy_annual = energy.sum()*dt
         el_bill, gas_bill = PostprocessFunctions.cal_costs(energy)
         el_em, gas_em = PostprocessFunctions.cal_emissions(energy)
-        # energy_out = {'Q2grid':energy_annual['Q2grid'][0],
-        #               'Qfrom_grid':energy_annual['Qfrom_grid'][0],
-        #               'Qpv': energy_annual['Qpv'][0],
-        #               'Qload':energy_annual['Qload'][0],
-        #               'Q4sh':energy_annual['Qhp4sh'][0],
-        #               'Q4dhw':energy_annual['Qhp4tank'][0],
-        #               'Qaux':energy_annual['Qaux_dhw'][0]}
         spf = PostprocessFunctions.cal_spf(energy)
         return el_bill, gas_bill, el_em, gas_em, spf
     
     def cal_penalty(energy):
         global dt
-        pen = pd.read_csv('penalty.csv', index_col=0)
+        pen = pd.read_csv('penalty_inverse.csv', index_col=0)
         pen.columns=pen.columns.map(int)
         energy['pen']=0
         for index, value in energy['pen'].items():
