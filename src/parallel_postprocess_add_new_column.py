@@ -62,8 +62,8 @@ t_end = datetime(2002,1,1, 0,0,0)
 os.chdir(directory)
 from PostprocessFunctions import PostprocessFunctions as pf
 def new_column(label):
-    t1 = datetime(2001,1,4, 0,0,0)
-    t2 = datetime(2001,1,8, 0,0,0)
+    t1 = datetime(2001,3,5, 0,0,0)
+    t2 = datetime(2001,3,9, 0,0,0)
     if 'cp' in label:
         controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(directory+trn_folder + label)
         
@@ -76,10 +76,12 @@ def new_column(label):
         temp_flow = pf.modify_df(temp_flow, t_start, t_end)     
         energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
     
-    pl,pe = pf.peak_load(energy)
-    el_bill, gas_bill, el_em, gas_em = pf.cal_week(controls, energy, temp_flow, t1, t2)
-
-    return pl, pe, el_bill, gas_bill, el_em, gas_em, label
+    # pl,pe = pf.peak_load(energy)
+    penalty, energy = pf.cal_penalty(energy)
+    # el_bill, gas_bill, el_em, gas_em, spf = pf.cal_week(controls, energy, temp_flow, t1, t2)
+    
+    return penalty, label
+    # return el_bill, gas_bill, el_em, gas_em, label
 
 #%% Parallel processing
 t1 = time.time()
@@ -97,9 +99,10 @@ print(t2-t1)
 # #    isolating the results that come as dictionaries: annual energy, electricity 
 # #    bill for different net metering levels
 # week = 'march'
-# el_bill = results[0][2]
-# el_bill = ['el_bill_'+week+'_'+i for i in el_bill]   #adding the label el_bill before each bill value
-# list_columns = ['peak_load','peak_export', el_bill,'gas_bill_'+week,'el_em_'+week,'gas_em_'+week,'label']
+# # el_bill = results[0][0]
+# # el_bill = ['el_bill_'+week+'_'+i for i in el_bill]   #adding the label el_bill before each bill value
+# # list_columns = [el_bill,'gas_bill_'+week,'el_em_'+week,'gas_em_'+week,'spf','penalty','label']
+# list_columns = ['penalty_in','label']
 # columns = []
 # #    converting the conbunation of dict an dlist, into a list
 # for item in list_columns:
@@ -119,7 +122,6 @@ print(t2-t1)
 #             row.append(r)
 #     output.loc[i] = row
 
-# output[['el_em_'+week,'gas_em_'+week]] = output[['el_em_'+week,'gas_em_'+week]]/1000
 # output['label'] = output['label'].str.extract('(\d+)').astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
