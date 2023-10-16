@@ -76,11 +76,13 @@ def new_column(label):
         temp_flow = pf.modify_df(temp_flow, t_start, t_end)     
         energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
     
+    rldc,ldc = pf.cal_ldc(energy)
+    opp_import, opp_export, import_in, export_in = pf.cal_opp(rldc)
     # pl,pe = pf.peak_load(energy)
-    penalty, energy = pf.cal_penalty(energy)
+    # penalty, energy = pf.cal_penalty(energy)
     # el_bill, gas_bill, el_em, gas_em, spf = pf.cal_week(controls, energy, temp_flow, t1, t2)
     
-    return penalty, label
+    return rldc, ldc, opp_import, opp_export, import_in, export_in, label
     # return el_bill, gas_bill, el_em, gas_em, label
 
 #%% Parallel processing
@@ -102,7 +104,7 @@ print(t2-t1)
 # # el_bill = results[0][0]
 # # el_bill = ['el_bill_'+week+'_'+i for i in el_bill]   #adding the label el_bill before each bill value
 # # list_columns = [el_bill,'gas_bill_'+week,'el_em_'+week,'gas_em_'+week,'spf','penalty','label']
-# list_columns = ['penalty_in','label']
+# list_columns = ['opp_import','opp_export','import_in','export_in','label']
 # columns = []
 # #    converting the conbunation of dict an dlist, into a list
 # for item in list_columns:
@@ -114,7 +116,7 @@ print(t2-t1)
 # output = pd.DataFrame(columns=columns)        
 # for i in range(len(results)):
 #     row = []
-#     row_data = results[i]
+#     row_data = results[i]#[2:] #use the last part when you've calculated OPP
 #     for r in row_data:
 #         if isinstance(r,dict):
 #             row.extend(r.values())
@@ -127,3 +129,18 @@ print(t2-t1)
 # output = output.set_index('label')
 # output = pd.concat([existing_res,output], axis=1)
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
+
+## Use this for saving load duration curves
+# ldc = pd.DataFrame(columns=np.arange(len(results)+1), data=np.array([[0]*506]*8762))
+# rldc = pd.DataFrame(columns=np.arange(len(results)+1), data=np.array([[0]*506]*8762))
+# for i in results:
+#     r = i[0]
+#     l = i[1]
+#     label = int(''.join(char for char in i[-1] if char.isdigit()))
+#     rldc[label] = r[r.columns[0]]
+#     ldc[label] = l[l.columns[0]]
+    
+# rldc = rldc.drop(0)
+# ldc = ldc.drop(0)
+# ldc.to_csv(res_folder+'ldc'+'.csv', index=True, index_label='Duration')
+# rldc.to_csv(res_folder+'rldc'+'.csv', index=True, index_label='Duration')
