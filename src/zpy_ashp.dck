@@ -430,10 +430,10 @@ PARAMETERS 27
 36		! 18 Controller Power
 16200		! 19 Capacity of Auxiliary
 300		! 20 Total Air Flowrate
-22000		! 21 Rated Cooling Capacity
-4193		! 22 Rated Cooling Power
-12348		! 23 Rated Heating Capacity
-2088		! 24 Rated Heating Power
+30000		! 21 Rated Cooling Capacity
+6000		! 22 Rated Cooling Power
+30000		! 23 Rated Heating Capacity
+6000		! 24 Rated Heating Power
 300		! 25 Rated Air Flowrate
 1		! 26 Rated Liquid Flowrate
 4.19		! 27 Specific Heat of DHW Stream
