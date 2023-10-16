@@ -317,3 +317,32 @@ class PostprocessFunctions:
     def cal_spf(energy):
         spf = energy['Qheat'].sum()/energy['Qhp'].sum()
         return spf
+    
+    def cal_ldc(energy):
+        global dt
+        energyH = (energy.resample('H').sum())*dt #hourly energy
+        rldc = pd.DataFrame()
+        rldc['net_import']=-energyH['Q2grid']+energyH['Qfrom_grid']            
+        rldc = rldc.sort_values(by=['net_import'], ascending = False)
+        rldc['interval']=1
+        rldc['duration'] = rldc['interval'].cumsum()
+        rldc = rldc.set_index('duration')
+        
+        ldc = pd.DataFrame()
+        ldc['load'] = energyH['Qload']
+        ldc = ldc.sort_values(by=['load'], ascending=False)
+        ldc['interval'] = 1
+        ldc['duration'] = ldc['interval'].cumsum()
+        ldc = ldc.set_index('duration')
+        return rldc,ldc
+    
+    def cal_opp(rldc):
+        import_intercept = rldc[rldc.iloc[:,0] >=0].index[-1] #filter dataframe with first column above 0, and find the last index value for x intercept
+        opp_import_intercept = round(0.01*import_intercept)
+        opp_import = rldc.loc[opp_import_intercept, rldc.columns[0]]
+        
+        export_intercept = 8760-import_intercept
+        opp_export_intercept = 8760 - round(0.01*export_intercept)
+        opp_export = rldc.loc[opp_export_intercept, rldc.columns[0]]
+        return opp_import, opp_export, opp_import_intercept, opp_export_intercept
+        
