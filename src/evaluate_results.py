@@ -21,6 +21,7 @@ matplotlib.rcParams["figure.autolayout"] = True
 
 res_folder = 'res\\'
 trn_folder = 'res\\trn\\'
+
 #%% Reading resuls and calculating fianl kpis for comparison, assigning results 
 #   based on samples 
 results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
@@ -28,10 +29,11 @@ results['total_costs_1'] = results['el_bill_1']+results['gas_bill']
 results['total_costs_0.5'] = results['el_bill_0.5']+results['gas_bill']
 results['total_costs_0.1'] = results['el_bill_0.1']+results['gas_bill']
 results['total_costs_0'] = results['el_bill_0']+results['gas_bill']
-results['total_emission'] = (results['el_em']+results['gas_em'])/1000
+results['total_emission'] = results['el_em']+results['gas_em']
 existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
-results['total_cost_march_0'] =  results['el_bill_march_0']+results['gas_bill_march']
+results['total_cost_jan_0'] =  results['el_bill_jan_0']+results['gas_bill_jan']
 dfresults = pd.concat([existing, results],axis=1)
+rldc = pd.read_csv(res_folder+'rldc.csv',index_col=0)
 
 #%% add a column to calculate battery size
 dfresults.insert(4,'batt',None)
@@ -39,17 +41,12 @@ dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
 dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
 df = dfresults.copy()
 
-#%%
-df = dfresults.copy()
+#%% convert string categories into numerical
 df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
                                               [0,1,2,3,4,5])
 df['r_level'] = df['r_level'].replace(['r0','r1'],[0,1])
-#%% Focussing on one volume
-df = dfresults[(dfresults['r_level']=='r0') ]#& (dfresults['volume']==0.25)]
-fil = df[df['volume']==0.25]
 
 #%% Scatter plots
-
 fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))   
 # scatter1, cbar1 = pt.scatter_plot(df[(df['design_case']=='ST') & (df['r_level']=='r1')], 
 #                                   df[(df['design_case']=='PVT') & (df['r_level']=='r1')], 
@@ -143,28 +140,7 @@ best_pvt = pvt[pvt.el_bill_1==pvt.el_bill_1.min()]
 best_batt6 = batt6[batt6.el_bill_1==batt6.el_bill_1.min()]
 best_batt9 = batt9[batt9.el_bill_1==batt9.el_bill_1.min()]
 
-#%% parallel coordinate plot
-from pandas.plotting import parallel_coordinates
-
-
-
-parallel_coordinates(df[['volume','coll_area','flow_rate','r_level','design_case','el_bill_1']],
-                     'coll_area', colormap=plt.get_cmap("viridis"))
-
-#%% plotly express
-import plotly.express as px
-fig = px.parallel_coordinates(df, color="r_level", 
-                              labels={"coll_area": "Coll_area","volume": "Volume",
-                                      "flow_rate": "Flow rate","design_case": "Design Case",
-                                      "batt": "Batt size", },
-                              dimensions=['volume', 'coll_area', 'flow_rate','design_case',
-                                          'batt','r_level','el_bill_1','el_bill_0.5','el_bill_0.1',
-                                          'el_bill_0','total_emission'],
-                              color_continuous_scale=px.colors.sequential.Viridis,
-                              color_continuous_midpoint=0.5)
-fig.show()
-
-#%% plotly graph objects
+#%% plotly PCP 1 - cost, emission, penalty
 import plotly.graph_objects as go, plotly.io as pio
 pio.renderers.default = 'browser'
 fig = go.Figure(data=
@@ -172,6 +148,31 @@ fig = go.Figure(data=
                     line = dict(color = df['coll_area'],
                                 colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']],
                                 # colorscare = 'Electric',
+                                showscale=True,
+                                colorbar=dict(title='Coll area [m2]')),  # Add the colorbar title here,
+                    dimensions = list([dict(label = 'R level', values = df['r_level']),
+                                       dict(tickvals = [0,1,2,3,4,5],
+                                            label = 'Design case', values = df['design_case'],
+                                            ticktext = ['cp_PV', 'ST','ASHP', 'PVT', 'PVT  6','PVT 9']),
+                                       dict(#range = [1,5],
+                                            #constraintrange = [1,2], # change this range by dragging the pink line
+                                            label = 'Volume', values = df['volume']),        
+                                       dict(label = 'Coll area', values = df['coll_area']),
+                                       # dict(label = 'Flow rate', values = df['flow_rate']),
+                                       dict(label = 'Total cost 0', values = df['total_costs_0']),
+                                       dict(label = 'Total emissions', values = df['total_emission']),
+                                       dict(label = 'Penalty', values = df['penalty_in'])
+                                       ])
+                    )
+                )
+fig.show()
+
+#%% PCP 2: peak load, export, cost, penalty
+fig = go.Figure(data=
+                go.Parcoords(
+                    line = dict(color = df['coll_area'],
+                                # colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']],
+                                colorscale = [[0,'orange'],[0.8,'lightseagreen'],[1,'purple']],
                                 showscale=True,
                                 colorbar=dict(title='Coll area [m2]')),  # Add the colorbar title here,
                     dimensions = list([dict(tickvals = [0,1,2,3,4,5],
@@ -182,55 +183,17 @@ fig = go.Figure(data=
                                             #constraintrange = [1,2], # change this range by dragging the pink line
                                             label = 'Volume', values = df['volume']),        
                                        dict(label = 'Coll area', values = df['coll_area']),
-                                       dict(label = 'Flow rate', values = df['flow_rate']),
-                                       dict(label = 'Q4sh', values = df['Q4sh']),
-                                            # range = [1000,3500]),
-                                       dict(label = 'Q4dhw', values = df['Q4dhw']),
-                                       dict(label = 'Qaux', values = df['Qaux']),
-                                       dict(label = 'El bill 0', values = df['el_bill_0']),
-                                       dict(label = 'El bill 1', values = df['el_bill_1']),
+                                       dict(label = 'Flow rate [l/h]', values = df['flow_rate']),
+                                       dict(label = 'Peak load [kW]', values = df['peak_load']),
+                                       dict(label = 'Peak export [kW]', values = df['peak_export']),
                                        dict(label = 'Total cost 0', values = df['total_costs_0']),
-                                       dict(label = 'Total cost 1', values = df['total_costs_1'])
-                                       ])
-                    )
+                                       dict(label = 'Penalty', values = df['penalty_in'])
+                                       ]),
+                     )
                 )
 fig.show()
 
-#%%
-fig = go.Figure(data=
-                go.Parcoords(
-                    line = dict(color = df['coll_area'],
-                                colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']],
-                                # colorscare = 'Electric',
-                                showscale=True,
-                                colorbar=dict(title='Coll area [m2]')),  # Add the colorbar title here,
-                    dimensions = list([dict(tickvals = [0,1,2,3,4,5],
-                                            label = 'Design case', values = df['design_case'],
-                                            ticktext = ['cp_PV', 'ST','ASHP', 'PVT', 'PVT  6','PVT 9'])
-                                       ])
-                    )
-                )
-fig.show()
-
-#%% tutorial on plotly.com
-fig = go.Figure(data=
-    go.Parcoords(
-        line = dict(color = df['species_id'],
-                   colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']]),
-        dimensions = list([
-            dict(range = [0,8],
-                constraintrange = [4,8],
-                label = 'Sepal Length', values = df['sepal_length']),
-            dict(range = [0,8],
-                label = 'Sepal Width', values = df['sepal_width']),
-            dict(range = [0,8],
-                label = 'Petal Length', values = df['petal_length']),
-            dict(range = [0,8],
-                label = 'Petal Width', values = df['petal_width'])
-        ])
-    )
-)
-#%%
+#%% Scatter plot of all values considering flow rate, bill, area
 fig, axx = plt.subplots()
 # df = dfresults.copy()
 scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
@@ -243,32 +206,69 @@ scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
                                   xlabel='flow_rate', ylabel='Total cost [EUR]', 
                                   clabel='Coll area [m2]')
 axx.set_ylim([1000,2600])
-#%% Plotlt plots
-# def plotly_plots():
+
+#%% Residual load duration curve
 import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
 from plotly.subplots import make_subplots
-import plotly.express as px
 pio.renderers.default = 'browser'
-fil_pvt = dfresults[(dfresults['design_case']=='cp_PV') & (dfresults['r_level']=='r0') &
-                    (dfresults['volume']==0.2)]
+fig = make_subplots(rows=1)
 
-fil_pvt['label2'] = fil_pvt.index
-# fil_pvt['r_number'] = fil_pvt['r_level']
-# fil_pvt['r_number']=fil_pvt['r_number'].replace('r0',0+1)
-# fil_pvt['r_number']=fil_pvt['r_number'].replace('r1',1+3)
+color_scale = plotly.colors.sequential.Viridis
+for i in range(len(rldc.columns)):
+    data = rldc[str(i)]
+    name = str(i)
+    color_index = int(i / len(rldc.columns) * len(color_scale))
+    fig.add_trace(go.Scatter(x=rldc.index, 
+                              y=data, 
+                              name=str(i),
+                              hoverinfo="x+y+name",
+                              # line=dict(color=color_scale[color_index]),
+                              line=dict(color=color_scale[i % len(color_scale)])
+                               )
+                   )
+fig.show()
+# offline.plot(fig, filename='res\\Plots\\dynamic_plot.html', auto_open=False)
 
-# fil_st['label'] = fil_st.index
-fig = px.scatter(fil_pvt, x="volume", y="total_costs", color='coll_area', size='coll_area',  
-                 hover_data=['label2'], size_max=20)
-fig.update_traces(marker=dict(symbol='square'))
+#%% OPP plot
+import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
+from plotly.subplots import make_subplots
+pio.renderers.default = 'browser'
+import plotly.express as px
 
-# st =  px.scatter(fil_st, x="flow_rate", y="total_costs", color='coll_area',  
-#                  hover_data=['label'], size_max=20)
-# st.update_traces(marker=dict(symbol='triangle-up', size=20))
-# fig.add_trace(st.data[0])
+df = df.sort_values(by='design_case')
+df['design_case'] = df['design_case'].replace([0,1,2,3,4,5],
+                                              ['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'])
+fig = px.scatter(df, 
+                 # y='opp_import', x=df.index, 
+                  y='opp_export', x="opp_import", 
+                 symbol="r_level", 
+                 color="design_case",
+                 # color="r_level", 
+                 # symbol="design_case",
+                 symbol_sequence= [0,1,2,3,4,5],
+                 # facet_col="time",
+                 labels={"r_level": "r_level", "design_case": "Design Case"},
+                  color_discrete_map={"cp_PV": "grey",
+                                      "ST": "red",
+                                      'ASHP':'Purple',
+                                      "PVT_0": "limegreen",
+                                      "PVT_6": "teal",
+                                      "PVT_9": "darkblue"},
+                 # color_discrete_sequence=px.colors.qualitative.Bold,
+                 # color_continuous_scale="oxy",
+                 # title="OPP import [kW] for all cases")
+                  title="OPP export [kW] vs OPP import [kW] for all cases")
+fig.update_traces(marker=dict(size=10))
+# fig.update_xaxes(range=[-10, 510])  # Adjust the range as needed for the x-axis
+fig.update_yaxes(range=[1.9, 3]) 
+fig.update_layout(legend=dict(x=0, y=0))
+fig.update_layout(legend=dict(yanchor="bottom", y=0.01,
+                              xanchor="right", x=0.99))
 fig.show()
 
-#%%
+#%% plotly plots
+# import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
+# from plotly.subplots import make_subplots
 # pd.options.plotting.backend = "plotly"
 # fig = make_subplots(rows=2, shared_xaxes=True, vertical_spacing=0.05, 
 #                     row_heights=[0.5,0.05],
@@ -311,8 +311,8 @@ fig.show()
 # fig.update_layout(title_text='Output files: ' + output_prefix)
 # fig.update_layout(xaxis_range=[t1,t2])
 # fig.show()
-#temp_flow.plot(y=['Thp_load_out','Tsh_in','Tdhw_in', 'Thp_load_in'])
-#offline.plot(fig,filename='temp.html')
+# temp_flow.plot(y=['Thp_load_out','Tsh_in','Tdhw_in', 'Thp_load_in'])
+# offline.plot(fig,filename='temp.html')
 #%%S
 # dfsobol = pd.read_csv('morris_pvt_sample.csv')
 # dfresults = results.copy()
