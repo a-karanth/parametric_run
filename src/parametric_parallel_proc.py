@@ -84,7 +84,7 @@ if new_sim:
         df.to_csv(res_folder+'current_list.csv', index=True, index_label='label')
 
 else:
-    df = pd.read_csv('res\\redo.csv', index_col=0)
+    df = pd.read_csv('res\\missed_sims5.csv', index_col=0)
     starting_label = 0
 
 #%% preparing variables for parametric run
