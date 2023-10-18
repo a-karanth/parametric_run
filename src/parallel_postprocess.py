@@ -1,4 +1,3 @@
-# %%
 # -*- coding: utf-8 -*-
 """
 post processing results using parallel processing
@@ -25,9 +24,7 @@ directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publicat
 res_folder = 'res\\'
 trn_folder = 'res\\trn\\'
 
-# %%
-# result_folder = '\\with_summer_loop\\2parameterSA_volume_area'
-
+#%% Retrieve labels
 temp = os.listdir(directory+trn_folder)
 labels = []
 for i in temp:
@@ -54,12 +51,13 @@ if 'sim_results.csv' in sim_yn:
     labels = [i for i in labels if any(j in i for j in new_labels)] #checks labels that exist, and copies the exact name (including _cp) for all new labels
 else:
     existing_res = pd.DataFrame()
-#%%
+    
+#%% Set t_start and t_end
 DT = '6min'
 t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
 
-#%%
+#%% Define parallel processing function
 os.chdir(directory)
 from PostprocessFunctions import PostprocessFunctions as pf
 def parallel_pp(label):
@@ -80,37 +78,46 @@ def parallel_pp(label):
         
     el_bill, gas_bill = pf.cal_costs(energy)
     el_em, gas_em = pf.cal_emissions(energy)
-    energy_out = {'Q2grid':energy_annual['Q2grid'][0],
+    pl,pe = pf.peak_load(energy)
+    penalty_in, energy = pf.cal_penalty(energy)
+    t1 = datetime(2001,1,4, 0,0,0)
+    t2 = datetime(2002,1,8, 0,0,0)
+    el_bill_jan, gas_bill_jan, el_em_jan, gas_em_jan, spf = pf.cal_week(controls, energy, temp_flow, t1, t2)
+    rldc,ldc = pf.cal_ldc(energy)
+    opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
+    energy_out = {'el_bill':el_bill,
+                  'gas_bill':gas_bill,
+                  'el_em': el_em,
+                  'gas_em': gas_em,
+                  'Q2grid':energy_annual['Q2grid'][0],
                   'Qfrom_grid':energy_annual['Qfrom_grid'][0],
                   'Qpv': energy_annual['Qpv'][0],
                   'Qload':energy_annual['Qload'][0],
                   'Q4sh':energy_annual['Qhp4sh'][0],
                   'Q4dhw':energy_annual['Qhp4tank'][0],
-                  'Qaux':energy_annual['Qaux_dhw'][0]}
+                  'Qaux':energy_annual['Qaux_dhw'][0],
+                  'peak_load':pl, 
+                  'peak_export':pe,
+                  'el_bill_jan':el_bill_jan,
+                  'gas_bill_jan':gas_bill_jan,
+                  'el_em_jan':el_em_jan, 
+                  'gas_em_jan':gas_em_jan,
+                  'spf':spf,
+                  'penalty_in': penalty_in,
+                  'opp_import':opp_im,
+                  'opp_export':opp_ex,
+                  'import_in':import_in,
+                  'export_in':export_in}
+    
     print(label)
-    return el_bill, gas_bill, el_em, gas_em, energy_out, label
+    return energy_out, label
+    # return el_bill, gas_bill, el_em, gas_em, energy_out,el_bill_jan,energy_out2, label
 
-#%% Results using sequential processing
-# os.chdir(directory + res_folder)
-# results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
-# count = 0
-# for i in labels:
-#     el_bill, gas_bill, el_em, gas_em, energy_annual, label = parallel_pp(str(i))
-#     results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, label
-#     count = count+1
-#     print(count)
-
-# results['total_costs'] = results['el_bill']+results['gas_bill']
-# results['total_emission'] = (results['el_em']+results['gas_em'])/1000
-# results.to_csv('sim_results'+'.csv', index=True)
-
-#%%
-# # multiprocessing that works
+#%% multiprocessing that works
 t1 = time.time()
 if __name__ == "__main__":
     pool = mp.Pool(8)
     results = pool.map(parallel_pp, labels)
-    
     pool.close()
     pool.join()
     # results = []
@@ -129,20 +136,43 @@ t2 = time.time()
 print(t2-t1)
 
 #%% exporting the results in a csv
-# #    isolating the results that come as dictionaries: annual energy, electricity 
-# #    bill for different net metering levels
+# #    Flattening the results which are a tuple of dictionary of single values 
+# #    and dictionaries 
+
+# output = []
+# for i in range(len(results)):
+#     flat_data = {}
+#     row_data = results[i][0]
+#     for key, value in row_data.items():
+#         if isinstance(value, dict):
+#             for sub_key, sub_value in value.items():
+#                 flat_data[f"{key}_{sub_key}"] = sub_value  # converts eg, el_bil dictionary to 4 columns of el_bil_0.1, el_bill_0.5 etc
+#         else:
+#             flat_data[key] = value  # creates a flat dictionary
+#     flat_data['label'] = results[i][1] #label is added as another key in the dictionary
+#     output.append(flat_data)
+    
+# output = pd.DataFrame(output)
+# output['label'] = output['label'].str.extract('(\d+)').astype(int)
+# output=output.sort_values(by='label', ignore_index=True)
+# output = output.set_index('label')
+# output = pd.concat([existing_res,output])
+# output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
+
+#%% manual apprach for saving results as csv
+# very manual apprach
 # energy = results[0][4]
 # el_bill = results[0][0]
 # el_bill = ['el_bill_'+i for i in el_bill]   #adding the label el_bill before each bill value
 # list_columns = [el_bill,'gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
+# list_columns = list(results[0][0].keys())
 # columns = []
-# #    converting the conbunation of dict an dlist, into a list
+#    converting the conbunation of dict an dlist, into a list
 # for item in list_columns:
 #     if isinstance(item, list):
 #         columns.extend(item)
 #     else:
-#         columns.append(item)
-        
+#         columns.append(item)        
 # output = pd.DataFrame(columns=columns)        
 # for i in range(len(results)):
 #     row = []
@@ -154,13 +184,28 @@ print(t2-t1)
 #             row.append(r)
 #     output.loc[i] = row
 
-# output[['el_em','gas_em']] = output[['el_em','gas_em']]/1000
 # output['label'] = output['label'].str.extract('(\d+)').astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
 # output = pd.concat([existing_res,output])
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
+#%% Results using sequential processing
+# os.chdir(directory + res_folder)
+# results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
+# count = 0
+# for i in labels:
+#     el_bill, gas_bill, el_em, gas_em, energy_annual, label = parallel_pp(str(i))
+#     results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, label
+#     count = count+1
+#     print(count)
+
+# results['total_costs'] = results['el_bill']+results['gas_bill']
+# results['total_emission'] = (results['el_em']+results['gas_em'])/1000
+# results.to_csv('sim_results'+'.csv', index=True)
+
 #%% tests
 # test = pd.DataFrame({'label':['1','12_cp','14','102','42_cp','65_cp']})
 # test['label'] = test['label'].str.extract('(\d+)').astype(int)
+
+#labels = ['1','2','3','4','5','6','7','8']
