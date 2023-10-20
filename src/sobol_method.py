@@ -62,6 +62,13 @@ input_gen2 = {'volume' : [0.15, 0.2, 0.25],
 input_ashp = {'volume': [0.15, 0.2, 0.25],
               'coll_area': [4,8,16,20],
               'r_level': ['r0','r1']}
+
+input_gen3 = {'volume' : [0.15, 0.2, 0.25],
+             'coll_area': [4, 8, 16, 20],
+             'flow_factor': [25, 30, 35, 40],
+             'design_case':['ST','PVT_0','PVT_6','PVT_9'],
+             'r_level': ['r0','r1']}
+
 #%% Function for creating bounds and scenarios
 def cal_bounds_scenarios(dct):
     #   define problem to be analysed (number, name and range of the variables)
@@ -92,11 +99,12 @@ def assign_indices(samples, inp, key_name, values):
     if key_name:
         for i,j in zip(key_name,values):
             result[i] = j
-            if isinstance(j,str) and 'PVT_Batt' in j: # if design_case contains PVT_batt
-                j = 'PVT_Batt_' + result['batt'].astype(str)
+            if isinstance(j,str) and 'PVT_' in j: # if design_case contains PVT_batt
+                j = 'PVT_' + result['batt'].astype(str)
                 result[i] = j
             else:
                 True
+    result['flow_rate'] = result['coll_area']*result['flow_factor']
             
     return result
 
@@ -143,14 +151,14 @@ problem3, samp3 = prepare_sa('morris', input_st,
 
 #%% LHS method
 from SALib.sample import latin
-ip = input_gen2
+ip = input_gen3
 bounds, nscenarios = cal_bounds_scenarios(ip)
 problem = {'num_vars': len(ip),
            'names':list(ip.keys()),
            'bounds':bounds}
-lhs_sample = latin.sample(problem,N=1500)
+lhs_sample = latin.sample(problem,N=8000)
 lhs_sample = lhs_sample.round().astype(int)
-lhs_sample = assign_indices(lhs_sample, ip,None,None)
+lhs_sample = assign_indices(lhs_sample, ip,None,None)#key_name=['flow_factor','design_case'], values=[0,'ASHP'])
 
 unique = lhs_sample.drop_duplicates()
 perc = len(unique)/nscenarios
