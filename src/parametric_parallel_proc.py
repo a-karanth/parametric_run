@@ -53,7 +53,10 @@ for i in op_labels:
     
 avl_labels = np.unique(np.array(avl_labels))
 avl_labels = np.array([int(''.join(filter(str.isdigit, s))) for s in avl_labels])
-starting_label = avl_labels.max()+1
+if len(avl_labels) ==0:
+    starting_label = 0
+else:
+    starting_label = avl_labels.max()+1
 
 #%% reading CSVs with samples
 new_sim = True
@@ -72,14 +75,15 @@ if new_sim:
                        pd.read_csv(res_folder+'lhs_sample_1.csv'),
                        pd.read_csv(res_folder+'ashp_sample.csv')],
                        ignore_index=True)
-
+    dfnew = pd.concat([pd.read_csv(res_folder+'lhs_sample_2.csv'),
+                      pd.read_csv(res_folder+'ashp_sample_2.csv')])
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
     df=pd.merge(dfnew, existing, how='outer', indicator=True)
     df = df[df['_merge'] == 'left_only']
     df.drop(columns=['_merge'], inplace=True)
     df.index = np.arange(len(df))
-    save = False
+    save = True
     if save:
         df.to_csv(res_folder+'current_list.csv', index=True, index_label='label')
 
@@ -183,7 +187,7 @@ def run_parametric(values):
     filedata = filedata.replace('py_area_coll', str(values['coll_area']))
     filedata = filedata.replace('py_coll_eff', str(values['coll_eff']))
     filedata = filedata.replace('py_pack', str(values['pack']))
-    
+
     filedata = filedata.replace('py_cell_cap', str(values.batt['cell_cap']))
     filedata = filedata.replace('py_ncell', str(values.batt['ncell']))
     filedata = filedata.replace('py_charge_current', str(values.batt['chargeI']))
@@ -194,7 +198,7 @@ def run_parametric(values):
     filedata = filedata.replace('py_ccv', str(values.batt['ccv']))
     
     filedata = filedata.replace('py_vol', str(values['volume']))
-    filedata = filedata.replace('py_flow', str(values['flow_rate']))
+    filedata = filedata.replace('py_flow_factor', str(values['flow_factor']))
     filedata = filedata.replace('py_inf', str(1))
     filedata = filedata.replace('py_db_low', str(2))
     filedata = filedata.replace('py_db_high', str(10))
