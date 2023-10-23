@@ -115,6 +115,7 @@ def parallel_pp(label):
 
 #%% multiprocessing that works
 t1 = time.time()
+print(t1)
 if __name__ == "__main__":
     pool = mp.Pool(8)
     results = pool.map(parallel_pp, labels)
