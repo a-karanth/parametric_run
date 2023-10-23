@@ -31,8 +31,8 @@ input_pvt = {'volume' : [0.15, 0.2, 0.25],
            #   'r_level': ['r0','r1']}
 
 input_cp = {'volume' : [0.15, 0.2, 0.25],
-              'coll_area': [0.001, 4, 8, 16,20]}
-              # 'r_level': ['r0','r1']}
+              'coll_area': [0.001, 4, 8, 16,20],
+              'r_level': ['r0','r1']}
 
 
 input_pvt_batt = {'volume' : [0.15, 0.2, 0.25],
@@ -41,9 +41,6 @@ input_pvt_batt = {'volume' : [0.15, 0.2, 0.25],
               'batt': [6, 9]}
               #'r_level': ['r0','r1']}
 
-input_db = {'db_high':[2,5,10],
-            'db_low':[0,1,2],
-            'r_level': ['r0','r1']}
 
 input_gen = {'volume' : [0.15, 0.2, 0.25],
              'coll_area': [4, 8, 16,20],
@@ -138,39 +135,39 @@ def prepare_sa(sa_type, ip, key_names=None, values=None, N=2, prnt=False, prefix
         samp.to_csv('res\\'+sa_type+'_sample_'+ prefix +'.csv', index=False)
     return problem, samp
 
-#%% creating new samples
-problem, samp = prepare_sa('morris', input_cp, 
-                            ['design_case', 'flow_rate','r_level'], ['cp_PV', 100,'r0'], 
-                            N=16, prefix='cp3', prnt=True)
-problem2, samp2 = prepare_sa('morris', input_pvt, 
-                            ['design_case', 'flow_rate','r_level'], ['PVT', 100,'r0'], 
-                            N=16, prefix='pvt4', prnt=True)
-problem3, samp3 = prepare_sa('morris', input_st, 
-                            ['design_case', 'flow_rate','r_level'], ['ST', 100,'r0'], 
-                            N=16, prefix='st4', prnt=True)
-
 #%% LHS method
 from SALib.sample import latin
-ip = input_gen3
+ip = input_cp
 bounds, nscenarios = cal_bounds_scenarios(ip)
 problem = {'num_vars': len(ip),
            'names':list(ip.keys()),
            'bounds':bounds}
-lhs_sample = latin.sample(problem,N=8000)
+lhs_sample = latin.sample(problem,N=1000)
 lhs_sample = lhs_sample.round().astype(int)
-lhs_sample = assign_indices(lhs_sample, ip,None,None)#key_name=['flow_factor','design_case'], values=[0,'ASHP'])
+lhs_sample = assign_indices(lhs_sample, ip, None, None)# key_name=['flow_factor','design_case'], values=[0,'cp_PV'])
 
 unique = lhs_sample.drop_duplicates()
 perc = len(unique)/nscenarios
 print(perc)
-# lhs_sample.to_csv('lhs_sample_1.csv', index=False)
+# unique.to_csv('res\\cp_sample_1.csv', index=False)
+
+#%% creating new samples
+# problem, samp = prepare_sa('morris', input_cp, 
+#                             ['design_case', 'flow_rate','r_level'], ['cp_PV', 100,'r0'], 
+#                             N=16, prefix='cp3', prnt=True)
+# problem2, samp2 = prepare_sa('morris', input_pvt, 
+#                             ['design_case', 'flow_rate','r_level'], ['PVT', 100,'r0'], 
+#                             N=16, prefix='pvt4', prnt=True)
+# problem3, samp3 = prepare_sa('morris', input_st, 
+#                             ['design_case', 'flow_rate','r_level'], ['ST', 100,'r0'], 
+#                             N=16, prefix='st4', prnt=True)
 
 #%% full factorial
 from itertools import product
-combinations = list(product(*input_ashp.values()))
-ff = pd.DataFrame(combinations, columns=input_ashp.keys())
-ff['design_case'] = 'ASHP'
-ff['flow_rate'] = 100
+# combinations = list(product(*input_ashp.values()))
+# ff = pd.DataFrame(combinations, columns=input_ashp.keys())
+# ff['design_case'] = 'ASHP'
+# ff['flow_rate'] = 100
 # ff.to_csv('res/ashp_sample.csv',index=False)
 
 #%% function to perform SA on the generated samples
@@ -207,34 +204,34 @@ def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_numb
     return Si, missing
 
 #%% collecting results
-results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
-results['total_costs'] = results['el_bill_1']+results['gas_bill']
-results['total_emission'] = (results['el_em']+results['gas_em'])/1000
+# results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
+# results['total_costs'] = results['el_bill_1']+results['gas_bill']
+# results['total_emission'] = (results['el_em']+results['gas_em'])/1000
 
-existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
-existing['coll_area'] = existing['coll_area'].astype(int)
-dfresults = pd.concat([existing, results],axis=1)
+# existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
+# existing['coll_area'] = existing['coll_area'].astype(int)
+# dfresults = pd.concat([existing, results],axis=1)
 #%% add a column to calculate battery size
-dfresults.insert(4,'batt',None)
-dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
-dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
-dfresults = dfresults.drop_duplicates(ignore_index=True)
+# dfresults.insert(4,'batt',None)
+# dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
+# dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
+# dfresults = dfresults.drop_duplicates(ignore_index=True)
 
 #%% Running a loop to find samples with all existing data
-count = 0
-sa_type = 'morris'
-while True:
-    print(count)
-    problem, samp = prepare_sa(sa_type, input_pvt_batt, ['r_level','design_case'], ['r0','PVT_Batt'], N=2)
-    Si, missing = perform_sa(sa_type, 'el_bill_0', problem, samp, dfresults, ['r_level','design_case'])
-    count = count + 1
-    if len(missing) == 0:
-        Si.plot()
-        break
-plt.gcf().set_size_inches(6,7)
-# plt.ylim([-95,120])
-plt.grid('both', linestyle='--')
-plt.tight_layout()
+# count = 0
+# sa_type = 'morris'
+# while True:
+#     print(count)
+#     problem, samp = prepare_sa(sa_type, input_pvt_batt, ['r_level','design_case'], ['r0','PVT_Batt'], N=2)
+#     Si, missing = perform_sa(sa_type, 'el_bill_0', problem, samp, dfresults, ['r_level','design_case'])
+#     count = count + 1
+#     if len(missing) == 0:
+#         Si.plot()
+#         break
+# plt.gcf().set_size_inches(6,7)
+# # plt.ylim([-95,120])
+# plt.grid('both', linestyle='--')
+# plt.tight_layout()
 #%%
 # Si.plot()
 
