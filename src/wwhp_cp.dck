@@ -415,7 +415,7 @@ dev_bed1 ltg_bed1 dev_bed2 ltg_bed2 dev_bed3 ltg_bed3 dev_attic ltg_attic
 dev_living2 ltg_living2 dev_entree ltg_entree dev_bath ltg_bath Qheat_living1
 Qheat_bed1 Qheat_bed2 COP Qhp_heating Qhp_cooling Qheat_living2 
 *** External files
-ASSIGN "res\trn\py_label_cp_energy.txt" 79
+ASSIGN "res\trn\437_cp_energy.txt" 79
 *|? Output file for printed results |1000
 *------------------------------------------------------------------------------
 
@@ -515,7 +515,7 @@ Tsh_cold_out msh_cold_out Tdhw_cold_out mdhw_cold_out Tset1 Tset2
 TmixDHWin2 mmixDHWin2 TmixHPloadin2 mmixHPloadin2 TmixPVTin2 mmixPVTin2
 TmixPVTout mmixPVTout TmixDHWout mmixDHWout Tfloor1_2 
 *** External files
-ASSIGN "res\trn\py_label_cp_temp_flow.txt" 80
+ASSIGN "res\trn\437_cp_temp_flow.txt" 80
 *|? Output file for printed results |1000
 *------------------------------------------------------------------------------
 
@@ -559,7 +559,7 @@ heatingctr1 heatingctr2 ctr_sh sh_div ctr_dhw ctr_hp hp_div coll_pump
 night emergency legionella ctr_irr pvt_load_loop dhw_load_signal sh_pump
 
 *** External files
-ASSIGN "res\trn\py_label_cp_control_signal.txt" 81
+ASSIGN "res\trn\437_cp_control_signal.txt" 81
 *|? Output file for printed results |1000
 *------------------------------------------------------------------------------
 
@@ -1078,24 +1078,24 @@ INPUTS 7
 * EQUATIONS "Parameters"
 * 
 EQUATIONS 18
-infil_value = py_inf
+infil_value = 1
 flow_rate_source = 200
-area_coll = py_area_coll
-pack_factor = py_pack
-coll_eff = py_coll_eff
-max_batt_in = py_max_batt_in
-max_batt_out = py_max_batt_out
-dcv = py_dcv
-ccv = py_ccv
-cell_cap = py_cell_cap
-ncell = py_ncell
-charge_current = py_charge_current
-discharge_current = py_discharge_current
-tank_vol = py_vol
-db_low = py_db_low
-db_high = py_db_high
+area_coll = 20.0
+pack_factor = 0.7
+coll_eff = 0.05
+max_batt_in = 0.01
+max_batt_out = -0.01
+dcv = 0.01
+ccv = 125
+cell_cap = 1
+ncell = 1
+charge_current = 1
+discharge_current = -1
+tank_vol = 0.25
+db_low = 2
+db_high = 10
 flow_rate_load = 1400
-flow_factor = py_flow_factor
+flow_factor = 0
 *$UNIT_NAME Parameters
 *$LAYER Main
 *$POSITION 487 116
