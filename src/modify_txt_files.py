@@ -89,10 +89,9 @@ def read_modify_files(label):
                    inplace=True, errors='ignore')
     energy.drop(columns=['Qaux_tap',], inplace=True, errors='ignore')
     
-    # temp_flow.to_csv(prefix+'_temp_flow.test')
+    # temp_flow.to_csv(prefix+'_temp_flow.txt')
     # energy.to_csv(prefix+'_energy.txt')
     # controls.to_csv(prefix+'_control_signal.txt')
-    print(i)
 
 #%%% run parallely using Joblib
 from joblib import Parallel, delayed
