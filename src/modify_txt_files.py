@@ -7,10 +7,12 @@ Created on Tue Jul 18 09:02:40 2023
 import os
 import pandas as pd
 import numpy as np
+from datetime import datetime
+from PostprocessFunctions import PostprocessFunctions as pf
 
 directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src\\res'
 trn_results = '\\trn'
-os.chdir(directory)
+# os.chdir(directory)
 
 #%% open and change all csv files in res_folder
 allfiles = os.listdir()
@@ -34,9 +36,74 @@ df2['r_level'] = 'r0'
 og = pd.concat([df1,df2])
 og = og.drop_duplicates(ignore_index=True)
 og.dtypes #check the datatypes of all columns for comparison later
-#%%
-os.chdir(directory+trn_results)
 
+#%% Modify all results files: remove tabs, delete unused columns and save the files again
+directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src\\'
+res_folder = 'res\\'
+trn_folder = 'res\\trn\\'
+
+temp = os.listdir(directory+trn_folder)
+labels = []
+for i in temp:
+    if '_temp_flow' in i:
+        prefix = i[:-14]
+    elif '_control_signal' in i:
+        prefix = i[:-19]
+    elif '_energy' in i:
+        prefix = i[:-11]
+    else:
+        continue
+    labels.append(prefix)
+
+labels = np.array(labels)
+labels = np.unique(labels)
+check_labels = np.array([''.join(filter(str.isdigit, s)) for s in labels])
+
+#%%% check if sim_results.csv exists. create if it doesnt, add new values to it, if it does
+sim_yn =  os.listdir(directory+res_folder)
+if 'sim_results.csv' in sim_yn:
+    existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col='label')
+    existing_labels = np.array(existing_res.index.astype(str).tolist())
+    new_labels = list(set(check_labels)-set(existing_labels)) # newly simulated labels
+    labels = [i for i in labels if any(j in i for j in new_labels)] #checks labels that exist, and copies the exact name (including _cp) for all new labels
+else:
+    labels = labels
+t_start = datetime(2001,1,1, 0,0,0)
+t_end = datetime(2002,1,1, 0,0,0)
+
+#%%% read and modify files
+def read_modify_files(label):
+    
+    prefix = directory + trn_folder + label
+    temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter=",",index_col=0)
+    energy = pd.read_csv(prefix+'_energy.txt', delimiter=",", index_col=0)
+    controls = pd.read_csv(prefix+'_control_signal.txt', delimiter=",",index_col=0)
+    
+    temp_flow.columns = [col.strip() for col in temp_flow.columns]
+    energy.columns = [col.strip() for col in energy.columns]
+    controls.columns = [col.strip() for col in controls.columns]
+    
+    temp_flow.drop(columns=['T2_dhw','T3_dhw','T4_dhw','T5_dhw',
+                            'T2_sh','T3_sh','T4_sh','T5_sh',
+                            'Taux2tap', 'maux2tap',], 
+                   inplace=True, errors='ignore')
+    energy.drop(columns=['Qaux_tap',], inplace=True, errors='ignore')
+    
+    # temp_flow.to_csv(prefix+'_temp_flow.test')
+    # energy.to_csv(prefix+'_energy.txt')
+    # controls.to_csv(prefix+'_control_signal.txt')
+    print(i)
+
+#%%% run parallely using Joblib
+from joblib import Parallel, delayed
+import time
+num_processes = 8  # Change this to the desired number of processes
+t1 = time.time()
+Parallel(n_jobs=num_processes)(delayed(read_modify_files)(label) for label in labels)
+t2 = time.time()
+print(t2-t1)
+#%% add new columns to list_of inputs file
+os.chdir(directory+trn_results)
 df = pd.read_csv('list_of_inputs.csv',header=0)
 
 # adding a new column.
