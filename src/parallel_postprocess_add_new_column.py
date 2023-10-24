@@ -10,6 +10,7 @@ collate results into a csv for later use
 import time                 # to measure the computation time
 import os 
 import multiprocessing as mp
+from joblib import Parallel, delayed
 # from PostprocessFunctions import PostprocessFunctions as pf
 import numpy as np
 import pandas as pd
@@ -77,22 +78,24 @@ def new_column(label):
         energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
     
     rldc,ldc = pf.cal_ldc(energy)
-    opp_import, opp_export, import_in, export_in = pf.cal_opp(rldc)
+    # opp_import, opp_export, import_in, export_in = pf.cal_opp(rldc)
     # pl,pe = pf.peak_load(energy)
     # penalty, energy = pf.cal_penalty(energy)
     # el_bill, gas_bill, el_em, gas_em, spf = pf.cal_week(controls, energy, temp_flow, t1, t2)
     
-    return rldc, ldc, opp_import, opp_export, import_in, export_in, label
+    return rldc, ldc, label
     # return el_bill, gas_bill, el_em, gas_em, label
 
 #%% Parallel processing
 t1 = time.time()
-if __name__ == "__main__":
-    pool = mp.Pool(8)
-    results = pool.map(new_column, labels)
+# if __name__ == "__main__":
+#     pool = mp.Pool(8)
+#     results = pool.map(new_column, labels)
     
-    pool.close()
-    pool.join()
+#     pool.close()
+#     pool.join()
+
+results = Parallel(n_jobs=8)(delayed(new_column)(label) for label in labels)
 
 t2 = time.time()
 print(t2-t1)
@@ -131,8 +134,8 @@ print(t2-t1)
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
 ## Use this for saving load duration curves
-# ldc = pd.DataFrame(columns=np.arange(len(results)+1), data=np.array([[0]*506]*8762))
-# rldc = pd.DataFrame(columns=np.arange(len(results)+1), data=np.array([[0]*506]*8762))
+# ldc = pd.DataFrame(columns=np.arange(len(results)), data=np.array([[0]*(len(results))]*8762))
+# rldc = pd.DataFrame(columns=np.arange(len(results)), data=np.array([[0]*(len(results))]*8762))
 # for i in results:
 #     r = i[0]
 #     l = i[1]
