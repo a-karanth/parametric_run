@@ -110,7 +110,7 @@ def parallel_pp(label):
                   'export_in':export_in}
     
     print(label)
-    return energy_out, label
+    return energy_out, rldc, ldc, label
     # return el_bill, gas_bill, el_em, gas_em, energy_out,el_bill_jan,energy_out2, label
 
 #%% multiprocessing that works
@@ -150,7 +150,7 @@ print(t2-t1)
 #                 flat_data[f"{key}_{sub_key}"] = sub_value  # converts eg, el_bil dictionary to 4 columns of el_bil_0.1, el_bill_0.5 etc
 #         else:
 #             flat_data[key] = value  # creates a flat dictionary
-#     flat_data['label'] = results[i][1] #label is added as another key in the dictionary
+#     flat_data['label'] = results[i][3] #label is added as another key in the dictionary
 #     output.append(flat_data)
     
 # output = pd.DataFrame(output)
