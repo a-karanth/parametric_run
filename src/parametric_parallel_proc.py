@@ -76,7 +76,9 @@ if new_sim:
                        pd.read_csv(res_folder+'ashp_sample.csv')],
                        ignore_index=True)
     dfnew = pd.concat([pd.read_csv(res_folder+'lhs_sample_2.csv'),
-                      pd.read_csv(res_folder+'ashp_sample_2.csv')])
+                      pd.read_csv(res_folder+'ashp_sample_2.csv'),
+                      pd.read_csv(res_folder+'lhs_sample_3.csv'),
+                      pd.read_csv(res_folder+'cp_ashp_sample_1.csv')])
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
     df=pd.merge(dfnew, existing, how='outer', indicator=True)
@@ -110,7 +112,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.8
             df['pack'][i] = 0
             df['batt'][i] = batt0
-            df['house'] = 'House.b18'
+            df['house'][i] = 'House.b18'
         
         case 'PVT_0':
             df['file'][i] = 'wwhp.dck'
@@ -118,7 +120,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
-            df['house'] = 'House.b18'
+            df['house'][i] = 'House.b18'
     
         case 'PVT_6':
             df['file'][i] = 'wwhp.dck'
@@ -126,7 +128,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt6
-            df['house'] = 'House.b18'
+            df['house'][i] = 'House.b18'
         
         case 'PVT_9':
             df['file'][i] = 'wwhp.dck'
@@ -134,7 +136,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.7
             df['pack'][i] = 0.7
             df['batt'][i] = batt9
-            df['house'] = 'House.b18'
+            df['house'][i] = 'House.b18'
             
         case 'ASHP':
             df['file'][i] = 'ashp.dck'
@@ -142,15 +144,8 @@ for i in df.index:
             df['coll_eff'][i] = 0.05
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
-            df['house'] = 'House.b18'
+            df['house'][i] = 'House.b18'
         
-        case 'cp':
-            df['file'][i] = 'wwhp_cp.dck'
-            df['py_file'][i] = 'zpy_wwhp_cp.dck'
-            df['coll_eff'][i] = 0.05
-            df['pack'][i] = 0
-            df['batt'][i] = batt0
-            df['house'] = 'House_internal_heating.b18'
         
         case 'cp_PV':
             df['file'][i] = 'wwhp_cp.dck'
@@ -158,7 +153,7 @@ for i in df.index:
             df['coll_eff'][i] = 0.05
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
-            df['house'] = 'House_internal_heating.b18'
+            df['house'][i] = 'House_internal_heating.b18'
      
     df['py_label'][i] = str(starting_label+i)  
     
@@ -166,7 +161,7 @@ for i in df.index:
 os.chdir(directory)
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
-    mod56.change_r(directory+values['house'], values['r_level'])
+    mod56.change_r(directory+values['house'], values['r_level'], values['inf'])
     print(values['py_label'])
     
     df = pd.read_csv('res\\trn\\list_of_inputs.csv', header=0, index_col=0)
