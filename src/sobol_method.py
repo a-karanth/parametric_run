@@ -180,10 +180,30 @@ def full_factorial(inp, keys=None, values=None):
         for i,j in zip(keys,values):
             df[i] = j
             df[i] = j
+    df['flow_rate'] = df['coll_area']*df['flow_factor']
+    df['inf'] = df['r_level'].apply(lambda x: 1 if x == 'r0' 
+                                            else (0.4 if x == 'r1' else 0.2))
     return df
 
+#%% example of creating a full factorial of all combination and then removing 
+#   redundant combinations like:
+#   All flow factors other and 0 for cp_PV and ASHP,
+#   Area=0 for ST, ASHP, PVT_0, PV_6, PVT_9
+# 
+input_gen = {'volume' : [0.15, 0.2, 0.25],
+             'coll_area': [0.001, 4, 8, 16,20],
+             'flow_factor': [0, 25, 30, 35, 40],
+             'design_case':['cp_PV', 'ASHP', 'ST','PVT_0','PVT_6','PVT_9'],
+             'r_level': ['r0','r1','r2']}
+
 test = full_factorial(input_gen) 
-# ff.to_csv('res/ashp_sample.csv',index=False)
+
+remove1 = test.query("(design_case == 'ASHP' or design_case=='cp_PV') and (flow_factor == 25 or flow_factor == 30 or flow_factor == 35 or flow_factor == 40)")
+remove2 = test.query("coll_area==0.001 and (design_case=='ST' or design_case == 'ASHP'or design_case=='PVT_0' or design_case=='PVT_6' or design_case=='PVT_9')")
+
+indices_to_remove = pd.concat([remove1, remove2])
+test = test.drop(indices_to_remove.index)
+#test.to_csv('res/ff_sample_1.csv',index=False)
 
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
