@@ -146,7 +146,9 @@ nm = ''.join([i for i in test if i.isdigit() or i=='.'])
 #%% read all sample files
 files = os.listdir(directory)
 samples = [file for file in files if file.endswith('.csv') and 'sample' in file]
+#%%
 for i in samples:
     df = pd.read_csv(directory+i)
-    df['flow_factor'] = 1
+    df['inf'] = 1
     df.to_csv(directory+i,index=False)
+    print(i + ' = '+str(len(df.columns)))
