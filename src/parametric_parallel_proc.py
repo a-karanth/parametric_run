@@ -78,7 +78,8 @@ if new_sim:
     dfnew = pd.concat([pd.read_csv(res_folder+'lhs_sample_2.csv'),
                       pd.read_csv(res_folder+'ashp_sample_2.csv'),
                       pd.read_csv(res_folder+'lhs_sample_3.csv'),
-                      pd.read_csv(res_folder+'cp_ashp_sample_1.csv')])
+                      pd.read_csv(res_folder+'cp_ashp_sample_1.csv'),
+                      pd.read_csv(res_folder+'ff_sample_1.csv')])
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
     df=pd.merge(dfnew, existing, how='outer', indicator=True)
@@ -169,11 +170,14 @@ def run_parametric(values):
     df.loc[int(values['py_label'])] = new_row
     df.to_csv('res\\trn\\list_of_inputs.csv', index=True, index_label='label')
     
+    inp_files = pd.read_csv('res\\trn\\input_files.csv', header=0, index_col=0)
+    inp_files.loc[int(values['py_label'])] = [values['house'], values['file'] ,values['py_file']]
+    inp_files.to_csv('res\\trn\\input_files.csv', index=True, index_label='label')
+    
     label_no=0
     with open(values['py_file'], 'r') as file_in:
         filedata = file_in.read()
     
-    # filedata = filedata.replace('py_house', label)
     # filedata = filedata.replace('py_dir', directory)
     filedata = filedata.replace('tstart', str(0))
     filedata = filedata.replace('tstop', str(8760))
@@ -215,7 +219,6 @@ def run_parametric(values):
     shutil.copy('trnOut_PumpData.txt', filename_out)
 
     return 1
-
 
 def trial_parallel(i):
     df = pd.DataFrame(columns=['file number'])
