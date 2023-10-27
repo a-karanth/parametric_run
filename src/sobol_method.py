@@ -44,11 +44,14 @@ input_pvt_batt = {'volume' : [0.15, 0.2, 0.25],
 
 input_gen = {'volume' : [0.15, 0.2, 0.25],
              'coll_area': [4, 8, 16,20],
-             'flow_rate': [50, 100, 200],
-             'design_case':['ST','PVT_0','PVT_6','PVT_9','cp_PV'],
-             'db_high':[2,5,10],
-             'db_low':[0,1,2],
-             'r_level': ['r0','r1']}
+             'flow_factor': [25, 30, 35, 40],
+             'design_case':['ST','PVT_0','PVT_6','PVT_9'],
+             'r_level': ['r0','r1','r2']}
+
+input_cp_ashp = {'volume' : [0.15, 0.2, 0.25],
+             'coll_area': [0.001,4, 8, 16, 20], # if you create samples for ashp and cp at the 
+             'design_case':['cp_PV','ASHP'],    # same time, you have to delete samples of ASHP
+             'r_level': ['r0','r1','r2']}       # that have coll area 0.001
 
 input_gen2 = {'volume' : [0.15, 0.2, 0.25],
              'coll_area': [4, 8, 16,20],
@@ -102,6 +105,8 @@ def assign_indices(samples, inp, key_name, values):
             else:
                 True
     result['flow_rate'] = result['coll_area']*result['flow_factor']
+    result['inf'] = result['r_level'].apply(lambda x: 1 if x == 'r0' 
+                                            else (0.4 if x == 'r1' else 0.2))
             
     return result
 
@@ -137,20 +142,24 @@ def prepare_sa(sa_type, ip, key_names=None, values=None, N=2, prnt=False, prefix
 
 #%% LHS method
 from SALib.sample import latin
-ip = input_cp
+ip = input_cp_ashp
 bounds, nscenarios = cal_bounds_scenarios(ip)
 problem = {'num_vars': len(ip),
            'names':list(ip.keys()),
            'bounds':bounds}
-lhs_sample = latin.sample(problem,N=1000)
+lhs_sample = latin.sample(problem,N=5000)
 lhs_sample = lhs_sample.round().astype(int)
-lhs_sample = assign_indices(lhs_sample, ip, None, None)# key_name=['flow_factor','design_case'], values=[0,'cp_PV'])
+# lhs_sample = assign_indices(lhs_sample, ip, None, None)
+lhs_sample = assign_indices(lhs_sample, ip, key_name=['flow_factor'], values=[0])
 
-unique = lhs_sample.drop_duplicates()
+unique = lhs_sample.drop_duplicates(ignore_index=True)
 perc = len(unique)/nscenarios
 print(perc)
 # unique.to_csv('res\\cp_sample_1.csv', index=False)
 
+#%% remove values from unique such that design_case==ASHP and coll_area==0.001
+remove = unique.query("design_case == 'ASHP' and coll_area == 0.001")
+unique = unique.drop(remove.index)
 #%% creating new samples
 # problem, samp = prepare_sa('morris', input_cp, 
 #                             ['design_case', 'flow_rate','r_level'], ['cp_PV', 100,'r0'], 
