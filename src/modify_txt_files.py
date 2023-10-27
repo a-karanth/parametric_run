@@ -10,7 +10,7 @@ import numpy as np
 from datetime import datetime
 from PostprocessFunctions import PostprocessFunctions as pf
 
-directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src\\res'
+directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src\\res\\'
 trn_results = '\\trn'
 # os.chdir(directory)
 
@@ -142,3 +142,11 @@ res = pd.read_csv('sim_results.csv', index_col='label')
 res = res.rename(columns={'el_bill': 'el_bill_1'})
 #%% to extract net metering percentage
 nm = ''.join([i for i in test if i.isdigit() or i=='.'])
+
+#%% read all sample files
+files = os.listdir(directory)
+samples = [file for file in files if file.endswith('.csv') and 'sample' in file]
+for i in samples:
+    df = pd.read_csv(directory+i)
+    df['flow_factor'] = 1
+    df.to_csv(directory+i,index=False)
