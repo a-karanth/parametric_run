@@ -173,10 +173,16 @@ unique = unique.drop(remove.index)
 
 #%% full factorial
 from itertools import product
-# combinations = list(product(*input_ashp.values()))
-# ff = pd.DataFrame(combinations, columns=input_ashp.keys())
-# ff['design_case'] = 'ASHP'
-# ff['flow_rate'] = 100
+def full_factorial(inp, keys=None, values=None):
+    combinations = list(product(*inp.values()))
+    df = pd.DataFrame(combinations, columns=inp.keys())
+    if keys:
+        for i,j in zip(keys,values):
+            df[i] = j
+            df[i] = j
+    return df
+
+test = full_factorial(input_gen) 
 # ff.to_csv('res/ashp_sample.csv',index=False)
 
 #%% function to perform SA on the generated samples
