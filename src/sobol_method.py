@@ -199,11 +199,12 @@ input_gen = {'volume' : [0.15, 0.2, 0.25],
 test = full_factorial(input_gen) 
 
 remove1 = test.query("(design_case == 'ASHP' or design_case=='cp_PV') and (flow_factor == 25 or flow_factor == 30 or flow_factor == 35 or flow_factor == 40)")
-remove2 = test.query("coll_area==0.001 and (design_case=='ST' or design_case == 'ASHP'or design_case=='PVT_0' or design_case=='PVT_6' or design_case=='PVT_9')")
+remove2 = test.query("(coll_area==0.001 or flow_factor==0) and (design_case=='ST' or design_case=='PVT_0' or design_case=='PVT_6' or design_case=='PVT_9')")
+remove3 = test.query("design_case == 'ASHP' and coll_area ==0.001")
+indices_to_remove = pd.concat([remove1, remove2, remove3])
 
-indices_to_remove = pd.concat([remove1, remove2])
 test = test.drop(indices_to_remove.index)
-#test.to_csv('res/ff_sample_1.csv',index=False)
+# test.to_csv('res/ff_sample_1.csv',index=False)
 
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
