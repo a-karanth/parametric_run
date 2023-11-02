@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 """
 Created on Tue Jul 18 09:02:40 2023
 
@@ -102,12 +102,12 @@ Parallel(n_jobs=num_processes)(delayed(read_modify_files)(label) for label in la
 t2 = time.time()
 print(t2-t1)
 #%% add new columns to list_of inputs file
-os.chdir(directory+trn_results)
-df = pd.read_csv('list_of_inputs.csv',header=0)
+# os.chdir(directory+trn_results)
+# df = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
 
 # adding a new column.
-# df['r_level'] = 'r0'
-# df.to_csv('list_of_inputs.csv', index=False)
+# df['inf'] = 1
+# df.to_csv('res\\trn\\list_of_inputs.csv', index=False)
 #%% combine all .txt files into 1 file
 # df_ip = pd.DataFrame(columns=['flow_rate','volume','coll_area','design_case'])
 # for i in np.arange(0,86):
