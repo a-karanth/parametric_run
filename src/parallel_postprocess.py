@@ -79,9 +79,9 @@ def parallel_pp(label):
     el_bill, gas_bill = pf.cal_costs(energy)
     el_em, gas_em = pf.cal_emissions(energy)
     pl,pe = pf.peak_load(energy)
-    penalty_in, energy = pf.cal_penalty(energy)
+    #penalty_in, energy = pf.cal_penalty(energy)
     t1 = datetime(2001,1,4, 0,0,0)
-    t2 = datetime(2002,1,8, 0,0,0)
+    t2 = datetime(2001,1,8, 0,0,0)
     el_bill_jan, gas_bill_jan, el_em_jan, gas_em_jan, spf = pf.cal_week(controls, energy, temp_flow, t1, t2)
     rldc,ldc = pf.cal_ldc(energy)
     opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
@@ -102,8 +102,8 @@ def parallel_pp(label):
                   'gas_bill_jan':gas_bill_jan,
                   'el_em_jan':el_em_jan, 
                   'gas_em_jan':gas_em_jan,
-                  'spf':spf,
-                  'penalty_in': penalty_in,
+                  'spf_jan':spf,
+                  #'penalty_in': penalty_in,
                   'opp_import':opp_im,
                   'opp_export':opp_ex,
                   'import_in':import_in,
@@ -114,50 +114,57 @@ def parallel_pp(label):
     # return el_bill, gas_bill, el_em, gas_em, energy_out,el_bill_jan,energy_out2, label
 
 #%% multiprocessing that works
-t1 = time.time()
-print(t1)
-if __name__ == "__main__":
-    pool = mp.Pool(8)
-    results = pool.map(parallel_pp, labels)
-    pool.close()
-    pool.join()
-    # results = []
+# t1 = time.time()
+# print(t1)
+# if __name__ == "__main__":
+#     pool = mp.Pool(8)
+#     results = pool.map(parallel_pp, labels)
+#     pool.close()
+#     pool.join()
+#     # results = []
 
-    # for i in range(len(labels)):
-        # time.sleep(3)  # Delay of 15 seconds
-        # result = pool.apply_async(parallel_pp, (str(i),))
-        # results.append(result)
-    # output = [result.get() for result in results]
+#     # for i in range(len(labels)):
+#         # time.sleep(3)  # Delay of 15 seconds
+#         # result = pool.apply_async(parallel_pp, (str(i),))
+#         # results.append(result)
+#     # output = [result.get() for result in results]
     
-    # Wait for the multiprocessing tasks to complete
-    # for result in results:
-    #     result.get()
+#     # Wait for the multiprocessing tasks to complete
+#     # for result in results:
+#     #     result.get()
         
-t2 = time.time()
-print(t2-t1)
+# t2 = time.time()
+# print(t2-t1)
 
-#%% exporting the results in a csv
+#%% Joblib parallel processing
+from joblib import Parallel, delayed
+
+t1 = time.time()
+results = Parallel(n_jobs=8)(delayed(parallel_pp)(label) for label in labels)
+t2 = time.time()
+print((t2-t1)/60)
+    #%% exporting the results in a csv
 # #    Flattening the results which are a tuple of dictionary of single values 
 # #    and dictionaries 
 
-# output = []
-# for i in range(len(results)):
-#     flat_data = {}
-#     row_data = results[i][0]
-#     for key, value in row_data.items():
-#         if isinstance(value, dict):
-#             for sub_key, sub_value in value.items():
-#                 flat_data[f"{key}_{sub_key}"] = sub_value  # converts eg, el_bil dictionary to 4 columns of el_bil_0.1, el_bill_0.5 etc
-#         else:
-#             flat_data[key] = value  # creates a flat dictionary
-#     flat_data['label'] = results[i][3] #label is added as another key in the dictionary
-#     output.append(flat_data)
+output = []
+for i in range(len(results)):
+    flat_data = {}
+    row_data = results[i][0]
+    for key, value in row_data.items():
+        if isinstance(value, dict):
+            for sub_key, sub_value in value.items():
+                flat_data[f"{key}_{sub_key}"] = sub_value  # converts eg, el_bil dictionary to 4 columns of el_bil_0.1, el_bill_0.5 etc
+        else:
+            flat_data[key] = value  # creates a flat dictionary
+    flat_data['label'] = results[i][3] #label is added as another key in the dictionary
+    output.append(flat_data)
     
-# output = pd.DataFrame(output)
-# output['label'] = output['label'].str.extract('(\d+)').astype(int)
-# output=output.sort_values(by='label', ignore_index=True)
-# output = output.set_index('label')
-# output = pd.concat([existing_res,output])
+output = pd.DataFrame(output)
+output['label'] = output['label'].str.extract('(\d+)').astype(int)
+output=output.sort_values(by='label', ignore_index=True)
+output = output.set_index('label')
+output = pd.concat([existing_res,output])
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
 #%% manual apprach for saving results as csv
