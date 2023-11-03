@@ -21,7 +21,7 @@ csv_files = csv_files[:-1]
 for file in csv_files:
     df = pd.read_csv(file)
     df['design_case'] = df['design_case'].replace(['PVT','PVT_Batt_6','PVT_Batt_9'],['PVT_0','PVT_6','PVT_9'])
-    df.to_csv(file, index=False)
+    #df.to_csv(file, index=False)
 
 #%% check original sample files
 df1 = pd.read_csv('morris_st_sample.csv')
