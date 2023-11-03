@@ -44,7 +44,7 @@ df = dfresults.copy()
 #%% convert string categories into numerical
 df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
                                               [0,1,2,3,4,5])
-df['r_level'] = df['r_level'].replace(['r0','r1'],[0,1])
+df['r_level'] = df['r_level'].replace(['r0','r1','r2'],[0,1,2])
 
 #%% Scatter plots
 fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))   
@@ -157,11 +157,11 @@ fig = go.Figure(data=
                                        dict(#range = [1,5],
                                             #constraintrange = [1,2], # change this range by dragging the pink line
                                             label = 'Volume', values = df['volume']),        
-                                       dict(label = 'Coll area', values = df['coll_area']),
-                                       # dict(label = 'Flow rate', values = df['flow_rate']),
+                                       # dict(label = 'Coll area', values = df['coll_area']),
+                                        dict(label = 'Flow rate', values = df['flow_rate']),
                                        dict(label = 'Total cost 0', values = df['total_costs_0']),
                                        dict(label = 'Total emissions', values = df['total_emission']),
-                                       dict(label = 'Penalty', values = df['penalty_in'])
+                                       # dict(label = 'Penalty', values = df['penalty_in'])
                                        ])
                     )
                 )
@@ -187,7 +187,7 @@ fig = go.Figure(data=
                                        dict(label = 'Peak load [kW]', values = df['peak_load']),
                                        dict(label = 'Peak export [kW]', values = df['peak_export']),
                                        dict(label = 'Total cost 0', values = df['total_costs_0']),
-                                       dict(label = 'Penalty', values = df['penalty_in'])
+                                       # dict(label = 'Penalty', values = df['penalty_in'])
                                        ]),
                      )
                 )
@@ -214,6 +214,7 @@ pio.renderers.default = 'browser'
 fig = make_subplots(rows=1)
 
 color_scale = plotly.colors.sequential.Viridis
+color_scale = plotly.colors.qualitative.Bold
 for i in range(len(rldc.columns)):
     data = rldc[str(i)]
     name = str(i)
@@ -223,7 +224,8 @@ for i in range(len(rldc.columns)):
                               name=str(i),
                               hoverinfo="x+y+name",
                               # line=dict(color=color_scale[color_index]),
-                              line=dict(color=color_scale[i % len(color_scale)])
+                              #line=dict(color=color_scale[i % len(color_scale)])
+                              line=dict(color=color_scale[int(i * (len(color_scale) - 1) / (len(rldc.columns) - 1))])
                                )
                    )
 fig.show()
