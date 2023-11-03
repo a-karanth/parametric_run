@@ -133,12 +133,12 @@ print(t2-t1)
 # output = pd.concat([existing_res,output], axis=1)
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
-## Use this for saving load duration curves
+#%% Use this for saving load duration curves
 # ldc = pd.DataFrame(columns=np.arange(len(results)), data=np.array([[0]*(len(results))]*8762))
 # rldc = pd.DataFrame(columns=np.arange(len(results)), data=np.array([[0]*(len(results))]*8762))
 # for i in results:
-#     r = i[0]
-#     l = i[1]
+#     r = i[1]
+#     l = i[2]
 #     label = int(''.join(char for char in i[-1] if char.isdigit()))
 #     rldc[label] = r[r.columns[0]]
 #     ldc[label] = l[l.columns[0]]
