@@ -63,7 +63,7 @@ from PostprocessFunctions import PostprocessFunctions as pf
 def parallel_pp(label):
     
     if 'cp' in label:
-        controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(directory+trn_folder + label)
+        controls, energy, temp_flow = pf.cal_base_case(directory+trn_folder + label)
         
     else:
         temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
@@ -74,7 +74,8 @@ def parallel_pp(label):
         temp_flow = pf.modify_df(temp_flow, t_start, t_end)
         energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
         energy = pf.cal_energy(energy, controls)
-        energy_monthly, energy_annual = pf.cal_integrals(energy)
+    
+    energy_monthly, energy_annual = pf.cal_integrals(energy)
         
     el_bill, gas_bill = pf.cal_costs(energy)
     el_em, gas_em = pf.cal_emissions(energy)
@@ -140,6 +141,7 @@ def parallel_pp(label):
 from joblib import Parallel, delayed
 
 t1 = time.time()
+print(t1)
 results = Parallel(n_jobs=8)(delayed(parallel_pp)(label) for label in labels)
 t2 = time.time()
 print((t2-t1)/60)
@@ -147,24 +149,24 @@ print((t2-t1)/60)
 # #    Flattening the results which are a tuple of dictionary of single values 
 # #    and dictionaries 
 
-output = []
-for i in range(len(results)):
-    flat_data = {}
-    row_data = results[i][0]
-    for key, value in row_data.items():
-        if isinstance(value, dict):
-            for sub_key, sub_value in value.items():
-                flat_data[f"{key}_{sub_key}"] = sub_value  # converts eg, el_bil dictionary to 4 columns of el_bil_0.1, el_bill_0.5 etc
-        else:
-            flat_data[key] = value  # creates a flat dictionary
-    flat_data['label'] = results[i][3] #label is added as another key in the dictionary
-    output.append(flat_data)
+# output = []
+# for i in range(len(results)):
+#     flat_data = {}
+#     row_data = results[i][0]
+#     for key, value in row_data.items():
+#         if isinstance(value, dict):
+#             for sub_key, sub_value in value.items():
+#                 flat_data[f"{key}_{sub_key}"] = sub_value  # converts eg, el_bil dictionary to 4 columns of el_bil_0.1, el_bill_0.5 etc
+#         else:
+#             flat_data[key] = value  # creates a flat dictionary
+#     flat_data['label'] = results[i][3] #label is added as another key in the dictionary
+#     output.append(flat_data)
     
-output = pd.DataFrame(output)
-output['label'] = output['label'].str.extract('(\d+)').astype(int)
-output=output.sort_values(by='label', ignore_index=True)
-output = output.set_index('label')
-output = pd.concat([existing_res,output])
+# output = pd.DataFrame(output)
+# output['label'] = output['label'].str.extract('(\d+)').astype(int)
+# output=output.sort_values(by='label', ignore_index=True)
+# output = output.set_index('label')
+# output = pd.concat([existing_res,output])
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
 #%% manual apprach for saving results as csv
@@ -201,12 +203,9 @@ output = pd.concat([existing_res,output])
 #%% Results using sequential processing
 # os.chdir(directory + res_folder)
 # results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
-# count = 0
 # for i in labels:
-#     el_bill, gas_bill, el_em, gas_em, energy_annual, label = parallel_pp(str(i))
-#     results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, label
-#     count = count+1
-#     print(count)
+#     energy_out, rldc, ldc, label = parallel_pp(str(i))
+    #results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, label
 
 # results['total_costs'] = results['el_bill']+results['gas_bill']
 # results['total_emission'] = (results['el_em']+results['gas_em'])/1000
