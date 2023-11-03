@@ -650,7 +650,7 @@ DERIVATIVES 1
 EQUATIONS 3
 ltg = [52,79] + [52,6] + [52,42] + [52,49] + [52,30] + [52,36] + [52,24] + [52,18] + [52,67]
 app = [52,78] + [52,5] + [52,41] + [52,48] + [52,29] + [52,35] + [52,23] + [52,17] + [52,66]
-total_load = ltg + app + [13,11]
+total_load = ltg + app
 *$UNIT_NAME load
 *$LAYER Main
 *$POSITION 509 795
