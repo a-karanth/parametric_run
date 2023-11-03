@@ -162,50 +162,7 @@ class PostprocessFunctions:
         elif ygrid=='both':
             ax.grid(axis='both', linestyle='--', alpha=0.4, lw=0.6)
             
-    def cal_only_hp(prefix):
-        t_start = datetime(2001,1,1, 0,0,0)
-        t_end = datetime(2002,1,1, 0,0,0)
 
-        temp_flow = pd.read_csv(prefix+'temp_flow.txt', delimiter = ",", index_col=0)
-        energy = pd.read_csv(prefix+'energy.txt', delimiter = ",", index_col=0)
-        controls = pd.read_csv(prefix+'control_signal.txt', delimiter = ",", index_col=0)
-        
-        controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
-        temp_flow = PostprocessFunctions.modify_df(temp_flow, t_start, t_end)
-        energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
-        energy = PostprocessFunctions.cal_energy(energy, controls, prefix)
-        
-        energy['Qheat'] = energy['Qheat_living']+energy['Qheat_bed1']+energy['Qheat_bed2']
-        energy['Qhp4sh'] = energy['Qheat']/2.8
-        energy['Qhp4tank'] = energy['Qaux_dhw']/1.9
-        energy['Qaux_dhw'] = 0
-        energy['Qload'] = energy['Qdev']+energy['Qltg']+energy['Qhp4sh']+energy['Qhp4tank']
-        energy['Qfrom_grid'] = energy['Qload']
-        
-        energy_monthly, energy_annual = PostprocessFunctions.cal_integrals(energy)
-        
-        energyH = (energy.resample('H').sum())*dt
-        rldc = pd.DataFrame()
-        rldc['net_import']=-energyH['Q2grid']+energyH['Qfrom_grid']            
-        rldc = rldc.sort_values(by=['net_import'], ascending = False)
-        rldc['interval']=1
-        rldc['duration'] = rldc['interval'].cumsum()
-        
-        ldc = pd.DataFrame()
-        ldc['load'] = energyH['Qload']
-        ldc = ldc.sort_values(by=['load'], ascending=False)
-        ldc['interval'] = 1
-        ldc['duration'] = ldc['interval'].cumsum()
-        
-        results = dict(controls=controls, 
-                       energy=energy, 
-                       temp_flow=temp_flow, 
-                       energy_monthly=energy_monthly,
-                       rldc=rldc,
-                       ldc=ldc)
-
-        return controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc
-    
     def cal_base_case(prefix):
         # without HP
         print('cp')
@@ -222,8 +179,6 @@ class PostprocessFunctions:
         
         energy = PostprocessFunctions.cal_energy(energy, controls)
         
-        # energy['Qheat'] = energy['Qheat_living1']+ energy['Qheat_living2']+energy['Qheat_bed1']+energy['Qheat_bed2']+energy['Qaux_dhw']
-        # energy['Qhp4sh'] = energy['Qheat_living1']+ energy['Qheat_living2']+energy['Qheat_bed1']+energy['Qheat_bed2']
         energy['Qheat'] = energy['Qheat_living1']+energy['Qheat_living2']+energy['Qheat_bed1']+energy['Qheat_bed2']+energy['Qaux_dhw']
         energy['Qhp4sh'] = energy['Qheat_living1']+energy['Qheat_living2']+energy['Qheat_bed1']+energy['Qheat_bed2']
         energy['Qhp4tank'] = energy['Qaux_dhw']
@@ -231,28 +186,7 @@ class PostprocessFunctions:
         energy['Qaux_dhw'] = 0
         energy['gas'] = energy['Qheat']/10
         
-        energy_monthly, energy_annual = PostprocessFunctions.cal_integrals(energy)
-        
-        energyH = (energy.resample('H').sum())*dt #hourly energy
-        rldc = pd.DataFrame()
-        rldc['net_import']=-energyH['Q2grid']+energyH['Qfrom_grid']            
-        rldc = rldc.sort_values(by=['net_import'], ascending = False)
-        rldc['interval']=1
-        rldc['duration'] = rldc['interval'].cumsum()
-        
-        ldc = pd.DataFrame()
-        ldc['load'] = energyH['Qload']
-        ldc = ldc.sort_values(by=['load'], ascending=False)
-        ldc['interval'] = 1
-        ldc['duration'] = ldc['interval'].cumsum()
-        
-        results = {'control': controls,
-                   'energy': energy,
-                   'temp_flow': temp_flow,
-                   'energy_monthly': energy_monthly,
-                   'rldc': rldc,
-                   'ldc': ldc}
-        return controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc
+        return controls, energy, temp_flow
     
     def cal_costs(energy, nm=[1,0.5,0.1,0], el_cost=0.4, feedin_tariff=0.07, gas_cost=1.45):
         global dt
@@ -326,14 +260,16 @@ class PostprocessFunctions:
         rldc = rldc.sort_values(by=['net_import'], ascending = False)
         rldc['interval']=1
         rldc['duration'] = rldc['interval'].cumsum()
-        rldc = rldc.set_index('duration')
+        rldc['timestamp'] = rldc.index
+        rldc.set_index('duration', inplace=True)
         
         ldc = pd.DataFrame()
         ldc['load'] = energyH['Qload']
         ldc = ldc.sort_values(by=['load'], ascending=False)
         ldc['interval'] = 1
         ldc['duration'] = ldc['interval'].cumsum()
-        ldc = ldc.set_index('duration')
+        ldc['timestamp'] = ldc.index
+        ldc.set_index('duration', inplace=True)
         return rldc,ldc
     
     def cal_opp(rldc):
