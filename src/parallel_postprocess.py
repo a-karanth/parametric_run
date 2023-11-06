@@ -114,6 +114,11 @@ def parallel_pp(label):
     return energy_out, rldc, ldc, label
     # return el_bill, gas_bill, el_em, gas_em, energy_out,el_bill_jan,energy_out2, label
 
+#%% get labels from a redo files
+# df = pd.read_csv('res\\redo.csv', index_col=0)
+# labels = list(df.index)
+# labels = [str(i)+'_cp' for i in labels]
+
 #%% multiprocessing that works
 # t1 = time.time()
 # print(t1)
@@ -167,6 +172,7 @@ print((t2-t1)/60)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
 # output = pd.concat([existing_res,output])
+# # existing_res.loc[output.index] = output  # to replace only values that were calculated from redo.csv
 # output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
 #%% manual apprach for saving results as csv
