@@ -145,5 +145,16 @@ print(t2-t1)
     
 # rldc = rldc.drop(0)
 # ldc = ldc.drop(0)
+
+# # the next steps are only if values have to be replaced by simulating redo.csv
+# rldc_og = pd.read_csv(res_folder+'rldc.csv',index_col=0)
+# ldc_og = pd.read_csv(res_folder+'ldc.csv',index_col=0)
+
+# rldc_og.columns = rldc_og.columns.astype(int)
+# ldc_og.columns = ldc_og.columns.astype(int)
+
+# rldc_og[rldc.columns] = rldc
+# ldc_og[ldc.columns] = ldc
+
 # ldc.to_csv(res_folder+'ldc'+'.csv', index=True, index_label='Duration')
 # rldc.to_csv(res_folder+'rldc'+'.csv', index=True, index_label='Duration')
