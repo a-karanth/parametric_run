@@ -61,25 +61,11 @@ else:
 #%% reading CSVs with samples
 new_sim = True
 if new_sim:
-    df1 = pd.read_csv(res_folder+'morris_sample_st2.csv')
-    df2 = pd.read_csv(res_folder+'morris_sample_pvt2.csv')
-    df3 = pd.read_csv(res_folder+'morris_sample_st.csv')
-    df4 = pd.read_csv(res_folder+'morris_sample_pvt.csv')
-    dfnew = pd.concat([df1,df2,df3,df4,
-                       pd.read_csv(res_folder+'morris_sample_cp2.csv'),
-                       pd.read_csv(res_folder+'morris_sample_batt1.csv'),
-                       pd.read_csv(res_folder+'morris_sample_cp.csv'),
-                       pd.read_csv(res_folder+'morris_sample_cp3.csv'),
-                       pd.read_csv(res_folder+'morris_sample_pvt4.csv'),
-                       pd.read_csv(res_folder+'morris_sample_st4.csv'),
-                       pd.read_csv(res_folder+'lhs_sample_1.csv'),
-                       pd.read_csv(res_folder+'ashp_sample.csv')],
-                       ignore_index=True)
     dfnew = pd.concat([pd.read_csv(res_folder+'lhs_sample_2.csv'),
-                      pd.read_csv(res_folder+'ashp_sample_2.csv'),
-                      pd.read_csv(res_folder+'lhs_sample_3.csv'),
-                      pd.read_csv(res_folder+'cp_ashp_sample_1.csv'),
-                      pd.read_csv(res_folder+'ff_sample_1.csv')])
+                       pd.read_csv(res_folder+'ashp_sample_2.csv'),
+                       pd.read_csv(res_folder+'lhs_sample_3.csv'),
+                       pd.read_csv(res_folder+'cp_ashp_sample_1.csv'),
+                       pd.read_csv(res_folder+'ff_sample_1.csv')])
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
     df=pd.merge(dfnew, existing, how='outer', indicator=True)
@@ -91,7 +77,7 @@ if new_sim:
         df.to_csv(res_folder+'current_list.csv', index=True, index_label='label')
 
 else:
-    df = pd.read_csv('res\\missed_sims5.csv', index_col=0)
+    df = pd.read_csv('res\\redo.csv', index_col=0)
     starting_label = 0
 
 #%% preparing variables for parametric run
@@ -147,7 +133,6 @@ for i in df.index:
             df['batt'][i] = batt0
             df['house'][i] = 'House.b18'
         
-        
         case 'cp_PV':
             df['file'][i] = 'wwhp_cp.dck'
             df['py_file'][i] = 'zpy_wwhp_cp.dck'
@@ -162,7 +147,11 @@ for i in df.index:
 os.chdir(directory)
 def run_parametric(values):
     # shutil.copy(directory+'\House_internal_heating.b18', directory+'\House_internal_heating_copy'+label+'.b18')
-    mod56.change_r(directory+values['house'], values['r_level'], values['inf'])
+    house_file = directory+'house_and_backup\\'+values['house']
+    mod56.change_r(house_file, 
+                   values['r_level'], 
+                   values['inf'],
+                   values['py_label'])
     print(values['py_label'])
     
     df = pd.read_csv('res\\trn\\list_of_inputs.csv', header=0, index_col=0)
@@ -203,11 +192,17 @@ def run_parametric(values):
     filedata = filedata.replace('py_db_high', str(10))
 
     #  - (over)writing the modified template .dck file to the original .dck file (to be run by TRNSYS) 
-    with open(values['file'], 'w') as dckfile_out:
+    final_dck = values['file'].replace('.dck','_'+values['py_label']+'.dck')
+    with open(final_dck, 'w') as dckfile_out:
         dckfile_out.write(filedata)
+        
+    #  - writing the dck file to a new dck file as back up  
+    # with open(directory+'res\\backup_dck\\'+value['py_label']+'.dck', 'w') as backup:
+    #     backup.write(filedata)
+        
     # 2) Running TRNSYS simulation
     start_time=time.time()                  # Measuring time (start point)
-    location = directory + values['file']
+    location = directory + final_dck
     subprocess.run([r"C:\TRNSYS18\Exe\TrnEXE64.exe", location, "/h"])
     elapsed_time = time.time() - start_time # Measuring time (end point)
     print(elapsed_time/60)
