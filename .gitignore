@@ -11,9 +11,10 @@ src/*.xlsx
 
 src/res/*.txt
 
-src/wwhp.dck
-src/wwhp_cp.dck
-src/ashp.dck
+src/*.dck
+!zpy_wwhp.dck
+!zpy_wwhp_cp.dck
+!zpy_ashp.dck
 
 # Ignore all .txt files in the trn folder
 src/res/trn/*.txt
