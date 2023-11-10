@@ -93,7 +93,7 @@ class ModifyType56:
         FLOWTOAIRNODE=1 : PERT=0 : PENRT=0 : RADMATERIAL=undefined : RADMATERIAL_SHD1=undefined\n'
     
   
-    def change_r(self, house_file, scenario, inf):
+    def change_r(self, house_file, scenario, inf, suffix):
         with open(house_file, 'r') as file_in:
             filedata = file_in.readlines()
         old_ext_wall = "CONSTRUCTION EXT_WALL\n"
@@ -136,7 +136,8 @@ class ModifyType56:
 
             else:
                 pass
-                    
-        with open(house_file, 'w') as housefile_out:
+          
+        house_out = house_file.replace('.b18', '_'+suffix+'.b18')
+        with open(house_out, 'w') as housefile_out:
             for line in filedata:
                 housefile_out.write(line)
