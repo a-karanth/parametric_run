@@ -47,6 +47,7 @@ class PostprocessFunctions:
     def cal_energy(energy, controls):
         energy['SOC'] = energy['SOC']*3600
         energy['COP'] = energy['COP']*3600
+        energy['COP'].replace(0,np.NaN, inplace=True)
         # if 'batt' not in prefix:
         #     energy['SOC']=0
         energy['Qhp4dhw'] = controls['ctr_dhw']*energy['Qhp']
@@ -282,3 +283,9 @@ class PostprocessFunctions:
         opp_export = rldc.loc[opp_export_intercept, rldc.columns[0]]
         return opp_import, opp_export, opp_import_intercept, opp_export_intercept
         
+    def cal_cop(energy):
+        COP = {}
+        COP['min'] = energy['COP'].min()
+        COP['median'] = energy['COP'].median()
+        COP['max'] = energy['COP'].max()
+        return COP
