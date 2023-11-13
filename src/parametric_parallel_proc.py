@@ -61,11 +61,8 @@ else:
 #%% reading CSVs with samples
 new_sim = True
 if new_sim:
-    dfnew = pd.concat([pd.read_csv(res_folder+'lhs_sample_2.csv'),
-                       pd.read_csv(res_folder+'ashp_sample_2.csv'),
-                       pd.read_csv(res_folder+'lhs_sample_3.csv'),
-                       pd.read_csv(res_folder+'cp_ashp_sample_1.csv'),
-                       pd.read_csv(res_folder+'ff_sample_1.csv')])
+    dfnew = pd.concat([pd.read_csv(res_folder+'861_samples.csv'),
+                       ])
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
     df=pd.merge(dfnew, existing, how='outer', indicator=True)
