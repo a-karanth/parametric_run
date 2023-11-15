@@ -289,3 +289,34 @@ class PostprocessFunctions:
         COP['median'] = energy['COP'].median()
         COP['max'] = energy['COP'].max()
         return COP
+    
+    def unmet_hours(controls,temp_flow):
+        """
+        Returns
+        -------
+        temp_flow : dataframe
+            calculated unmet hours. At night the acceptable drop is 2 degrees below set point.
+            During the day, when the room is occupied, the acceptable drop is 0.85 degrees
+            Finally, new columns are created that only record the room temperature, when there 
+            are occupants in the room
+        """
+        global dt
+        unmet = []
+        for i in temp_flow.index:
+            tf = temp_flow.loc[i]
+            c = controls.loc[i]
+            if ((i.hour<7 and i.hour>22) and (tf['Tfloor1']<(tf['Tset1']-2) or
+                                              tf['Tfloor2']<(tf['Tset2']-2))):
+                unmet.append(dt)
+            elif ((i.hour>=7 and i.hour<=22) and ((tf['Tfloor1']<(tf['Tset1']-0.85) and c['occ_living']>0))):# or
+                                                  # (tf['Tfloor2']<(tf['Tset2']-0.85) and c['occ_first']>0))):
+                unmet.append(dt)
+            else:
+                unmet.append(0.0)
+        temp_flow['unmet'] = unmet
+        
+        # occ1 = controls['occ_living'].replace([0,0.5],[np.NaN,1])
+        # occ2 = controls['occ_first'].replace([0,0.5],[np.NaN,1])
+        # temp_flow['T1_corr'] = temp_flow['Tfloor1']*occ1
+        # temp_flow['T2_corr'] = temp_flow['Tfloor2']*occ2
+        return sum(unmet)#temp_flow
