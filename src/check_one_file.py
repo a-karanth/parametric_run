@@ -29,7 +29,7 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = '840_cp'
+file = '778'
 prefix = directory + folder + file
 
 t_start = datetime(2001,1,1, 0,0,0)
@@ -48,6 +48,12 @@ else:
     energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
     energy = pf.cal_energy(energy, controls)
 
+occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
+occ = pf.modify_df(occ, t_start, t_end)
+controls = pd.concat([controls,occ],axis=1)
+
+temp_flow = pf.unmet_hours(controls, temp_flow)
+
 energy_monthly, energy_annual = pf.cal_integrals(energy)
 
 el_bill, gas_bill = pf.cal_costs(energy)
@@ -55,6 +61,7 @@ el_em, gas_em = pf.cal_emissions(energy)
 pl,pe = pf.peak_load(energy)
 rldc,ldc = pf.cal_ldc(energy)
 opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
+cop = pf.cal_cop(energy)
 # penalty, energy = pf.cal_penalty(energy)
 
 #%% plots
