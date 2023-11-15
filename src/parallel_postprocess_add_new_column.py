@@ -66,7 +66,7 @@ def new_column(label):
     t1 = datetime(2001,3,5, 0,0,0)
     t2 = datetime(2001,3,9, 0,0,0)
     if 'cp' in label:
-        controls, energy, temp_flow, energy_monthly, energy_annual, rldc, ldc = pf.cal_base_case(directory+trn_folder + label)
+        controls, energy, temp_flow = pf.cal_base_case(directory+trn_folder + label)
         
     else:
         temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
@@ -77,13 +77,12 @@ def new_column(label):
         temp_flow = pf.modify_df(temp_flow, t_start, t_end)     
         energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
     
-    rldc,ldc = pf.cal_ldc(energy)
-    # opp_import, opp_export, import_in, export_in = pf.cal_opp(rldc)
-    # pl,pe = pf.peak_load(energy)
-    # penalty, energy = pf.cal_penalty(energy)
-    # el_bill, gas_bill, el_em, gas_em, spf = pf.cal_week(controls, energy, temp_flow, t1, t2)
+    occ = pd.read_csv(directory+trn_folder+'occ.txt', delimiter=",",index_col=0)
+    occ = pf.modify_df(occ, t_start, t_end)
+    controls = pd.concat([controls,occ],axis=1)
     
-    return rldc, ldc, label
+    unmet = pf.unmet_hours(controls, temp_flow)
+    return unmet, label
     # return el_bill, gas_bill, el_em, gas_em, label
 
 #%% Parallel processing
@@ -107,7 +106,7 @@ print(t2-t1)
 # # el_bill = results[0][0]
 # # el_bill = ['el_bill_'+week+'_'+i for i in el_bill]   #adding the label el_bill before each bill value
 # # list_columns = [el_bill,'gas_bill_'+week,'el_em_'+week,'gas_em_'+week,'spf','penalty','label']
-# list_columns = ['opp_import','opp_export','import_in','export_in','label']
+# list_columns = ['unmet','label']
 # columns = []
 # #    converting the conbunation of dict an dlist, into a list
 # for item in list_columns:
