@@ -75,6 +75,10 @@ def parallel_pp(label):
         energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
         energy = pf.cal_energy(energy, controls)
     
+    occ = pd.read_csv(directory+trn_folder+'occ.txt', delimiter=",",index_col=0)
+    occ = pf.modify_df(occ, t_start, t_end)
+    controls = pd.concat([controls,occ],axis=1)
+    
     energy_monthly, energy_annual = pf.cal_integrals(energy)
         
     el_bill, gas_bill = pf.cal_costs(energy)
@@ -86,6 +90,8 @@ def parallel_pp(label):
     el_bill_jan, gas_bill_jan, el_em_jan, gas_em_jan, spf = pf.cal_week(controls, energy, temp_flow, t1, t2)
     rldc,ldc = pf.cal_ldc(energy)
     opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
+    cop = pf.cal_cop(energy)
+    unmet = pf.unmet_hours(controls, temp_flow)
     energy_out = {'el_bill':el_bill,
                   'gas_bill':gas_bill,
                   'el_em': el_em,
@@ -108,7 +114,9 @@ def parallel_pp(label):
                   'opp_import':opp_im,
                   'opp_export':opp_ex,
                   'import_in':import_in,
-                  'export_in':export_in}
+                  'export_in':export_in,
+                  'COP': cop,
+                  'unmet': unmet}
     
     print(label)
     return energy_out, rldc, ldc, label
@@ -150,7 +158,7 @@ print(t1)
 results = Parallel(n_jobs=8)(delayed(parallel_pp)(label) for label in labels)
 t2 = time.time()
 print((t2-t1)/60)
-    #%% exporting the results in a csv
+#%% exporting the results in a csv
 # #    Flattening the results which are a tuple of dictionary of single values 
 # #    and dictionaries 
 
