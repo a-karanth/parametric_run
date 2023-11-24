@@ -70,21 +70,7 @@ class PostprocessFunctions:
         #                         'ltg_bed3', 'ltg_attic']].sum(axis = 1, skipna = True)       
         return energy
     
-    @staticmethod
-    def create_dfs(prefix):
-        t_start = datetime(2001,1,1, 0,0,0)
-        t_end = datetime(2002,1,1, 0,0,0)
-        temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter = ",", index_col=0)
-        energy = pd.read_csv(prefix+'_energy.txt', delimiter = ",", index_col=0)
-        controls = pd.read_csv(prefix+'_control_signal.txt', delimiter = ",", index_col=0)
-        
-        controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
-        temp_flow = PostprocessFunctions.modify_df(temp_flow, t_start, t_end)
-        energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
-        energy = PostprocessFunctions.cal_energy(energy, controls)
-        return controls, energy, temp_flow
-    
-    
+  
     def create_base_dfs(controls, energy, temp_flow, t_start, t_end):
         controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
         energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600
@@ -319,4 +305,45 @@ class PostprocessFunctions:
         # occ2 = controls['occ_first'].replace([0,0.5],[np.NaN,1])
         # temp_flow['T1_corr'] = temp_flow['Tfloor1']*occ1
         # temp_flow['T2_corr'] = temp_flow['Tfloor2']*occ2
-        return sum(unmet)#temp_flow
+        return temp_flow
+    
+    def read_results():
+        res_folder = 'res\\'
+        trn_folder = 'res\\trn\\'
+        
+        results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
+        results['total_costs_1'] = results['el_bill_1']+results['gas_bill']
+        results['total_costs_0.5'] = results['el_bill_0.5']+results['gas_bill']
+        results['total_costs_0.1'] = results['el_bill_0.1']+results['gas_bill']
+        results['total_costs_0'] = results['el_bill_0']+results['gas_bill']
+        results['total_emission'] = results['el_em']+results['gas_em']
+        existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
+        results['total_cost_jan_0'] =  results['el_bill_jan_0']+results['gas_bill_jan']
+        dfresults = pd.concat([existing, results],axis=1)
+        rldc = pd.read_csv(res_folder+'rldc.csv',index_col=0)
+        dfresults.insert(4,'batt',None)
+        dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
+        dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
+        
+        return dfresults, rldc
+    
+    @staticmethod
+    def create_dfs(file, prefix):
+        t_start = datetime(2001,1,1, 0,0,0)
+        t_end = datetime(2002,1,1, 0,0,0)
+        if 'cp' in file:
+            controls, energy, temp_flow = PostprocessFunctions.cal_base_case(prefix)
+            
+        else:
+            temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter=",",index_col=0)
+            energy = pd.read_csv(prefix+'_energy.txt', delimiter=",", index_col=0)
+            controls = pd.read_csv(prefix+'_control_signal.txt', delimiter=",",index_col=0)
+            
+            controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
+            temp_flow = PostprocessFunctions.modify_df(temp_flow, t_start, t_end)
+            energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+            energy = PostprocessFunctions.cal_energy(energy, controls)
+        
+        return controls,energy,temp_flow
+    
+    
