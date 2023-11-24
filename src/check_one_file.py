@@ -35,6 +35,7 @@ prefix = directory + folder + file
 t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
 
+#%%
 if 'cp' in file:
     controls, energy, temp_flow = pf.cal_base_case(prefix)
     
@@ -87,3 +88,38 @@ fig.add_trace(go.Scatter(x=rldc.index,
                           )
                )
 fig.show()
+
+#%% run multiple files
+files = ['100', '250']
+c, e, tf= {}, {}, {}
+r,l = {}, {}
+
+occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
+occ = pf.modify_df(occ, t_start, t_end)
+
+for file in files:
+    prefix = directory + folder + file
+    controls, energy, temp_flow = pf.create_dfs(file,prefix)
+        
+    controls = pd.concat([controls,occ],axis=1)
+    temp_flow = pf.unmet_hours(controls, temp_flow)
+    rldc,ldc = pf.cal_ldc(energy)
+    
+    c[file] = controls
+    e[file] = energy
+    tf[file] = temp_flow
+    r[file] = rldc
+    l[file] = ldc
+    
+#%%
+t1 = datetime(2001,1,10, 0,0,0)
+t2 = datetime(2001,1,12, 0,0,0)
+
+fig, axs = plt.subplots(len(e), 1, figsize=(8, 2*len(e)))
+axs0 = [ax.twinx() for ax in axs]
+for i, label in enumerate(e):
+    pt = Plots(c[label],e[label],tf[label])
+    # pt.select_q(axs[i],t1,t2,'Qload','Qhp','QuColl')
+    pt.select_q(axs0[i],t1,t2,'scatter','COP')
+    
+    
