@@ -8,6 +8,7 @@ collate results into a csv for later use
 
 import time                 # to measure the computation time
 import os 
+os.chdir(os.path.abspath(os.path.dirname(__file__)))  #__file__: built-in ocnstant containing pathname of the current file
 import multiprocessing as mp
 # from PostprocessFunctions import PostprocessFunctions as pf
 import numpy as np
