@@ -8,6 +8,7 @@ import shutil               # to duplicate the output txt file
 import time                 # to measure the computation time
 import os 
 import sys
+os.chdir(os.path.abspath(os.path.dirname(__file__)))
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
@@ -61,7 +62,7 @@ else:
 #%% reading CSVs with samples
 new_sim = True
 if new_sim:
-    dfnew = pd.concat([pd.read_csv(res_folder+'861_samples.csv'),
+    dfnew = pd.concat([pd.read_csv(res_folder+'ff_sample_2.csv'),
                        ])
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
@@ -86,7 +87,7 @@ df['file'], df['py_file'] = [None]*len(df), [None]*len(df)
 df['coll_eff'], df['pack'] = [None]*len(df), [None]*len(df)
 df['batt'], df['py_label'] = [None]*len(df), [None]*len(df)
 df['house'] = [None]*len(df)
-
+df['draw_folder'] = [None]*len(df)
 for i in df.index:
 
     match df['design_case'][i]:
@@ -138,7 +139,15 @@ for i in df.index:
             df['batt'][i] = batt0
             df['house'][i] = 'House_internal_heating.b18'
      
-    df['py_label'][i] = str(starting_label+i)  
+    df['py_label'][i] = str(starting_label+i) 
+    
+    match df['draw'][i]:
+        case 'low':
+            df['draw_folder'][i] = 'DHW0002_1'
+        case 'medium':
+            df['draw_folder'][i] = 'DHW0002_2'
+        case 'high':
+            df['draw_folder'][i] = 'DHW0002_3'
     
 #%% define parametric run function
 os.chdir(directory)
@@ -157,7 +166,7 @@ def run_parametric(values):
     df.to_csv('res\\trn\\list_of_inputs.csv', index=True, index_label='label')
     
     inp_files = pd.read_csv('res\\trn\\input_files.csv', header=0, index_col=0)
-    inp_files.loc[int(values['py_label'])] = [values['house'], values['file'] ,values['py_file']]
+    inp_files.loc[int(values['py_label'])] = [values['house'], values['file'] ,values['py_file'],values['draw_folder']]
     inp_files.to_csv('res\\trn\\input_files.csv', index=True, index_label='label')
     
     label_no=0
@@ -184,6 +193,7 @@ def run_parametric(values):
     
     filedata = filedata.replace('py_vol', str(values['volume']))
     filedata = filedata.replace('py_flow_factor', str(values['flow_factor']))
+    filedata = filedata.replace('py_draw_folder', str(values['draw_folder']))
     filedata = filedata.replace('py_inf', str(1))
     filedata = filedata.replace('py_db_low', str(2))
     filedata = filedata.replace('py_db_high', str(10))
