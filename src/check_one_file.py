@@ -8,8 +8,7 @@ Created on Thu Jul 20 16:37:03 2023
 import sys
 import time                 # to measure the computation time
 import os 
-dir_trial = os.getcwd()
-#os.chdir('..')
+os.chdir(os.path.abspath(os.path.dirname(__file__)))  #__file__: built-in ocnstant containing pathname of the current file
 dir_main = os.getcwd()
 dir_lib = dir_main + '\\src'
 sys.path.append(dir_lib)
@@ -29,7 +28,7 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = '778'
+file = 'test20'
 prefix = directory + folder + file
 
 t_start = datetime(2001,1,1, 0,0,0)
@@ -89,15 +88,24 @@ fig.add_trace(go.Scatter(x=rldc.index,
                )
 fig.show()
 
-#%% run multiple files
-files = ['100', '250']
-c, e, tf= {}, {}, {}
-r,l = {}, {}
-
+#%%
+c1, e1, tf1= {}, {}, {}
+r1,l1 = {}, {}
 occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
 occ = pf.modify_df(occ, t_start, t_end)
+#%% run multiple files
+files = ['test4_cp','test7_cp','837_cp','test5_cp','test6_cp','test8_cp','test9_cp','test10_cp',
+         '249', 'test11', 'test3','test12','test13','test2','test14','test15','test16'
+         ,'test17','test18','test19','test20','test21','test22','396','test23','test24']
 
-for file in files:
+if 'e' in locals():                                     #for running the cell again
+    existing_keys = list(e1.keys())                     #without having to run all labels again
+    new_files = list(set(files)-set(existing_keys))     #check which labels exist and isolate the new ones
+else:                                                   #if its a new run, then run all labels
+    new_files = files
+
+for file in new_files:
+    print(file)
     prefix = directory + folder + file
     controls, energy, temp_flow = pf.create_dfs(file,prefix)
         
@@ -105,21 +113,85 @@ for file in files:
     temp_flow = pf.unmet_hours(controls, temp_flow)
     rldc,ldc = pf.cal_ldc(energy)
     
-    c[file] = controls
-    e[file] = energy
-    tf[file] = temp_flow
-    r[file] = rldc
-    l[file] = ldc
-    
+    c1[file] = controls
+    e1[file] = energy
+    tf1[file] = temp_flow
+    r1[file] = rldc
+    l1[file] = ldc
+#%% create filtered dictionary
+files = ['396','test23','test24']
+c = {key: c1[key] for key in files}
+e = {key: e1[key] for key in files}
+tf = {key: tf1[key] for key in files}
 #%%
-t1 = datetime(2001,1,10, 0,0,0)
+t1 = datetime(2001,1,11, 0,0,0)
 t2 = datetime(2001,1,12, 0,0,0)
 
 fig, axs = plt.subplots(len(e), 1, figsize=(8, 2*len(e)))
 axs0 = [ax.twinx() for ax in axs]
 for i, label in enumerate(e):
     pt = Plots(c[label],e[label],tf[label])
-    # pt.select_q(axs[i],t1,t2,'Qload','Qhp','QuColl')
-    pt.select_q(axs0[i],t1,t2,'scatter','COP')
-    
-    
+    e[label]['Qhp'].plot(ax=axs[i])
+    # e[label][['Qheat_living1','Qheat_living2']].sum(axis=1).plot(ax=axs[i], label='Qheat')
+    c[label][['heatingctr1','heatingctr2']].plot(ax=axs[i],style='--', color=['lightskyblue','dodgerblue'])
+    tf[label]['unmet'].plot(ax=axs[i],style='--', color='black')
+    tf[label][['Tfloor1','Tfloor2','Thp_load_out']].plot(ax=axs0[i], 
+                                          color=['mediumvioletred', 'darkmagenta','green'])
+    temp_flow[['Tset1','Tset2']].plot(ax=axs0[i], style='--', 
+                                              color=['mediumvioletred', 'darkmagenta'])
+    pf.plot_specs(axs[i], t1,t2, 0,5, 'energy[kWh]',legend_loc='upper left')
+    pf.plot_specs(axs0[i], t1,t2, -15,34, 'Temperature [deg C]',legend_loc='upper right')
+    heating_demand = round(e[label]['Qheat'].sum()*0.1, 2)
+    unmet = round(tf[label]['unmet'].sum(),2)
+    axs[i].set_title(label)
+    print(label + '(heat) ='+ str(heating_demand) + ' kWh, unmet hours = '+str(unmet)+' Qhp = '+str(e[label]['Qhp'].sum()*0.1))
+
+#%% cp - plots
+t1 = datetime(2001,1,10, 0,0,0)
+t2 = datetime(2001,1,12, 0,0,0)
+
+pt = Plots(controls, energy, temp_flow)
+fig,(ax, ax2) = plt.subplots(2,1)
+ax0 = ax.twinx()
+# energy[['Qheat_living1','Qheat_living2']].sum(axis=1).plot(ax=ax)
+energy[['Qhp','gas']].plot(ax=ax)
+temp_flow[['Tfloor1','Tfloor2']].plot(ax=ax0,color=['mediumvioletred', 'darkmagenta'])
+temp_flow[['Tset1','Tset2']].plot(ax=ax0, style='--', color=['mediumvioletred', 'darkmagenta'])
+pf.plot_specs(ax, t1,t2, 0,7, 'energy[kWh]',legend_loc='upper left')
+pf.plot_specs(ax0, t1,t2, -10,30, 'Temperature [deg C]',legend_loc='upper right')
+
+
+
+#%%
+t1 = datetime(2001,1,10, 0,0,0)
+t2 = datetime(2001,1,12, 0,0,0)
+fig,(ax, ax2)= plt.subplots(2,1)
+ax0 = ax.twinx()
+temp_flow[['Tfloor1','Tfloor1_2']].plot(ax=ax)
+temp_flow['Tset1'].plot(ax=ax, style=':', color='C0')
+energy['Qrad1'].plot(ax=ax0, style ='--', color='black')
+pf.plot_specs(ax, t1,t2, 12,23, 'Temperature [deg C]',legend_loc='upper left', 
+              title='Is heating effective in the two zones of the living room')
+pf.plot_specs(ax0, t1,t2, -0.1,20, 'Energy delivered by Radiator [kW]',legend_loc='upper right')
+ax.grid(which='both',linestyle='--', alpha=0.4)
+
+ax20 = ax2.twinx()
+temp_flow[['Thp_load_out','Trad1_in','Trad1_return']].plot(ax=ax2)
+energy[['Qhp_heating_out','Qrad1']].plot(ax=ax20, style='--')
+pf.plot_specs(ax2, t1,t2, 40,70, ylabel='t',legend_loc='upper left')
+pf.plot_specs(ax20, t1,t2, -0.1,25, 'Energy delivered by Radiator [kW]',legend_loc='upper right')
+
+#%% namual calculation of Qrad
+q_rad = temp_flow['mrad1_in']*4.182*(temp_flow['Trad1_in']-temp_flow['Trad1_return'])/3600
+q_hp = temp_flow['mhp_load_out']*4.182*(temp_flow['Thp_load_out']-temp_flow['Thp_load_in'])/3600
+fig,ax = plt.subplots()
+q_hp.plot(ax=ax)
+energy['Qhp_heating_out'].plot(ax=ax)#,style='--',linewidth=0.3)
+diff = (energy['Qhp_heating_out']-q_rad)
+
+t1 = datetime(2001,1,10, 0,0,0)
+t2 = datetime(2001,1,17, 0,0,0)
+fig2,ax2 = plt.subplots()
+temp_flow['mhp_load_out'].plot(ax=ax2)
+temp_flow['mhp_load_in'].plot(ax=ax2, style='--')
+ax2.set_xlim([t1,t2])
