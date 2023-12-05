@@ -294,7 +294,7 @@ class PostprocessFunctions:
             if ((i.hour<7 and i.hour>22) and (tf['Tfloor1']<(tf['Tset1']-2) or
                                               tf['Tfloor2']<(tf['Tset2']-2))):
                 unmet.append(dt)
-            elif ((i.hour>=7 and i.hour<=22) and ((tf['Tfloor1']<(tf['Tset1']-0.85) and c['occ_living']>0))):# or
+            elif ((i.hour>=7 and i.hour<=22) and ((tf['Tfloor1']<(tf['Tset1']-1.11) and c['occ_living']>0))):# or
                                                   # (tf['Tfloor2']<(tf['Tset2']-0.85) and c['occ_first']>0))):
                 unmet.append(dt)
             else:
@@ -346,4 +346,11 @@ class PostprocessFunctions:
         
         return controls,energy,temp_flow
     
-    
+    def unmet_delta(controls, energy, temp_flow):
+        temp_flow['unmet_delta'] = 0
+        for i in temp_flow.index:
+            if temp_flow.loc[i]['unmet'] > 0:
+                tset = temp_flow.loc[i]['Tset1']
+                tair = temp_flow.loc[i]['Tfloor1']
+                temp_flow.loc[i,'unmet_delta'] = tset-tair
+                print(tset-tair)
