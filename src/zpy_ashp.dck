@@ -1438,7 +1438,7 @@ PARAMETERS 10
 89		! 9 Logical unit for input file
 -1		! 10 Free format mode
 *** External files
-ASSIGN "water_draw\py_draw_folder\py_draw_file" 89
+ASSIGN "water_draw\py_draw_folder\py_draw_folder_DHW.txt" 89
 *|? Input file name |1000
 *------------------------------------------------------------------------------
 
