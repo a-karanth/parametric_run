@@ -11,8 +11,9 @@ import pandas as pd
 # folder_path = ""
 
 # Get a list of all files in the folder
-files = os.listdir()
+files = os.listdir('house_and_backup\\backup\\')
 #%% Iterate through the files and delete .lst and .log files
+# os.chdir('house_and_backup\\backup\\')
 for file in files:
     if file.endswith((".lst", ".log",".PTI",'.ssr')):
         # file_path = os.path.join(folder_path, file)
@@ -22,6 +23,7 @@ print("Deleted .lst and .log files in the specified folder.")
 
 #%% Get labels for the files that need to be moved
 listofinputs = pd.read_csv('res\\trn\\list_of_inputs.csv')
+# listofinputs = pd.read_csv('res\\current_list.csv')
 labels = listofinputs.index.astype(str)
 labels = ['_'+i+'.dck' for i in labels]
 
