@@ -18,3 +18,10 @@ src/*.dck
 
 # Ignore all .txt files in the trn folder
 src/res/trn/*.txt
+
+src/res/*.csv
+src/penalty.ipynb
+
+trials/
+
+src/res/trn/test/
