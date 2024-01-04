@@ -58,31 +58,37 @@ else:
 DT = '6min'
 t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
-
+inputs = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 #%%
 os.chdir(directory)
 from PostprocessFunctions import PostprocessFunctions as pf
 def new_column(label):
-    t1 = datetime(2001,3,5, 0,0,0)
-    t2 = datetime(2001,3,9, 0,0,0)
-    if 'cp' in label:
-        controls, energy, temp_flow = pf.cal_base_case(directory+trn_folder + label)
+    # t1 = datetime(2001,3,5, 0,0,0)
+    # t2 = datetime(2001,3,9, 0,0,0)
+    # if 'cp' in label:
+    #     controls, energy, temp_flow = pf.cal_base_case(directory+trn_folder + label)
         
-    else:
-        temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
-        energy = pd.read_csv(directory+trn_folder + label+'_energy.txt', delimiter=",", index_col=0)
-        controls = pd.read_csv(directory+trn_folder + label+'_control_signal.txt', delimiter=",",index_col=0)
+    # else:
+    #     temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
+    #     energy = pd.read_csv(directory+trn_folder + label+'_energy.txt', delimiter=",", index_col=0)
+    #     controls = pd.read_csv(directory+trn_folder + label+'_control_signal.txt', delimiter=",",index_col=0)
  
-        controls = pf.modify_df(controls, t_start, t_end)
-        temp_flow = pf.modify_df(temp_flow, t_start, t_end)     
-        energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+    #     controls = pf.modify_df(controls, t_start, t_end)
+    #     temp_flow = pf.modify_df(temp_flow, t_start, t_end)     
+    #     energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
     
-    occ = pd.read_csv(directory+trn_folder+'occ.txt', delimiter=",",index_col=0)
-    occ = pf.modify_df(occ, t_start, t_end)
-    controls = pd.concat([controls,occ],axis=1)
+    # occ = pd.read_csv(directory+trn_folder+'occ.txt', delimiter=",",index_col=0)
+    # occ = pf.modify_df(occ, t_start, t_end)
+    # controls = pd.concat([controls,occ],axis=1)
     
-    unmet = pf.unmet_hours(controls, temp_flow)
-    return unmet, label
+    # unmet = pf.unmet_hours(controls, temp_flow)
+    
+    index = int(''.join([i for i in label if i.isdigit()]))
+    design_case = inputs.loc[index]['design_case']
+    vol = inputs.loc[index]['volume']
+    coll_area = inputs.loc[index]['coll_area']
+    cost = pf.investment_cost(design_case, vol, coll_area)
+    return cost, label
     # return el_bill, gas_bill, el_em, gas_em, label
 
 #%% Parallel processing
@@ -106,7 +112,7 @@ print(t2-t1)
 # # el_bill = results[0][0]
 # # el_bill = ['el_bill_'+week+'_'+i for i in el_bill]   #adding the label el_bill before each bill value
 # # list_columns = [el_bill,'gas_bill_'+week,'el_em_'+week,'gas_em_'+week,'spf','penalty','label']
-# list_columns = ['unmet','label']
+# list_columns = ['cost','label']
 # columns = []
 # #    converting the conbunation of dict an dlist, into a list
 # for item in list_columns:
