@@ -354,3 +354,32 @@ class PostprocessFunctions:
                 tair = temp_flow.loc[i]['Tfloor1']
                 temp_flow.loc[i,'unmet_delta'] = tset-tair
                 print(tset-tair)
+                
+    def investment_cost(design_case, vol, coll_area):
+        wwhp = 5400
+        ashp = 4700
+        pv_panels = 500/1.65    #Eur per m2. or 500 for 1 panel of 1.65 m2
+        collector = 300         # Eur/m2
+        inverter = 400          # cost of 1 inverter
+        batt_6 = 7800
+        batt_9 = 9600
+        tank_150 =  1250
+        vol_increments = 0.05
+        min_vol = 0.15
+        
+        tank = tank_150 * 1.1 **((vol-min_vol)/vol_increments)
+        
+        match design_case:
+            case 'ST':
+                cost = coll_area*collector + wwhp + tank
+            case 'PVT_0':
+                cost = coll_area*collector+ inverter + wwhp + tank
+            case 'PVT_6':
+                cost = coll_area*collector+ inverter + wwhp + tank + batt_6
+            case 'PVT_9':
+                cost = coll_area*collector+ inverter + wwhp + tank + batt_9
+            case 'ASHP':
+                cost = coll_area*pv_panels + inverter + ashp + tank
+            case 'cp_PV':
+                cost = coll_area*pv_panels + inverter + tank
+        return cost  
