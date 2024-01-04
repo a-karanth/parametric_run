@@ -140,6 +140,50 @@ best_pvt = pvt[pvt.el_bill_1==pvt.el_bill_1.min()]
 best_batt6 = batt6[batt6.el_bill_1==batt6.el_bill_1.min()]
 best_batt9 = batt9[batt9.el_bill_1==batt9.el_bill_1.min()]
 
+#%% costs vs investment costs
+# df = dfresults.copy()
+# fig, ax= plt.subplots()
+# ax.scatter(df['cost'], df['total_costs_0'])
+
+import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
+from plotly.subplots import make_subplots
+pio.renderers.default = 'browser'
+import plotly.express as px
+
+# df = df.sort_values(by='design_case')
+# df['design_case'] = df['design_case'].replace([0,1,2,3,4,5],
+#                                               ['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'])
+fig = px.scatter(df, 
+                 y='total_costs_0', x="cost", 
+                 symbol="r_level", 
+                 color="design_case",
+                 symbol_sequence= [0,1,2,3,4,5],
+                 # facet_col="time",
+                 labels={"r_level": "r_level", "design_case": "Design Case",'coll_area':'Coll area'},
+                 color_discrete_map={"cp_PV": "grey",
+                                      "ST": "red",
+                                      'ASHP':'Purple',
+                                      "PVT_0": "limegreen",
+                                      "PVT_6": "teal",
+                                      "PVT_9": "darkblue"},
+                 # color_discrete_sequence=px.colors.qualitative.Bold,
+                 # color_continuous_scale="oxy",
+                  title="Initial investvent cost vs Annual operational costs")
+fig.update_traces(marker=dict(size=10))
+fig.update_xaxes(range=[0, 20000])  # Adjust the range as needed for the x-axis
+# fig.update_yaxes(range=[1.9, 3]) 
+fig.update_layout(legend=dict(x=0, y=0))
+fig.update_layout(legend=dict(yanchor="bottom", y=0.01,
+                              xanchor="right", x=0.5))
+# fig.update_layout(legend=dict(orientation="h", 
+#                               yanchor="bottom", y=1.02, 
+#                               xanchor="right", x=1),
+#                   grid=dict(rows=3, columns=4),
+#                   margin=dict(t=50, l=0, r=0, b=0),
+#                   # showlegend=False  # Hide default legend
+#                   )
+fig.show()
+
 #%% plotly PCP 1 - cost, emission, penalty
 import plotly.graph_objects as go, plotly.io as pio
 pio.renderers.default = 'browser'
@@ -267,6 +311,7 @@ fig.update_layout(legend=dict(x=0, y=0))
 fig.update_layout(legend=dict(yanchor="bottom", y=0.01,
                               xanchor="right", x=0.99))
 fig.show()
+
 
 #%% plotly plots
 # import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
