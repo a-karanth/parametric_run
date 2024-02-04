@@ -7,8 +7,9 @@ use results from csv to analyze them
 
 import time                 # to measure the computation time
 import os 
+os.chdir(os.path.abspath(os.path.dirname(__file__)))  #__file__: built-in ocnstant containing pathname of the current file
 import multiprocessing as mp
-# from PostprocessFunctions import PostprocessFunctions as pf
+from PostprocessFunctions import PostprocessFunctions as pf
 from Plots import Plots as pt
 import numpy as np
 import pandas as pd
@@ -382,6 +383,53 @@ for dc in unique_dc:
     plot_scatter(ax3, df_temp, 'volume', 'flow_factor', 'coll_area')
     plt.suptitle('Design case = '+ dc)
     # plt.savefig('res\\Plots\\r1-'+dc+'.png')
+    
+#%% COP median scatter plot - Loop through unique design_case values and plot separately
+# Loop through unique design_case values and plot separately
+markers = ['o', 's', '^', 'v', 'D', 'P']
+df = dfresults.copy()
+for design_case, marker in zip(df['design_case'].unique(), markers):
+    subset = df[df['design_case'] == design_case]
+    plt.scatter(subset.index, subset['COP_median'], label=design_case, marker=marker)
+# Add legend
+plt.legend()
+# Set axis labels and title
+plt.xlabel('Index')
+plt.ylabel('COP_median')
+plt.title('Scatter Plot of COP_median with coll_area and design_case')
+#%% ternary plots
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator, AutoMinorLocator
+import mpltern
+dfresults['%from_pv'] = dfresults['Qpv']/dfresults['Qload']
+dfresults['%from_grid'] = dfresults['Qfrom_grid']/dfresults['Qload']
+dfresults['%from_gas'] = dfresults['Qload']/dfresults['Qload']
+df = dfresults.copy()
+# df = df[df['r_level']=='r0']
+plt.figure()
+ax = plt.subplot(projection="ternary")
+ax.scatter(df['%from_pv'], df['%from_grid'], df['%from_gas'], s=64.0, c="C1", edgecolors="k", alpha=0.6)
+ax.set_tlabel('Renewable')
+ax.set_llabel('Grid')
+ax.set_rlabel('Load')
+# ax.taxis.set_label_position('tick1')
+# ax.laxis.set_label_position('tick1')
+# ax.raxis.set_label_position('tick1')
+ax.spines['tside'].set_color('C0')
+ax.spines['lside'].set_color('C1')
+ax.spines['rside'].set_color('C2')
+ax.grid(axis='t')
+ax.grid(axis='l', which='both', linestyle='--')
+ax.grid(axis='r', which='both', linestyle=':')
+ax.taxis.set_tick_params(tick2On=True, colors='C0', grid_color='C0')
+ax.laxis.set_tick_params(tick2On=True, colors='C1', grid_color='C1')
+ax.raxis.set_tick_params(tick2On=True, colors='C2', grid_color='C2')
+#%%
+fig = plt.figure()
+ax = plt.axes(projection='3d')
+ax.scatter(df['%from_pv'], df['%from_grid'], df['%from_gas'], s=64.0, c="C1", edgecolors="k", alpha=0.6)
+plt.show()
 
 #%% plotly plots
 # import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
