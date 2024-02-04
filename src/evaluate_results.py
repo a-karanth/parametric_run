@@ -39,14 +39,15 @@ rldc = pd.read_csv(res_folder+'rldc.csv',index_col=0)
 dfresults.insert(4,'batt',None)
 dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
 dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
-df = dfresults.copy()
 
 #%% convert string categories into numerical
+df = dfresults.copy()
 df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
                                               [0,1,2,3,4,5])
 df['r_level'] = df['r_level'].replace(['r0','r1','r2'],[0,1,2])
 
-#%% Scatter plots
+#%% Scatter plots: 1 parameter vs second parameter
+df = dfresults.copy()
 fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))   
 # scatter1, cbar1 = pt.scatter_plot(df[(df['design_case']=='ST') & (df['r_level']=='r1')], 
 #                                   df[(df['design_case']=='PVT') & (df['r_level']=='r1')], 
@@ -56,35 +57,35 @@ fig,((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2, figsize = (19,9))
 #                                   clabel='Coll area [m2]')
 
 scatter2, cbar2 = pt.scatter_plot(df[df['design_case']=='ST'], 
-                                  df[df['design_case']=='PVT'], 
+                                  df[df['design_case']=='PVT_0'], 
                                   ax=ax2, marker=['^', 'P'], 
-                                  xkey='volume', ykey='total_costs',ckey='flow_rate',
+                                  xkey='volume', ykey='total_costs_0',ckey='flow_rate',
                                   xlabel='Volume [m3]', ylabel='Total cost [EUR]', 
                                   clabel='Flow rate [kg/hr]')
 
 scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
-                                  df[df['design_case']=='PVT'],
-                                  df[df['design_case']=='PVT_Batt_6'],
-                                  df[df['design_case']=='PVT_Batt_9'],
+                                  df[df['design_case']=='PVT_0'],
+                                  df[df['design_case']=='PVT_6'],
+                                  df[df['design_case']=='PVT_9'],
                                   df[df['design_case']=='cp_PV'], ax=ax3,
                                   marker=['^', 'o', 's','D'], 
-                                  xkey='total_costs', ykey='total_emission',ckey='coll_area',
+                                  xkey='total_costs_0', ykey='total_emission',ckey='coll_area',
                                   xlabel='Total cost [EUR]', ylabel='Total emission [kgCO2]', 
                                   clabel='Coll area [m2]')
 
 #%% Plot electricity bill for diff levels of net metering
 fig, ax = plt.subplots(figsize=(6,7))
 st = df[df['design_case']=='ST']
-pvt = df[df['design_case']=='PVT']
-batt6 = df[df['design_case']=='PVT_Batt_6']
-batt9 = df[df['design_case']=='PVT_Batt_9']
+pvt = df[df['design_case']=='PVT_0']
+batt6 = df[df['design_case']=='PVT_6']
+batt9 = df[df['design_case']=='PVT_9']
 cp = df[df['design_case']=='cp_PV']
-marker_size= 50
+marker_size= 10
 
-df_plot = {'df':[st,pvt,batt6, batt9,cp],
+df_plot = {'df':[st, pvt, batt6, batt9, cp],
         'marker':['^','o','o','o','s'],
         'color':['red','purple','orange','green','black'],
-        'alpha':[1,1,1,1,0.5],
+        'alpha':[1,1,1,1,1],
         'size':[marker_size,marker_size,marker_size,marker_size,50]}
 x_values = [1, 2, 3, 4]
 for i in x_values:
@@ -108,7 +109,7 @@ for i in x_values:
                    alpha =df_plot['alpha'][data])
                    # label = df_plot['df'][data]['design_case'].iloc[0])
 
-ax.legend(['ST', 'PVT','PVT_Batt_6','PVT_Batt_9','cp_PV'],loc='best')
+ax.legend(['ST', 'PVT_0','PVT_6','PVT_9','cp_PV'],loc='best')
 ax.set_xlabel('% net metering')
 ax.set_ylabel('Energy bill')
 ax.set_title('Volume = 250 L')
@@ -116,12 +117,12 @@ ax.set_ylim(1200,4300)
 plt.xticks(x_values, ['1','0.5','0.1','0'])
 # ax.legend()
 
-#%% plot emissions
+#%% plot emissions - against collector area
 df = dfresults[(dfresults['r_level']=='r0') ]
 st = df[df['design_case']=='ST']
-pvt = df[df['design_case']=='PVT']
-batt6 = df[df['design_case']=='PVT_Batt_6']
-batt9 = df[df['design_case']=='PVT_Batt_9']
+pvt = df[df['design_case']=='PVT_0']
+batt6 = df[df['design_case']=='PVT_6']
+batt9 = df[df['design_case']=='PVT_9']
 cp = df[df['design_case']=='cp_PV']
 fig, ax = plt.subplots()
 ax.scatter(st['coll_area'],st['total_emission'],c='white',edgecolor='red',marker='^',label='ST')
@@ -133,6 +134,7 @@ ax.scatter(cp['coll_area'],cp['total_emission'],c='white',edgecolor='black',mark
 ax.set_xlabel('collector area [m2]')
 ax.set_ylabel('Emissions kgCO2/year')
 ax.set_title('Carbon emissions')
+ax.legend()
 
 best_cp = cp[cp.el_bill_1==cp.el_bill_1.min()]
 best_st =st[st.el_bill_1==st.el_bill_1.min()] 
@@ -185,19 +187,24 @@ fig.update_layout(legend=dict(yanchor="bottom", y=0.01,
 fig.show()
 
 #%% plotly PCP 1 - cost, emission, penalty
+df = dfresults.copy()
+df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
+                                              [0,1,2,3,4,5])
+df['r_level'] = df['r_level'].replace(['r0','r1','r2'],[0,1,2])
 import plotly.graph_objects as go, plotly.io as pio
 pio.renderers.default = 'browser'
 fig = go.Figure(data=
                 go.Parcoords(
-                    line = dict(color = df['coll_area'],
+                    line = dict(color = df['design_case'],
                                 colorscale = [[0,'purple'],[0.5,'lightseagreen'],[1,'gold']],
                                 # colorscare = 'Electric',
                                 showscale=True,
-                                colorbar=dict(title='Coll area [m2]')),  # Add the colorbar title here,
+                                colorbar=dict(title='Design_case')),  # Add the colorbar title here,
                     dimensions = list([dict(label = 'R level', values = df['r_level']),
-                                       dict(tickvals = [0,1,2,3,4,5],
-                                            label = 'Design case', values = df['design_case'],
-                                            ticktext = ['cp_PV', 'ST','ASHP', 'PVT', 'PVT  6','PVT 9']),
+                                       # dict(tickvals = [0,1,2,3,4,5],
+                                       #      label = 'Design case', values = df['design_case'],
+                                       #      ticktext = ['cp_PV', 'ST','ASHP', 'PVT', 'PVT  6','PVT 9']),
+                                       dict(label='Coll area', values = df['coll_area']),
                                        dict(#range = [1,5],
                                             #constraintrange = [1,2], # change this range by dragging the pink line
                                             label = 'Volume', values = df['volume']),        
@@ -205,6 +212,7 @@ fig = go.Figure(data=
                                         dict(label = 'Flow rate', values = df['flow_rate']),
                                        dict(label = 'Total cost 0', values = df['total_costs_0']),
                                        dict(label = 'Total emissions', values = df['total_emission']),
+                                       dict(label = 'COP meadian', values = df['COP_median'])
                                        # dict(label = 'Penalty', values = df['penalty_in'])
                                        ])
                     )
@@ -212,6 +220,10 @@ fig = go.Figure(data=
 fig.show()
 
 #%% PCP 2: peak load, export, cost, penalty
+df = dfresults.copy()
+df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
+                                              [0,1,2,3,4,5])
+df['r_level'] = df['r_level'].replace(['r0','r1','r2'],[0,1,2])
 fig = go.Figure(data=
                 go.Parcoords(
                     line = dict(color = df['coll_area'],
@@ -241,12 +253,12 @@ fig.show()
 fig, axx = plt.subplots()
 # df = dfresults.copy()
 scatter3, cbar3 = pt.scatter_plot(df[df['design_case']=='ST'],
-                                  df[df['design_case']=='PVT'],
-                                  df[df['design_case']=='PVT_Batt_6'],
-                                  df[df['design_case']=='PVT_Batt_9'],
+                                  df[df['design_case']=='PVT_0'],
+                                  df[df['design_case']=='PVT_6'],
+                                  df[df['design_case']=='PVT_9'],
                                   ax=axx,
                                   marker=['^', 'o', 's','D'], 
-                                  xkey='flow_rate', ykey='el_bill_0',ckey='coll_area',
+                                  xkey='flow_rate', ykey='total_costs_0',ckey='coll_area',
                                   xlabel='flow_rate', ylabel='Total cost [EUR]', 
                                   clabel='Coll area [m2]')
 axx.set_ylim([1000,2600])
@@ -281,12 +293,13 @@ from plotly.subplots import make_subplots
 pio.renderers.default = 'browser'
 import plotly.express as px
 
+df = dfresults.copy()
 df = df.sort_values(by='design_case')
-df['design_case'] = df['design_case'].replace([0,1,2,3,4,5],
-                                              ['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'])
+# df['design_case'] = df['design_case'].replace([0,1,2,3,4,5],
+#                                               ['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'])
 fig = px.scatter(df, 
                  # y='opp_import', x=df.index, 
-                  y='opp_export', x="opp_import", 
+                 y='opp_export', x="opp_import", 
                  symbol="r_level", 
                  color="design_case",
                  # color="r_level", 
@@ -294,24 +307,24 @@ fig = px.scatter(df,
                  symbol_sequence= [0,1,2,3,4,5],
                  # facet_col="time",
                  labels={"r_level": "r_level", "design_case": "Design Case"},
-                  color_discrete_map={"cp_PV": "grey",
+                 color_discrete_map={"cp_PV": "grey",
                                       "ST": "red",
                                       'ASHP':'Purple',
                                       "PVT_0": "limegreen",
                                       "PVT_6": "teal",
                                       "PVT_9": "darkblue"},
+                 # hover_data={"opp_export", "opp_import", "label"},
                  # color_discrete_sequence=px.colors.qualitative.Bold,
                  # color_continuous_scale="oxy",
                  # title="OPP import [kW] for all cases")
                   title="OPP export [kW] vs OPP import [kW] for all cases")
 fig.update_traces(marker=dict(size=10))
 # fig.update_xaxes(range=[-10, 510])  # Adjust the range as needed for the x-axis
-fig.update_yaxes(range=[1.9, 3]) 
+# fig.update_yaxes(range=[1.9, 3]) 
 fig.update_layout(legend=dict(x=0, y=0))
 fig.update_layout(legend=dict(yanchor="bottom", y=0.01,
                               xanchor="right", x=0.99))
 fig.show()
-
 
 #%% plotly plots
 # import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
@@ -406,3 +419,15 @@ check['count'] = 0
 for i in existing.index:
     if i in list_label:
         check.loc[i] = check.loc[i]+1
+        
+#%%
+test = df[df['design_case']=='ASHP']
+print(test['coll_area'].unique())
+print(test['flow_factor'].unique())
+print(test['volume'].unique())
+
+#%% 
+df = dfresults[dfresults['design_case']=='cp_PV']
+
+fig,(ax1, ax2,ax3) = plt.subplots(3,1)
+ax1.scatter(df['coll_area'],df['total_costs_0'],c=df['flow_factor'])
