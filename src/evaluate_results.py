@@ -326,6 +326,63 @@ fig.update_layout(legend=dict(yanchor="bottom", y=0.01,
                               xanchor="right", x=0.99))
 fig.show()
 
+#%%	function for making dynamic scatter plots with symbol and color based on unique data
+#   and demonstration
+
+import matplotlib.colors as mcolors
+from matplotlib.lines import Line2D
+df = dfresults.copy()
+# df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
+#                                               [0,1,2,3,4,5])
+# df['r_level'] = df['r_level'].replace(['r0','r1','r2'],[0,1,2])
+def plot_scatter(ax, df, x_val, c_val, sym_val):
+    scatter = []
+    unique_elements = df[sym_val].unique()
+    symbols = ['o', 's', 'D', '^', 'X', 'P']
+    symbol_mapping = {e: symbols[i % len(symbols)] for i, e in enumerate(unique_elements)}
+    
+    norm = mcolors.Normalize(vmin=df[c_val].min(), vmax=df[c_val].max())
+    cmap = plt.cm.get_cmap('viridis')
+    for i in unique_elements:
+        subset = df[df[sym_val]==i]
+        edgecolors = cmap(norm(subset[c_val]))
+        sc = (ax.scatter(subset[x_val],subset['total_costs_0'],
+                                   c=subset[c_val],
+                                   marker=symbol_mapping[i],
+                                   edgecolor= edgecolors,
+                                   facecolor='none',
+                                   s=50))
+        sc.set_facecolor('none')
+        scatter.append(sc)
+    legend = ax.legend(*scatter[0].legend_elements(), title=c_val, loc='upper right')
+    
+    symbol_legend = ax.legend(handles=[Line2D([0], [0],
+                                               marker=symbol_mapping[s],
+                                               markerfacecolor='white',
+                                               linestyle='None', color='k',
+                                               label=f'{sym_val} {s}',
+                                               markersize=5) for s in unique_elements],
+                                  title='Symbol Legend', loc='lower right')
+    ax.set_xlim([df[x_val].min()-1,df[x_val].max()+10])
+    if x_val=='volume':
+        ax.set_xlim([0.1,0.35])
+    ax.set_ylim([1250,2250])
+    ax.add_artist(legend)
+    ax.add_artist(symbol_legend)
+    ax.set_xlabel(x_val)
+    ax.set_ylabel('total costs')
+    ax.grid(which='both',linestyle='--',alpha=0.4)
+df = df[df['r_level']=='r1']
+unique_dc = df['design_case'].unique()
+for dc in unique_dc:
+    df_temp = df[df['design_case']==dc]
+    fig,((ax1),(ax2),(ax3)) = plt.subplots(3,1,figsize=(4,10))
+    plot_scatter(ax1, df_temp, 'coll_area', 'flow_factor', 'volume')
+    plot_scatter(ax2, df_temp, 'flow_factor', 'coll_area', 'volume')
+    plot_scatter(ax3, df_temp, 'volume', 'flow_factor', 'coll_area')
+    plt.suptitle('Design case = '+ dc)
+    # plt.savefig('res\\Plots\\r1-'+dc+'.png')
+
 #%% plotly plots
 # import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
 # from plotly.subplots import make_subplots
