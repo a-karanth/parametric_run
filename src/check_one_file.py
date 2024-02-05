@@ -28,9 +28,10 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = 'test20'
+file = '1131'
 prefix = directory + folder + file
 
+inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
 
@@ -160,8 +161,6 @@ temp_flow[['Tset1','Tset2']].plot(ax=ax0, style='--', color=['mediumvioletred', 
 pf.plot_specs(ax, t1,t2, 0,7, 'energy[kWh]',legend_loc='upper left')
 pf.plot_specs(ax0, t1,t2, -10,30, 'Temperature [deg C]',legend_loc='upper right')
 
-
-
 #%%
 t1 = datetime(2001,1,10, 0,0,0)
 t2 = datetime(2001,1,12, 0,0,0)
@@ -195,3 +194,78 @@ fig2,ax2 = plt.subplots()
 temp_flow['mhp_load_out'].plot(ax=ax2)
 temp_flow['mhp_load_in'].plot(ax=ax2, style='--')
 ax2.set_xlim([t1,t2])
+
+#%% plotly rangeslider
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+file_index = int(''.join([i for i in file if i.isdigit()]))
+plot_name = ('Design case: '+ inputs['design_case'].loc[file_index] 
+             + ', Area:' + str(inputs['coll_area'].loc[file_index]) 
+             + ', Volume:' + str(inputs['volume'].loc[file_index])
+             + ', R level:' + inputs['r_level'].loc[file_index]
+             + ', File index:' + str(file_index))
+
+fig = make_subplots(          
+            rows=4, cols=1, 
+            subplot_titles=('DHW tank', 'HP', 'SH', 'Panel'),
+            vertical_spacing=0.1, shared_xaxes=True,
+            specs=[[{"secondary_y": True}], [{"secondary_y": True}], 
+                   [{"secondary_y": True}], [{'secondary_y': True}]])
+
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['T1_dhw'], name="T1_dhw",
+                         line_color='orangered'), row=1, col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tat_tap'], name="T@tap",
+                         line_color='rgb(245,161,39)'), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['T6_dhw'], name="T6 dhw",
+                         line_color='deepskyblue'), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['mdhw2tap'], name="mdhw2tap",
+                         line=dict(color='black', width=0.7, dash='dash')),
+              secondary_y=True, row=1, col=1)
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Thp_load_out'], name='Thp_out_load',
+                         line=dict(color='orangered', width=0.9)), row=2,col=1)
+fig.add_trace(go.Scatter(x=controls.index, y=controls['hp_div'], name="hp_div",
+                          line=dict(color='black', width=1, dash='dash')),
+              secondary_y=True, row=2, col=1)
+fig.add_trace(go.Scatter(x=energy.index, y=energy['Qhp'], name="Qhp",
+                          fill='tozeroy',fillcolor='rgba(44,209,209,0.5)', mode='none'),
+              secondary_y=True, row=2, col=1)
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tfloor1'], name='Tfloor1',
+                          line = dict(color='rgba(46,167,50,1)')), row=3, col=1)              
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tfloor2'], name='Tfloor2',
+                          line = dict(color='rgba(255,131,3,1)')), row=3, col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tset1'], name='Tset1',
+                          line = dict(color='rgba(46,167,50,0.8)', dash='dash')), row=3, col=1)              
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tset2'], name='Tset2',
+                          line = dict(color='rgba(255,131,3,0.8)', dash='dash')), row=3, col=1)
+
+fig.add_trace(go.Scatter(x=energy.index, y=energy['Qrad1'], name="Qrad1",
+                          mode='none', fill='tozeroy', fillcolor='rgba(50,168,82,0.5)'),
+              secondary_y=True, row=3, col=1)
+fig.add_trace(go.Scatter(x=energy.index, y=energy['Qrad2'], name="Qrad2",
+                          mode='none', fill='tozeroy', fillcolor='rgba(255,131,3,0.5)'), 
+              secondary_y=True, row=3, col=1)
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tcoll_in'], name='Tcoll_in',
+                         line=dict(color='deepskyblue',width=0.7)), row=4,col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tcoll_out'], name='Tcoll_out',
+                         line=dict(color='orangered',width=0.7)), row=4,col=1)
+fig.add_trace(go.Scatter(x=energy.index, y=energy['QuColl'], name='QuColl',
+                         mode='none', fill='tozeroy', fillcolor='rgba(255,173,3,0.5)'),
+              secondary_y=True, row=4, col=1)
+fig.add_trace(go.Scatter(x=energy.index, y=energy['Qirr'], name='Qirr',
+                         line=dict(color='rgb(245,161,39)', width=1)), 
+              secondary_y=True, row=4,col=1)
+fig.update_yaxes(range=[-50, 50], row=4, col=1)
+fig.update_yaxes(range=[0, 2], secondary_y=True, row=4, col=1)
+
+fig.update_layout(title_text=plot_name,
+                  xaxis_rangeslider_visible=True, xaxis_rangeslider_thickness=0.05,
+                  height=1000)
+fig.update_layout(yaxis2={'tickformat': ',.0'},)
+fig.show()
