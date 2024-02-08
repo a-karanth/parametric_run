@@ -28,14 +28,14 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = '1131'
+file = 'x'
 prefix = directory + folder + file
 
 inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 t_start = datetime(2001,1,1, 0,0,0)
 t_end = datetime(2002,1,1, 0,0,0)
 
-#%%
+#%% Read files
 if 'cp' in file:
     controls, energy, temp_flow = pf.cal_base_case(prefix)
     
@@ -269,3 +269,52 @@ fig.update_layout(title_text=plot_name,
                   height=1000)
 fig.update_layout(yaxis2={'tickformat': ',.0'},)
 fig.show()
+
+#%% same plot in matplotlib
+# file_index = int(''.join([i for i in file if i.isdigit()]))
+# plot_name = ('Design case: '+ inputs['design_case'].loc[file_index] 
+#               + ', Area:' + str(inputs['coll_area'].loc[file_index]) 
+#               + ', Volume:' + str(inputs['volume'].loc[file_index])
+#               + ', R level:' + inputs['r_level'].loc[file_index]
+#               + ', File index:' + str(file_index))
+plot_name = '1131_1'
+t1 = datetime(2001,2,15, 0,0,0)
+t2 = datetime(2001,2,16, 0,0,0)
+fig,(ax1,ax2,ax3,ax4) = plt.subplots(4,1, figsize=(19,9))
+
+ax10 = ax1.twinx()
+temp_flow[['T1_dhw','T6_dhw','Tat_tap']].plot(ax=ax1,linewidth=1,color=['firebrick','tab:blue','orange'])
+temp_flow['mdhw2tap'].plot.area(ax=ax10, color='orange',alpha=0.4)
+pf.plot_specs(ax1, t1,t2,0,80,ylabel='t', legend_loc='center left', title='DHW')
+pf.plot_specs(ax10, t1,t2,0,300,ylabel='f', legend_loc='center right')
+
+ax20 = ax2.twinx()
+temp_flow['Thp_load_out'].plot(ax=ax2, color='firebrick')
+energy['Qhp'].plot.area(ax=ax20, alpha=0.3, color='tab:blue')
+energy['Qaux_dhw'].plot.area(ax=ax20, color='grey',alpha=0.3)
+controls['hp_div'].plot(ax=ax20, color='black', linestyle='--')
+pf.plot_specs(ax2, t1,t2,0,120,ylabel='t', legend_loc='center left', title='HP')
+pf.plot_specs(ax20, t1,t2,0,3.5,ylabel='p', legend_loc='center right')
+
+ax30 = ax3.twinx()
+temp_flow[['mhp2dhw','mmixDHWout']].plot(ax=ax3)
+temp_flow['msh_in'].plot.area(alpha=0.2)
+controls['pvt_load_loop'].plot(ax=ax30, linestyle='--')
+pf.plot_specs(ax3, t1,t2,0,None,ylabel='f', legend_loc='center left', title='HP div')
+
+
+# ax30 = ax3.twinx()
+# temp_flow[['Tfloor1','Tfloor2']].plot(ax=ax3, color=['firebrick','green'])
+# temp_flow[['Tset1','Tset2']].plot(ax=ax3, color=['firebrick','green'], linestyle='--')
+# energy[['Qrad1','Qrad2']].plot.area(ax=ax30, color=['firebrick','green'], alpha=0.3)
+# pf.plot_specs(ax3, t1,t2,0,30,ylabel='t', legend_loc='center left', title='SH')
+# pf.plot_specs(ax30, t1,t2,0,20,ylabel='p', legend_loc='center right')  
+
+ax40=ax4.twinx()
+temp_flow[['Tcoll_in','Tcoll_out']].plot(ax=ax4, color=['tab:blue','firebrick'])
+energy['QuColl'].plot.area(ax=ax40, color='gold', alpha=0.3,stacked=False)
+energy['Qirr'].plot(ax=ax40,color='gold')
+pf.plot_specs(ax4, t1,t2,-25,60,ylabel='t', legend_loc='center left', title='Collector panel')
+pf.plot_specs(ax40, t1,t2,0,3,ylabel='p', legend_loc='center right')  
+
+fig.suptitle(plot_name)
