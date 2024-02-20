@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 from matplotlib import pyplot as plt
-from datetime import datetime
+from datetime import datetime, timedelta
 pd.options.mode.chained_assignment = None  
 matplotlib.rcParams['lines.linewidth'] = 1
 matplotlib.rcParams["figure.autolayout"] = True
@@ -28,12 +28,12 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = 'x'
+file = 'test9'
 prefix = directory + folder + file
 
 inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
-t_start = datetime(2001,1,1, 0,0,0)
-t_end = datetime(2002,1,1, 0,0,0)
+t_start = datetime(2001,2,9, 0,0,0)
+t_end = datetime(2001,2,17, 0,0,0)
 
 #%% Read files
 if 'cp' in file:
@@ -44,25 +44,25 @@ else:
     energy = pd.read_csv(prefix+'_energy.txt', delimiter=",", index_col=0)
     controls = pd.read_csv(prefix+'_control_signal.txt', delimiter=",",index_col=0)
     
-    controls = pf.modify_df(controls, t_start, t_end)
-    temp_flow = pf.modify_df(temp_flow, t_start, t_end)
-    energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+    controls = pf.modify_df(controls)#, t_start, t_end)
+    temp_flow = pf.modify_df(temp_flow)#, t_start, t_end)
+    energy = pf.modify_df(energy)/3600#, t_start, t_end)/3600     # kJ/hr to kW 
     energy = pf.cal_energy(energy, controls)
 
-occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
-occ = pf.modify_df(occ, t_start, t_end)
-controls = pd.concat([controls,occ],axis=1)
+# occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
+# occ = pf.modify_df(occ, t_start, t_end)
+# controls = pd.concat([controls,occ],axis=1)
 
-temp_flow = pf.unmet_hours(controls, temp_flow)
+# temp_flow = pf.unmet_hours(controls, temp_flow)
 
-energy_monthly, energy_annual = pf.cal_integrals(energy)
+# energy_monthly, energy_annual = pf.cal_integrals(energy)
 
-el_bill, gas_bill = pf.cal_costs(energy)
-el_em, gas_em = pf.cal_emissions(energy)
-pl,pe = pf.peak_load(energy)
-rldc,ldc = pf.cal_ldc(energy)
-opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
-cop = pf.cal_cop(energy)
+# el_bill, gas_bill = pf.cal_costs(energy)
+# el_em, gas_em = pf.cal_emissions(energy)
+# pl,pe = pf.peak_load(energy)
+# rldc,ldc = pf.cal_ldc(energy)
+# opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
+# cop = pf.cal_cop(energy)
 # penalty, energy = pf.cal_penalty(energy)
 
 #%% plots
@@ -277,16 +277,23 @@ fig.show()
 #               + ', Volume:' + str(inputs['volume'].loc[file_index])
 #               + ', R level:' + inputs['r_level'].loc[file_index]
 #               + ', File index:' + str(file_index))
-plot_name = '1131_1'
-t1 = datetime(2001,2,15, 0,0,0)
-t2 = datetime(2001,2,16, 0,0,0)
-fig,(ax1,ax2,ax3,ax4) = plt.subplots(4,1, figsize=(19,9))
+plot_name = 'SH buffer, type 166 for SH tank hysteresis'
+t1 = datetime(2001,2,11, 0,0,0)
+t2 = datetime(2001,2,13, 22,0,0)
+fig,(ax1,ax5,ax6, ax2,ax3,ax4) = plt.subplots(6,1, figsize=(19,9.8))
 
 ax10 = ax1.twinx()
 temp_flow[['T1_dhw','T6_dhw','Tat_tap']].plot(ax=ax1,linewidth=1,color=['firebrick','tab:blue','orange'])
 temp_flow['mdhw2tap'].plot.area(ax=ax10, color='orange',alpha=0.4)
 pf.plot_specs(ax1, t1,t2,0,80,ylabel='t', legend_loc='center left', title='DHW')
 pf.plot_specs(ax10, t1,t2,0,300,ylabel='f', legend_loc='center right')
+
+ax50 = ax5.twinx()
+temp_flow[['T1_sh', 'T6_sh','Tsh_return']].plot(ax=ax5, color=['firebrick','tab:blue','blue'])
+temp_flow['mrad1_in'].plot(ax=ax50, color='firebrick',linestyle='--')
+temp_flow['mrad2_in'].plot.area(ax=ax50, color='tab:blue', alpha=0.2)
+pf.plot_specs(ax5, t1,t2,0,90,ylabel='t', legend_loc='center left', title='SH')
+pf.plot_specs(ax50, t1,t2,0,None,ylabel='f', legend_loc='center right')
 
 ax20 = ax2.twinx()
 temp_flow['Thp_load_out'].plot(ax=ax2, color='firebrick')
@@ -297,24 +304,60 @@ pf.plot_specs(ax2, t1,t2,0,120,ylabel='t', legend_loc='center left', title='HP')
 pf.plot_specs(ax20, t1,t2,0,3.5,ylabel='p', legend_loc='center right')
 
 ax30 = ax3.twinx()
-temp_flow[['mhp2dhw','mmixDHWout']].plot(ax=ax3)
-temp_flow['msh_in'].plot.area(alpha=0.2)
+temp_flow['mmixDHWout'].plot.area(ax=ax3, alpha=0.2)
+temp_flow['msh_in'].plot(ax=ax3)
+# temp_flow['msh_in'].plot.area(ax=ax3,alpha=0.2)
 controls['pvt_load_loop'].plot(ax=ax30, linestyle='--')
 pf.plot_specs(ax3, t1,t2,0,None,ylabel='f', legend_loc='center left', title='HP div')
+pf.plot_specs(ax30, t1,t2,0,3,ylabel='controls', legend_loc='center right')
 
-
-# ax30 = ax3.twinx()
-# temp_flow[['Tfloor1','Tfloor2']].plot(ax=ax3, color=['firebrick','green'])
-# temp_flow[['Tset1','Tset2']].plot(ax=ax3, color=['firebrick','green'], linestyle='--')
-# energy[['Qrad1','Qrad2']].plot.area(ax=ax30, color=['firebrick','green'], alpha=0.3)
-# pf.plot_specs(ax3, t1,t2,0,30,ylabel='t', legend_loc='center left', title='SH')
-# pf.plot_specs(ax30, t1,t2,0,20,ylabel='p', legend_loc='center right')  
+ax60 = ax6.twinx()
+temp_flow[['Tfloor1','Tfloor2']].plot(ax=ax6, color=['firebrick','green'])
+temp_flow[['Tset1','Tset2']].plot(ax=ax6, color=['firebrick','green'], linestyle='--')
+energy[['Qrad1','Qrad2']].plot.area(ax=ax60, color=['firebrick','green'], alpha=0.3)
+pf.plot_specs(ax6, t1,t2,0,30,ylabel='t', legend_loc='center left', title='SH')
+pf.plot_specs(ax60, t1,t2,0,None,ylabel='p', legend_loc='center right')  
 
 ax40=ax4.twinx()
 temp_flow[['Tcoll_in','Tcoll_out']].plot(ax=ax4, color=['tab:blue','firebrick'])
 energy['QuColl'].plot.area(ax=ax40, color='gold', alpha=0.3,stacked=False)
 energy['Qirr'].plot(ax=ax40,color='gold')
-pf.plot_specs(ax4, t1,t2,-25,60,ylabel='t', legend_loc='center left', title='Collector panel')
-pf.plot_specs(ax40, t1,t2,0,3,ylabel='p', legend_loc='center right')  
+pf.plot_specs(ax4, t1,t2,-25,100,ylabel='t', legend_loc='center left', title='Collector panel')
+pf.plot_specs(ax40, t1,t2,None,None,ylabel='p', legend_loc='center right')  
+
+fig.suptitle(plot_name)
+
+#%% Heat pump energy balance
+t1 = datetime(2001,2,9, 7,0,0)
+t2 = datetime(2001,2,17, 22,0,0)
+df = energy[t1:t2]
+df = df.resample('H').sum()
+fig,ax = plt.subplots()
+df['ht_to_load'].plot(ax=ax, kind='bar',position=1, width=0.2,color='green')
+df[['ht_from_source','Qhp']].plot(ax=ax, kind='bar',stacked=True,position=0, width=0.2, color=['gold','skyblue'])
+ax.legend()
+
+#%% pvt load loop calculation
+t1 = datetime(2001,2,12, 7,0,0)
+t2 = datetime(2001,2,12, 22,0,0)
+fig, (ax2,ax0,ax, ax4) = plt.subplots(4,1)
+
+temp_flow[['Tcoll_out','Tcoll_in']].plot(ax=ax2, color=['firebrick','tab:blue'])
+pf.plot_specs(ax2, t1,t2,None,None,ylabel='t', legend_loc='center left', title='Collector panel')
+
+temp_flow['m_coll'].plot(ax=ax0)
+ax00 = ax0.twinx()
+energy['QuColl'].plot(ax=ax00, color='gold')
+pf.plot_specs(ax00, t1,t2,-0.2,None,ylabel='Energy', legend_loc='center right')
+
+controls['coll_pump'].plot(ax=ax)
+controls['pvt_load_loop'].plot.area(ax=ax,alpha=0.2)
+pf.plot_specs(ax0, t1,t2,None,None,ylabel='f', legend_loc='center left')
+pf.plot_specs(ax, t1,t2,None,None,ylabel='p', legend_loc='center right')  
+
+controls['ctr_irr'].plot.area(ax=ax4, color='gold', alpha=0.2)
+controls['ctr_sh'].plot(ax=ax4, marker='*')
+controls['ctr_dhw'].plot(ax=ax4, linestyle='--')
+pf.plot_specs(ax4, t1,t2,None,None,ylabel='controls', legend_loc='center right')
 
 fig.suptitle(plot_name)
