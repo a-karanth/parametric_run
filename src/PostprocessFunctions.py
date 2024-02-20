@@ -19,13 +19,13 @@ matplotlib.rcParams["figure.autolayout"] = True
 
 class PostprocessFunctions:
     
-    global DT, dt
+    global DT, dt, t_start, t_end
     # def __init__():
     #     global DT,dt
       
     @staticmethod    
-    def modify_df(df2, t_start, t_end):
-        global DT,dt
+    def modify_df(df2):#, t_start, t_end):
+        global DT, dt, t_start, t_end
         # to identify headers from txt file and use them as DF headers
         # to add timestamp column for one year, and to remove the last timestamp 31-12-2001 24:00:00
         # if you have used timestep as 0.125 in trnsys, do not use freq. instead use
@@ -35,6 +35,8 @@ class PostprocessFunctions:
         dt = timestep/60
         DT = str(timestep)+'min'
         
+        t_start = datetime(2001, 1, 1) + timedelta(hours=df.index[0])
+        t_end = datetime(2001, 1, 1) + timedelta(hours=df.index[-1])
         headers = [i.strip() for i in df.columns]
         df.columns = headers
         df= df.drop(columns = df.columns[-1])
@@ -71,11 +73,11 @@ class PostprocessFunctions:
         return energy
     
   
-    def create_base_dfs(controls, energy, temp_flow, t_start, t_end):
-        controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
-        energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600
+    def create_base_dfs(controls, energy, temp_flow):#, t_start, t_end):
+        controls = PostprocessFunctions.modify_df(controls)#, t_start, t_end)
+        energy = PostprocessFunctions.modify_df(energy)#, t_start, t_end)/3600
         energy = PostprocessFunctions.cal_energy(energy, controls)
-        temp_flow = PostprocessFunctions.modify_df(temp_flow, t_start, t_end)
+        temp_flow = PostprocessFunctions.modify_df(temp_flow)#, t_start, t_end)
         controls = PostprocessFunctions.cal_control(controls, energy, temp_flow)
         return controls, energy, temp_flow
         
@@ -153,16 +155,17 @@ class PostprocessFunctions:
     def cal_base_case(prefix):
         # without HP
         print('cp')
-        t_start = datetime(2001,1,1, 0,0,0)
-        t_end = datetime(2002,1,1, 0,0,0)
+        global DT, dt, t_start, t_end
+        # t_start = datetime(2001,1,1, 0,0,0)
+        # t_end = datetime(2002,1,1, 0,0,0)
 
         temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter = ",", index_col=0)
         energy = pd.read_csv(prefix+'_energy.txt', delimiter = ",", index_col=0)
         controls = pd.read_csv(prefix+'_control_signal.txt', delimiter = ",", index_col=0)
         
-        controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
-        temp_flow = PostprocessFunctions.modify_df(temp_flow, t_start, t_end)
-        energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+        controls = PostprocessFunctions.modify_df(controls)#, t_start, t_end)
+        temp_flow = PostprocessFunctions.modify_df(temp_flow)#, t_start, t_end)
+        energy = PostprocessFunctions.modify_df(energy)#, t_start, t_end)/3600     # kJ/hr to kW 
         
         energy = PostprocessFunctions.cal_energy(energy, controls)
         
@@ -329,8 +332,8 @@ class PostprocessFunctions:
     
     @staticmethod
     def create_dfs(file, prefix):
-        t_start = datetime(2001,1,1, 0,0,0)
-        t_end = datetime(2002,1,1, 0,0,0)
+        global DT, dt, t_start, t_end
+
         if 'cp' in file:
             controls, energy, temp_flow = PostprocessFunctions.cal_base_case(prefix)
             
@@ -339,9 +342,9 @@ class PostprocessFunctions:
             energy = pd.read_csv(prefix+'_energy.txt', delimiter=",", index_col=0)
             controls = pd.read_csv(prefix+'_control_signal.txt', delimiter=",",index_col=0)
             
-            controls = PostprocessFunctions.modify_df(controls, t_start, t_end)
-            temp_flow = PostprocessFunctions.modify_df(temp_flow, t_start, t_end)
-            energy = PostprocessFunctions.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+            controls = PostprocessFunctions.modify_df(controls)#, t_start, t_end)
+            temp_flow = PostprocessFunctions.modify_df(temp_flow)#, t_start, t_end)
+            energy = PostprocessFunctions.modify_df(energy)#, t_start, t_end)/3600     # kJ/hr to kW 
             energy = PostprocessFunctions.cal_energy(energy, controls)
         
         return controls,energy,temp_flow
