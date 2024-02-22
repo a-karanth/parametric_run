@@ -28,7 +28,7 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = 'test9'
+file = 'test10'
 prefix = directory + folder + file
 
 inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
@@ -93,11 +93,11 @@ fig.show()
 c1, e1, tf1= {}, {}, {}
 r1,l1 = {}, {}
 occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
-occ = pf.modify_df(occ, t_start, t_end)
+occ = pf.modify_df(occ)#, t_start, t_end)
 #%% run multiple files
-files = ['test4_cp','test7_cp','837_cp','test5_cp','test6_cp','test8_cp','test9_cp','test10_cp',
-         '249', 'test11', 'test3','test12','test13','test2','test14','test15','test16'
-         ,'test17','test18','test19','test20','test21','test22','396','test23','test24']
+files = [#'2000',
+         '2001', '2002', '2003', '2004', '2005', '2006', #'2007',
+         '2008', '2009', '2010', '2011', '2012', '2013']
 
 if 'e' in locals():                                     #for running the cell again
     existing_keys = list(e1.keys())                     #without having to run all labels again
@@ -120,7 +120,7 @@ for file in new_files:
     r1[file] = rldc
     l1[file] = ldc
 #%% create filtered dictionary
-files = ['396','test23','test24']
+files = ['2008', '2009', '2010', '2011', '2012', '2013']
 c = {key: c1[key] for key in files}
 e = {key: e1[key] for key in files}
 tf = {key: tf1[key] for key in files}
@@ -128,24 +128,29 @@ tf = {key: tf1[key] for key in files}
 t1 = datetime(2001,1,11, 0,0,0)
 t2 = datetime(2001,1,12, 0,0,0)
 
-fig, axs = plt.subplots(len(e), 1, figsize=(8, 2*len(e)))
+fig, axs = plt.subplots(len(e), 1, figsize=(10, 2*len(e)))
 axs0 = [ax.twinx() for ax in axs]
 for i, label in enumerate(e):
     pt = Plots(c[label],e[label],tf[label])
-    e[label]['Qhp'].plot(ax=axs[i])
+    e[label]['Qhp'].plot.area(ax=axs[i], alpha=0.2, stacked=False)
     # e[label][['Qheat_living1','Qheat_living2']].sum(axis=1).plot(ax=axs[i], label='Qheat')
-    c[label][['heatingctr1','heatingctr2']].plot(ax=axs[i],style='--', color=['lightskyblue','dodgerblue'])
-    tf[label]['unmet'].plot(ax=axs[i],style='--', color='black')
-    tf[label][['Tfloor1','Tfloor2','Thp_load_out']].plot(ax=axs0[i], 
-                                          color=['mediumvioletred', 'darkmagenta','green'])
-    temp_flow[['Tset1','Tset2']].plot(ax=axs0[i], style='--', 
-                                              color=['mediumvioletred', 'darkmagenta'])
-    pf.plot_specs(axs[i], t1,t2, 0,5, 'energy[kWh]',legend_loc='upper left')
-    pf.plot_specs(axs0[i], t1,t2, -15,34, 'Temperature [deg C]',legend_loc='upper right')
+    # c[label][['heatingctr1','heatingctr2']].plot(ax=axs[i],style='--', color=['lightskyblue','dodgerblue'])
+    # tf[label]['unmet'].plot(ax=axs[i],style='--', color='black')
+    # tf[label][['Tfloor1','Tfloor2','Thp_load_out']].plot(ax=axs0[i], 
+    #                                       color=['mediumvioletred', 'darkmagenta','green'])
+    # temp_flow[['Tset1','Tset2']].plot(ax=axs0[i], style='--', 
+    #                                           color=['mediumvioletred', 'darkmagenta'])
+    # pf.plot_specs(axs[i], t1,t2, 0,5, 'energy[kWh]',legend_loc='upper left')
+    # pf.plot_specs(axs0[i], t1,t2, -15,34, 'Temperature [deg C]',legend_loc='upper right')
+    e[label][['QuColl','Qheat','Qaux_dhw']].plot.area(ax=axs[i], alpha=0.2, stacked=False)
+    tf[label]['Tcoll_out'].plot(ax=axs0[i])
+    pf.plot_specs(axs[i], t1,t2, 0,6, 'energy[kWh]',legend_loc='upper left')
+    pf.plot_specs(axs0[i], t1,t2, None,None, 't',legend_loc='upper right')
     heating_demand = round(e[label]['Qheat'].sum()*0.1, 2)
     unmet = round(tf[label]['unmet'].sum(),2)
     axs[i].set_title(label)
-    print(label + '(heat) ='+ str(heating_demand) + ' kWh, unmet hours = '+str(unmet)+' Qhp = '+str(e[label]['Qhp'].sum()*0.1))
+    print(label + '(heat) ='+ str(heating_demand) + #' kWh, unmet hours = '+str(unmet)+
+          ' Qhp = '+str(round(e[label]['Qhp'].sum()*0.1,2)))
 
 #%% cp - plots
 t1 = datetime(2001,1,10, 0,0,0)
@@ -278,9 +283,9 @@ fig.show()
 #               + ', R level:' + inputs['r_level'].loc[file_index]
 #               + ', File index:' + str(file_index))
 plot_name = 'SH buffer, type 166 for SH tank hysteresis'
-t1 = datetime(2001,2,11, 0,0,0)
-t2 = datetime(2001,2,13, 22,0,0)
-fig,(ax1,ax5,ax6, ax2,ax3,ax4) = plt.subplots(6,1, figsize=(19,9.8))
+t1 = datetime(2001,1,1, 0,0,0)
+t2 = datetime(2001,1,7, 22,0,0)
+fig,(ax1,ax5,ax6, ax2,ax3,ax4) = plt.subplots(6,1, figsize=(19,9.8), sharex=True)
 
 ax10 = ax1.twinx()
 temp_flow[['T1_dhw','T6_dhw','Tat_tap']].plot(ax=ax1,linewidth=1,color=['firebrick','tab:blue','orange'])
