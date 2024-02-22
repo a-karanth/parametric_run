@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov 13 12:49:53 2023
-
+Delete the lst, log, PTI and ssr files from the /src folder. 
+And then move the dck files in the backup folder
 @author: 20181270
 """
 
@@ -11,7 +11,7 @@ import pandas as pd
 # folder_path = ""
 
 # Get a list of all files in the folder
-files = os.listdir('house_and_backup\\backup\\')
+files = os.listdir()
 #%% Iterate through the files and delete .lst and .log files
 # os.chdir('house_and_backup\\backup\\')
 for file in files:
@@ -22,7 +22,7 @@ for file in files:
 print("Deleted .lst and .log files in the specified folder.")
 
 #%% Get labels for the files that need to be moved
-listofinputs = pd.read_csv('res\\trn\\list_of_inputs.csv')
+listofinputs = pd.read_csv('res\\trn\\list_of_inputs.csv', index_col=0)
 # listofinputs = pd.read_csv('res\\current_list.csv')
 labels = listofinputs.index.astype(str)
 labels = ['_'+i+'.dck' for i in labels]
