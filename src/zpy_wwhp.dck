@@ -27,7 +27,7 @@ STOP=8760
 STEP=6/60
 SIMULATION 	 START	 STOP	 STEP	! Start time	End time	Time step
 TOLERANCES 0.001 0.001			! Integration	 Convergence
-LIMITS 1500 3000 1500				! Max iterations	Max warnings	Trace limit
+LIMITS 2000 3000 2000				! Max iterations	Max warnings	Trace limit
 DFQ 1					! TRNSYS numerical integration solver method
 WIDTH 80				! TRNSYS output file width, number of characters
 LIST 					! NOLIST statement
@@ -323,7 +323,7 @@ tank_vol		! 1 Tank volume
 1		! 14 Number of thermostats
 1		! 15 Height fraction of thermostat
 1		! 16 Number of auxiliary heat inputs
-0.67		! 17 Height fraction of auxiliary input
+0.9		! 17 Height fraction of auxiliary input
 INPUTS 8
 9,1 		! mixDHW:Outlet temperature ->Inlet temperature for port 1
 9,2 		! mixDHW:Outlet flow rate ->Inlet flow rate for port 1
@@ -673,7 +673,7 @@ INPUTS 5
 38,2 		! Radiator1:Liquid Outlet Flowrate ->Flow rate at inlet 1
 39,1 		! Radiator2:Liquid Outlet Temperature ->Temperature at inlet 2
 39,2 		! Radiator2:Liquid Outlet Flowrate ->Flow rate at inlet 2
-0,0		! [unconnected] Control signal
+ctr_divSH                ! control_calc:ctr_divSH ->Control signal
 *** INITIAL INPUT VALUES
 20.0 100.0 20.0 100.0 0.5 
 *------------------------------------------------------------------------------
@@ -1576,6 +1576,9 @@ INPUTS 1
 
 END
 *!LINK_STYLE
+*!LINK 43:27
+*!CONNECTION_SET 20:0:16:32:5:255:2:0:1:1366,623:1366,612:1360,612:1360,238
+*!CONNECTION_SET 0:0:20:40::255:2:0:1:1346,698:1134,698:1134,314
 *!LINK 27:43
 *!CONNECTION_SET 32:16:20:0:1,2:255:2:0:1:1376,297:1414,297:1414,687:1366,687:1366,698
 *!LINK 52:27
@@ -1671,8 +1674,6 @@ END
 *!CONNECTION_SET 40:0:0:0:5:255:2:0:1:366,410:1317,410:1317,698:1346,698
 *!LINK 43:28
 *!CONNECTION_SET 0:0:20:40:3:255:2:0:1:1346,698:1274,698:1274,314:1228,314
-*!LINK 43:27
-*!CONNECTION_SET 0:0:20:40:3:255:2:0:1:1346,698:1134,698:1134,314
 *!LINK 27:2
 *!CONNECTION_SET 32:16:32:16:8,7:8388608:0:2:1:1376,297:1414,297:1414,344:1040,344:1040,314:1013,314
 *!LINK 2:27
