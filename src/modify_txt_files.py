@@ -12,6 +12,7 @@ from PostprocessFunctions import PostprocessFunctions as pf
 
 directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\\PhD\\TRNSYS\\Publication1\\pub_1\\src\\res\\'
 trn_results = '\\trn'
+trn_folder = 'trn\\'
 # os.chdir(directory)
 
 #%% open and change all csv files in res_folder
@@ -101,6 +102,11 @@ t1 = time.time()
 Parallel(n_jobs=num_processes)(delayed(read_modify_files)(label) for label in labels)
 t2 = time.time()
 print(t2-t1)
+
+#%% modify custom files
+list_labels = ['2010', '2011', '2012', '2013']
+for label in list_labels:
+    read_modify_files(label)
 #%% add new columns to list_of inputs file
 # os.chdir(directory+trn_results)
 # df = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0)
