@@ -36,6 +36,7 @@ mod56 = ModifyType56()
 
 #%% existing simulations
 existing = pd.read_csv('res\\trn\\list_of_inputs.csv',header=0,index_col=0)
+existing['coll_area'] = existing['coll_area'].astype(int)
 keys = existing.columns.values      #to be used to identify rows while adding to list_of_inputs csv
 
 #%% Finding the last available label and calculating the new starting label
@@ -62,7 +63,7 @@ else:
 #%% reading CSVs with samples
 new_sim = True
 if new_sim:
-    dfnew = pd.concat([pd.read_csv(res_folder+'ff_sample_2.csv'),
+    dfnew = pd.concat([pd.read_csv(res_folder+'small_study.csv'),
                        ])
     dfnew = dfnew.drop_duplicates(ignore_index=True)
     
@@ -204,7 +205,8 @@ def run_parametric(values):
         dckfile_out.write(filedata)
         
     #  - writing the dck file to a new dck file as back up  
-    # with open(directory+'res\\backup_dck\\'+value['py_label']+'.dck', 'w') as backup:
+    # with open(directory+'house_and_backup\\backup\\' +
+    #           values['file'][:-4] + '_'+values['py_label'] + '.dck', 'w') as backup:
     #     backup.write(filedata)
         
     # 2) Running TRNSYS simulation
