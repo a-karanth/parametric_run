@@ -344,7 +344,7 @@ class PostprocessFunctions:
             
             controls = PostprocessFunctions.modify_df(controls)#, t_start, t_end)
             temp_flow = PostprocessFunctions.modify_df(temp_flow)#, t_start, t_end)
-            energy = PostprocessFunctions.modify_df(energy)#, t_start, t_end)/3600     # kJ/hr to kW 
+            energy = PostprocessFunctions.modify_df(energy)/3600#, t_start, t_end)/3600     # kJ/hr to kW 
             energy = PostprocessFunctions.cal_energy(energy, controls)
         
         return controls,energy,temp_flow
