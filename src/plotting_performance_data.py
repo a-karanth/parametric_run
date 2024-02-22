@@ -20,7 +20,11 @@ for line in lines:
     if not line.startswith('!'):
         values = line.strip().split('\t')
         data.append([float(value) if (value.replace('.', '', 1).lstrip('-')).isdigit() else value for value in values if value != ''])
-        
+        '''
+        if value.replace('.', '', 1).lstrip('-')).isdigit(): # if the list element is number after removing - sign and decimal, then
+            float(value)                                     # make a float of the value
+        else:                                                # or leave it as the value itself   
+            value                                            # this makes the text part as a separate element '''
 # temp = data[3]
 # element_last = temp[-1].split(' ', 1)
 # float_part = float(element_last[0])
