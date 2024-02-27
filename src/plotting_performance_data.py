@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 14 16:07:41 2023
+Plotting the performance map of heat pump
 
 @author: 20181270
 """
-import os
 import pandas as pd
 
 folder = 'C:\\TRNSYS18\\Tess Models\\SampleCatalogData\\Water-to-WaterHeatPumps\\Normalized\\'
@@ -78,15 +77,67 @@ df['COP'] = df['Capacity']/df['Power']
 df['Fcond'] = df['Fcond'] * load_flow_scale
 #%%
 df['Tcondensor'] = df['Capacity']*1000/(df['Fcond']* 4186) +  df['Tload_in']
-#%%
+#%% 3D scatter plot
 from mpl_toolkits import mplot3d
 import numpy as np
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax = plt.axes(projection='3d')
+# fig = plt.figure()
+# ax = plt.axes(projection='3d')
 
-ax.scatter(df['Tcondensor'], df['Tevaporator'], df['COP'], c=df['COP'],cmap='viridis')
-ax.set_xlabel('Condensor temperature')
-ax.set_ylabel('Evaporator temperature')
-ax.set_zlabel('COP')
+# ax.scatter(df['Tcondensor'], df['Tevaporator'], df['COP'], c=df['COP'],cmap='viridis')
+# ax.set_xlabel('Condensor temperature')
+# ax.set_ylabel('Evaporator temperature')
+# ax.set_zlabel('COP')
+
+#%% Surface plot
+from scipy.interpolate import griddata
+
+xi = np.linspace(df['Tevaporator'].min(), df['Tevaporator'].max(), 100)
+yi = np.linspace(df['Tcondensor'].min(), df['Tcondensor'].max(), 100)
+xi, yi = np.meshgrid(xi, yi)
+
+# Interpolating data
+zi = griddata((df['Tevaporator'],df['Tcondensor']), df['COP'], (xi, yi), method='linear')
+
+# fig = plt.figure()
+# ax = plt.axes(projection='3d')
+
+# # Surface plot
+# surf = ax.plot_surface(xi, yi, zi, cmap='viridis', clim=(2.2,9),  edgecolor='none')
+# ax.set_xlabel('Evaporator Temperature')
+# ax.set_ylabel('Condensor Temperature')
+
+# ax.set_zlabel('COP')
+# fig.colorbar(surf)
+
+#%% 2D surface plot. Remove levels i fyou dont mind a courser image
+# zi = np.nan_to_num(zi, nan=np.nanmin(zi))
+levels = np.linspace(np. nanmin(zi), np. nanmax(zi), 300)
+
+plt.figure(figsize=(8, 6))
+cp = plt.contourf(xi, yi, zi, levels=levels, cmap='viridis',vmin=2.1, vmax=9.2)  # Use contourf for filled contours
+cbar = plt.colorbar(cp)  # Show a color bar
+
+# cbar.set_ticks([2.1, 9.2])
+plt.xlabel('Evaporator inlet temperature [degC]')
+plt.ylabel('Condensor inlet temperature [degC]')
+plt.title('Performance map of HP')
+
+#%%
+def plot_performance_map():
+    
+    fig, ax = plt.subplots(figsize=(8, 6))
+    cp = ax.contourf(xi, yi, zi, levels=levels, cmap='viridis', vmin=2.1, vmax=9.2)
+    cbar = plt.colorbar(cp, ax=ax)
+
+    ax.set_xlabel('Evaporator inlet temperature [degC]')
+    ax.set_ylabel('Condensor inlet temperature [degC]')
+    ax.set_title('Performance map of HP')
+
+    return fig, ax
+
+fig,ax = plot_performance_map()
+#%%
+# fig, ax = plt.subplots()
+# plt.scatter(df['Tevaporator'],df['Tcondensor'], edgecolors= "black", facecolors='none', linewidth=0.6)
