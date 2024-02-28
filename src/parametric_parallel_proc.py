@@ -61,7 +61,7 @@ else:
     starting_label = avl_labels.max()+1
 
 #%% reading CSVs with samples
-new_sim = True
+new_sim = False
 if new_sim:
     dfnew = pd.concat([pd.read_csv(res_folder+'small_study.csv'),
                        ])
@@ -139,6 +139,14 @@ for i in df.index:
             df['pack'][i] = 0.7
             df['batt'][i] = batt0
             df['house'][i] = 'House_internal_heating.b18'
+            
+        case 'PVT_buff':
+            df['file'][i] = 'wwhp_buffer3.dck'
+            df['py_file'][i] = 'zpy_wwhp_buffer3.dck'
+            df['coll_eff'][i] = 0.7
+            df['pack'][i] = 0.7
+            df['batt'][i] = batt6
+            df['house'][i] = 'House.b18'
      
     df['py_label'][i] = str(starting_label+i) 
     
