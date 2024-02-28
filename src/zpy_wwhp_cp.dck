@@ -782,7 +782,7 @@ infil_value		! Parameters:infil_value -> 18- infil_input
 *** INITIAL INPUT VALUES
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 *** External files
-ASSIGN "House_internal_heating.b18" 83
+ASSIGN "house_and_backup\House_internal_heating_py_label.b18" 83
 *|? Building description file (*.b18, *.b17, *.bui) |1000
 *------------------------------------------------------------------------------
 
