@@ -28,7 +28,7 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = 'test10'
+file = 'x'
 prefix = directory + folder + file
 
 inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
@@ -366,3 +366,92 @@ controls['ctr_dhw'].plot(ax=ax4, linestyle='--')
 pf.plot_specs(ax4, t1,t2,None,None,ylabel='controls', legend_loc='center right')
 
 fig.suptitle(plot_name)
+
+#%% Scatter plot on the HP performance map
+from plotting_performance_data import plot_performance_map
+t1 = datetime(2001,1,1, 0,0,0)
+t2 = datetime(2002,1,1, 0,0,0)
+tf = temp_flow[t1:t2]
+fig, ax = plot_performance_map()
+plt.scatter(tf['Tcoll_out'],tf['Thp_load_in'], edgecolors= "black", facecolors='none', linewidth=0.6)
+
+import plotly.graph_objects as go
+
+# Assuming tf is your DataFrame
+fig = go.Figure(data=go.Scatter(
+    x=tf['Tcoll_out'],
+    y=tf['Thp_load_in'],
+    mode='markers',
+    marker=dict(color='rgba(135, 206, 250, 0.8)', size=10, line=dict(width=0.6, color='black')),
+    text=tf.index,  # This will show the index of the DataFrame on hover
+    hoverinfo='text+x+y'  # Customizes the hover text
+))
+
+fig.update_layout(
+    title='Scatter plot of Tcoll_out vs. Thp_load_in',
+    xaxis_title='Tcoll_out',
+    yaxis_title='Thp_load_in',
+    plot_bgcolor='white'
+)
+
+fig.show()
+
+#%%
+import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
+from plotly.subplots import make_subplots
+pio.renderers.default = 'browser'
+
+fig = make_subplots(          
+            rows=3, cols=1, 
+            subplot_titles=('DHW tank', 'HP', 'SH', 'Panel'),
+            vertical_spacing=0.1, shared_xaxes=True,
+            specs=[[{"secondary_y": True}], [{"secondary_y": True}], [{"secondary_y": True}]])
+
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tcoll_out'], name="Tcoll_out",
+                         line_color='orangered'), row=1, col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tcoll_in'], name="Tcoll_in",
+                         line_color='yellow'), row=1, col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tamb'], name="Tamb",
+                          line_color='rgb(245,161,39)'), row=1, col=1)
+
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['m_coll'], name="m_coll",
+                         line=dict(color='black', width=0.7, dash='dash')),
+              secondary_y=True, row=1, col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['mrad1_in'], name="mrad2",
+                         line=dict(color='green', width=0.7, dash='dash')),
+              secondary_y=True, row=1, col=1)
+
+fig.add_trace(go.Scatter(x=controls.index, y=controls['coll_pump'], name="coll_pump",
+                          fill='tozeroy',fillcolor='rgba(44,209,209,0.5)', mode='none'),
+              secondary_y=True, row=2, col=1)
+fig.add_trace(go.Scatter(x=controls.index, y=controls['ctr_irr'], name="ctr_irr",
+                          line_color='rgb(245,161,39)'), row=2, col=1)
+fig.add_trace(go.Scatter(x=controls.index, y=controls['ctr_dhw'], name="ctr_dhw",
+                          line_color='blue'), row=2, col=1)
+fig.add_trace(go.Scatter(x=controls.index, y=controls['ctr_sh'], name="ctr_sh",
+                          line_color='orangered'), row=2, col=1)
+
+fig.add_trace(go.Scatter(x=energy.index, y=energy['COP'], name="COP",
+                          fill='tozeroy',fillcolor='rgba(44,209,209,0.5)', mode='none'),
+              secondary_y=True, row=3, col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Thp_source_in'], name="Thp_source_in",
+                          line_color='rgb(245,161,39)'), row=3, col=1)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Thp_load_in'], name="Thp_load_in",
+                          line_color='blue'), row=3, col=1)
+
+              
+fig.update_layout(title_text='Test',
+                  xaxis_rangeslider_visible=True, xaxis_rangeslider_thickness=0.05,
+                  height=1000)
+
+#%% check if controls are calculated correctly
+t1 = datetime(2001,1,1, 0,0,0)
+t2 = datetime(2001,1,7, 0,0,0)
+ctr = controls.astype(int)[t1:t2]
+coll_pump = ctr['ctr_irr'] | ctr['ctr_dhw'] | ctr['ctr_sh']
+res = ctr['coll_pump'].compare(coll_pump)
+
+fig,ax= plt.subplots()
+ctr['coll_pump'].plot.area(ax=ax,alpha=0.2)
+coll_pump.plot(ax=ax)
