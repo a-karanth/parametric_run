@@ -181,8 +181,8 @@ PARAMETERS 19
 8		! 6 Number of Source Temperatures - Cooling
 4		! 7 Number of Load Temperatures - Cooling
 78		! 8 Logical Unit for Heating Data
-6		! 9 Number of Source Temperatures - Heating
-4		! 10 Number of Load Temperatures - Heating
+7		! 9 Number of Source Temperatures - Heating
+5		! 10 Number of Load Temperatures - Heating
 3		! 11 Number of Source Flowrates
 3		! 12 Number of Load Flowrates
 30000		! 13 Rated Cooling Capacity per Heat Pump
@@ -206,7 +206,7 @@ ctrHP		! control_calc:ctrHP ->Heating Control Signal
 *** External files
 ASSIGN "C:\TRNSYS18\Tess Models\SampleCatalogData\Water-to-WaterHeatPumps\Normalized\WWHP_Cooling-Normalized.dat" 77
 *|? Which file contains the cooling performance data? |1000
-ASSIGN "C:\TRNSYS18\Tess Models\SampleCatalogData\Water-to-WaterHeatPumps\Normalized\WWHP_Heating-Normalized.dat" 78
+ASSIGN "C:\TRNSYS18\Tess Models\SampleCatalogData\Water-to-WaterHeatPumps\Normalized\WWHP_heating_extrapolated_comma.dat" 78
 *|? Which file contains the heating performance data? |1000
 *------------------------------------------------------------------------------
 
@@ -1443,7 +1443,7 @@ infil_value		! Parameters:infil_value -> 19- Infil
 *** INITIAL INPUT VALUES
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 *** External files
-ASSIGN "House.b18" 83
+ASSIGN "house_and_backup\House_py_label.b18" 83
 *|? Building description file (*.b18, *.b17, *.bui) |1000
 *------------------------------------------------------------------------------
 
