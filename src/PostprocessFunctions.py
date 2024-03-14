@@ -65,6 +65,8 @@ class PostprocessFunctions:
         energy['Qltg'] = energy[['ltg_living', 'ltg_living2', 'ltg_kit', 'ltg_bed1', 'ltg_bed2',
                                  'ltg_bed3', 'ltg_attic', 'ltg_entree', 'ltg_bath']].sum(axis = 1, skipna = True)
         energy['Qheat'] = energy['Qhp']*energy['COP']
+        energy['Qcoll_cum'] = energy['QuColl'].cumsum()*0.1
+        energy['Qpv_cum'] = energy['Qpv'].cumsum()*0.1
         # for older results that did not have correct connections to printer
         #energy['Qdev'] = energy[['dev_living', 'dev_kit', 'dev_bed1', 'dev_bed2',
         #                         'dev_bed3', 'dev_attic']].sum(axis = 1, skipna = True)
