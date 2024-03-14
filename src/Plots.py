@@ -96,7 +96,7 @@ class Plots:
                       legend_loc='upper left')
         ax0 = ax.twinx()
         self.energy['Qirr'].plot(ax=ax0, color = 'orange')
-        pf.plot_specs(ax0, t1,t2,0,1.2, ylabel='irr', legend_loc='upper right', ygrid=True)
+        pf.plot_specs(ax0, t1,t2,0,1.2, ylabel='irr', legend_loc='upper right')
         
     def plot_controls(self,t1, t2):
         ctr, (wea,hp,cdhw,croom,csh) = plt.subplots(5,1, figsize=(19,9),sharex=True)
@@ -104,7 +104,7 @@ class Plots:
         wea0 = wea.twinx()
         self.energy['Qirr'].plot(ax=wea0, color='gold')
         pf.plot_specs(wea, t1,t2, None,None, ylabel='t',title='Weather')
-        pf.plot_specs(wea0,t1, t2, ylabel='irr',legend_loc='lower right', ygrid=False)
+        pf.plot_specs(wea0,t1, t2, ylabel='irr',legend_loc='lower right')
         
         self.controls['ctr_hp'].plot.area(ax=hp, alpha=0.4, color='orange')
         self.controls['hp_div'].plot(ax=hp, style='--', color='black')
@@ -120,22 +120,31 @@ class Plots:
         self. controls['ctr_irr'].plot(ax=cdhw0, marker="1" )
         # controls[['night_charge','aux_signal']].plot(ax=cdhw)
         pf.plot_specs(cdhw, t1,t2,0,85,ylabel='Room temperature [deg C]', 
-                      title='DHW loop signals', ygrid=True)
+                      title='DHW loop signals', legend_loc='center left')
         pf.plot_specs(cdhw0, t1,t2,0,None, legend_loc='lower right')
         
-        self.temp_flow[['Tfloor1','Tfloor2']].plot(ax=croom, color=['red','green'])
-        self.temp_flow[['Tset1','Tset2']].plot(ax=croom, color=['red','green'], alpha=0.5)
+        self.temp_flow[['T1_dhw','T6_dhw', 'Tcoll_out']].plot(ax=croom)
+        pf.plot_specs(croom, t1,t2,None,None, ylabel='Temperature [deg C]', 
+                      legend_loc='lower left')
         croom0 = croom.twinx()
-        self.controls['heatingctr1'].plot.area(ax=croom0, alpha=0.4, color='orange')
-        self.controls['heatingctr2'].plot(ax=croom0, color='black', style='--')
-        pf.plot_specs(croom, t1,t2,8,None, ylabel='Room temperature [deg C]', 
-                      legend_loc='lower left', ygrid=True)
-        pf.plot_specs(croom0, t1,t2,0,1.1, title='Thermostat signals', legend_loc='lower right')
+        self.energy['QuColl'].plot.area(croom0, alpha=0.4, stacked=False)
+        pf.plot_specs(croom0, t1,t2,None,None, ylabel='QuColl', 
+                      legend_loc='lower right')
+        
+        # self.temp_flow[['Tfloor1','Tfloor2']].plot(ax=croom, color=['red','green'])
+        # self.temp_flow[['Tset1','Tset2']].plot(ax=croom, color=['red','green'], alpha=0.5)
+        # croom0 = croom.twinx()
+        # self.controls['heatingctr1'].plot.area(ax=croom0, alpha=0.4, color='orange')
+        # self.controls['heatingctr2'].plot(ax=croom0, color='black', style='--')
+        # pf.plot_specs(croom, t1,t2,8,None, ylabel='Room temperature [deg C]', 
+        #               legend_loc='lower left', ygrid=True)
+        # pf.plot_specs(croom0, t1,t2,0,1.1, title='Thermostat signals', legend_loc='lower right')
         
         self.controls['ctr_sh'].plot.area(ax=csh, alpha=0.4, color='orange')
         # controls['sh_pump'].plot(ax=csh)
         self.controls['sh_div'].plot(ax=csh,style='--', color='black')
         pf.plot_specs(csh, t1,t2,0,1.1, title='SH loop signals')
+        
         
     def plot_sh(self,t1,t2):
         fig, (csh, c, t, f, tank) = plt.subplots(5,1, figsize=(19,9),sharex=True)
