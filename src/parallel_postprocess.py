@@ -71,13 +71,13 @@ def parallel_pp(label):
         energy = pd.read_csv(directory+trn_folder + label+'_energy.txt', delimiter=",", index_col=0)
         controls = pd.read_csv(directory+trn_folder + label+'_control_signal.txt', delimiter=",",index_col=0)
         
-        controls = pf.modify_df(controls, t_start, t_end)
-        temp_flow = pf.modify_df(temp_flow, t_start, t_end)
-        energy = pf.modify_df(energy, t_start, t_end)/3600     # kJ/hr to kW 
+        controls = pf.modify_df(controls)
+        temp_flow = pf.modify_df(temp_flow)
+        energy = pf.modify_df(energy)/3600    # kJ/hr to kW 
         energy = pf.cal_energy(energy, controls)
     
     occ = pd.read_csv(directory+trn_folder+'occ.txt', delimiter=",",index_col=0)
-    occ = pf.modify_df(occ, t_start, t_end)
+    occ = pf.modify_df(occ)
     controls = pd.concat([controls,occ],axis=1)
     
     energy_monthly, energy_annual = pf.cal_integrals(energy)
@@ -150,7 +150,6 @@ def parallel_pp(label):
         
 # t2 = time.time()
 # print(t2-t1)
-
 #%% Joblib parallel processing
 from joblib import Parallel, delayed
 
@@ -218,9 +217,22 @@ print((t2-t1)/60)
 #%% Results using sequential processing
 # os.chdir(directory + res_folder)
 # results = pd.DataFrame(columns=['el_bill','gas_bill', 'el_em', 'gas_em','energy_annual','label'])
+# energy = results[0][4]
+# el_bill = results[0][0]
+# el_bill = ['el_bill_'+i for i in el_bill]   #adding the label el_bill before each bill value
+# list_columns = [el_bill,'gas_bill', 'el_em', 'gas_em',list(energy.keys()),'label']
+# list_columns = list(results[0][0].keys())
+# columns = []
+# ##    converting the conbunation of dict an dlist, into a list
+# for item in list_columns:
+#     if isinstance(item, list):
+#         columns.extend(item)
+#     else:
+#         columns.append(item)        
+# output = pd.DataFrame(columns=columns) 
 # for i in labels:
 #     energy_out, rldc, ldc, label = parallel_pp(str(i))
-    #results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, label
+#     results.loc[i] = el_bill, gas_bill, el_em, gas_em, energy_annual, label
 
 # results['total_costs'] = results['el_bill']+results['gas_bill']
 # results['total_emission'] = (results['el_em']+results['gas_em'])/1000
