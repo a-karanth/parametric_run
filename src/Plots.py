@@ -106,14 +106,14 @@ class Plots:
         pf.plot_specs(wea, t1,t2, None,None, ylabel='t',title='Weather')
         pf.plot_specs(wea0,t1, t2, ylabel='irr',legend_loc='lower right')
         
-        self.controls['ctr_hp'].plot.area(ax=hp, alpha=0.4, color='orange')
+        self.controls['ctr_hp'].plot.area(ax=hp, alpha=0.4, color='orange', stacked=False)
         self.controls['hp_div'].plot(ax=hp, style='--', color='black')
         pf.plot_specs(hp, t1,t2,0,1.1, title='Heat pump signals', legend_loc='lower right')
         
         self.temp_flow['Tavg_dhw'].plot.area(ax=cdhw, alpha=0.4, color='orange')
         self.temp_flow['T1_dhw'].plot(ax=cdhw,color='r')
         cdhw0=cdhw.twinx()
-        self.controls['ctr_dhw'].plot.area(ax=cdhw0, color='black', alpha=0.3)
+        self.controls['ctr_dhw'].plot.area(ax=cdhw0, color='black', alpha=0.3, stacked=False)
         self.controls['night'].plot(ax=cdhw0, marker="2" )
         self.controls['emergency'].plot(ax=cdhw0, marker="+" )
         self.controls['legionella'].plot(ax=cdhw0, marker="x" )
@@ -128,7 +128,7 @@ class Plots:
                       legend_loc='lower left')
         croom0 = croom.twinx()
         self.energy['QuColl'].plot.area(croom0, alpha=0.4, stacked=False)
-        pf.plot_specs(croom0, t1,t2,None,None, ylabel='QuColl', 
+        pf.plot_specs(croom0, t1,t2,-1,None, ylabel='QuColl', 
                       legend_loc='lower right')
         
         # self.temp_flow[['Tfloor1','Tfloor2']].plot(ax=croom, color=['red','green'])
@@ -140,10 +140,10 @@ class Plots:
         #               legend_loc='lower left', ygrid=True)
         # pf.plot_specs(croom0, t1,t2,0,1.1, title='Thermostat signals', legend_loc='lower right')
         
-        self.controls['ctr_sh'].plot.area(ax=csh, alpha=0.4, color='orange')
+        self.controls['ctr_sh'].plot.area(ax=csh, alpha=0.4, color='orange', stacked=False)
         # controls['sh_pump'].plot(ax=csh)
         self.controls['sh_div'].plot(ax=csh,style='--', color='black')
-        pf.plot_specs(csh, t1,t2,0,1.1, title='SH loop signals')
+        pf.plot_specs(csh, t1,t2,None,None, title='SH loop signals')
         
         
     def plot_sh(self,t1,t2):
