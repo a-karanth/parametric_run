@@ -117,7 +117,7 @@ def parallel_pp(label):
                   'import_in':import_in,
                   'export_in':export_in,
                   'COP': cop,
-                  'unmet': unmet}
+                  'unmet': unmet['unmet'].sum()}
     
     print(label)
     return energy_out, rldc, ldc, label
@@ -179,9 +179,9 @@ print((t2-t1)/60)
 # output['label'] = output['label'].str.extract('(\d+)').astype(int)
 # output=output.sort_values(by='label', ignore_index=True)
 # output = output.set_index('label')
-# output = pd.concat([existing_res,output])
+# total = pd.concat([existing_res, output]).sort_values(by='label')
 # # existing_res.loc[output.index] = output  # to replace only values that were calculated from redo.csv
-# output.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
+# total.to_csv(res_folder+'sim_results'+'.csv', index='label', index_label='label')
 
 #%% manual apprach for saving results as csv
 # very manual apprach
