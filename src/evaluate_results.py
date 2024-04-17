@@ -222,6 +222,7 @@ fig.show()
 
 #%% PCP 2: peak load, export, cost, penalty
 df = dfresults.copy()
+df = df[df["draw"].str.contains("old") == False]
 df['design_case'] = df['design_case'].replace(['cp_PV','ST','ASHP','PVT_0','PVT_6','PVT_9'],
                                               [0,1,2,3,4,5])
 df['r_level'] = df['r_level'].replace(['r0','r1','r2'],[0,1,2])
@@ -240,7 +241,7 @@ fig = go.Figure(data=
                                             #constraintrange = [1,2], # change this range by dragging the pink line
                                             label = 'Volume', values = df['volume']),        
                                        dict(label = 'Coll area', values = df['coll_area']),
-                                       dict(label = 'Flow rate [l/h]', values = df['flow_rate']),
+                                       dict(label = 'Flow factor [l/h.m2]', values = df['flow_factor']),
                                        dict(label = 'Peak load [kW]', values = df['peak_load']),
                                        dict(label = 'Peak export [kW]', values = df['peak_export']),
                                        dict(label = 'Total cost 0', values = df['total_costs_0']),
