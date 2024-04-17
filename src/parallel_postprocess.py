@@ -45,11 +45,16 @@ check_labels = np.array([''.join(filter(str.isdigit, s)) for s in labels])
 
 #%% check if sim_results.csv exists. create if it doesnt, add new values to it, if it does
 sim_yn =  os.listdir(directory+res_folder)
+redo = True
 if 'sim_results.csv' in sim_yn:
     existing_res = pd.read_csv(directory+res_folder + 'sim_results.csv',index_col='label')
     existing_labels = np.array(existing_res.index.astype(str).tolist())
-    new_labels = list(set(check_labels)-set(existing_labels)) # newly simulated labels
-    labels = [i for i in labels if any(j in i for j in new_labels)] #checks labels that exist, and copies the exact name (including _cp) for all new labels
+    if redo == False:
+        new_labels = list(set(check_labels)-set(existing_labels)) # newly simulated labels
+        labels = [i for i in labels if any(j in i for j in new_labels)] #checks labels that exist, and copies the exact name (including _cp) for all new labels
+    else:
+        redo = pd.read_csv(res_folder + 'redo.csv', index_col=0)
+        labels = [i for i in labels if any(str(j) in i for j in redo.index)]
 else:
     existing_res = pd.DataFrame()
     
@@ -62,19 +67,8 @@ t_end = datetime(2002,1,1, 0,0,0)
 os.chdir(directory)
 from PostprocessFunctions import PostprocessFunctions as pf
 def parallel_pp(label):
-    
-    if 'cp' in label:
-        controls, energy, temp_flow = pf.cal_base_case(directory+trn_folder + label)
-        
-    else:
-        temp_flow = pd.read_csv(directory+trn_folder + label+'_temp_flow.txt', delimiter=",",index_col=0)
-        energy = pd.read_csv(directory+trn_folder + label+'_energy.txt', delimiter=",", index_col=0)
-        controls = pd.read_csv(directory+trn_folder + label+'_control_signal.txt', delimiter=",",index_col=0)
-        
-        controls = pf.modify_df(controls)
-        temp_flow = pf.modify_df(temp_flow)
-        energy = pf.modify_df(energy)/3600    # kJ/hr to kW 
-        energy = pf.cal_energy(energy, controls)
+    file = directory + trn_folder + label
+    controls, energy, temp_flow = pf.create_dfs(label,file)
     
     occ = pd.read_csv(directory+trn_folder+'occ.txt', delimiter=",",index_col=0)
     occ = pf.modify_df(occ)
