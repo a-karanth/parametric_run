@@ -93,7 +93,6 @@ class PostprocessFunctions:
     @staticmethod
     def cal_integrals(energy):
         global dt
-        print('DT = '+ str(dt))
         #calculate monthly and yearly. and drop the last row which is for the next year
         energy_monthly = energy.resample('M').sum()*dt
         energy_annual = energy.resample('Y').sum()*dt
@@ -122,7 +121,7 @@ class PostprocessFunctions:
         print('Total= '+ str(round(rad1+rad2,2))+ ' kWh')
     
     @staticmethod
-    def plot_specs(ax, xlim1=None, xlim2=None, ylim1=0, ylim2=None, ylabel='', 
+    def plot_specs(ax, xlim1=None, xlim2=None, ylim1=None, ylim2=None, ylabel='', 
                    sharedx=True, legend=True, legend_loc='best', title=None, xlabel=0, ygrid=None):
         ax.set_xlim([xlim1, xlim2])
         ax.set_ylim([ylim1, ylim2])
@@ -147,27 +146,22 @@ class PostprocessFunctions:
         else:
             ax.set_ylabel(ylabel)
         
-        ax.grid(which='major',  axis='x', linestyle='--', alpha=0.4)  
         if ygrid==True:
-            ax.grid(axis='y', linestyle='--', alpha=0.4, lw=0.6)
-        elif ygrid=='both':
-            ax.grid(axis='both', linestyle='--', alpha=0.4, lw=0.6)
+            ax.grid(which='major',  axis='both', linestyle='--', alpha=0.4,lw=0.6)
+            ax.grid(which='minor', axis='x', linestyle='--', alpha=0.4, lw=0.6)
             
 
-    def cal_base_case(prefix):
+    def cal_base_case(file):
         # without HP
-        print('cp')
         global DT, dt, t_start, t_end
-        # t_start = datetime(2001,1,1, 0,0,0)
-        # t_end = datetime(2002,1,1, 0,0,0)
 
-        temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter = ",", index_col=0)
-        energy = pd.read_csv(prefix+'_energy.txt', delimiter = ",", index_col=0)
-        controls = pd.read_csv(prefix+'_control_signal.txt', delimiter = ",", index_col=0)
+        temp_flow = pd.read_csv(file+'_temp_flow.txt', delimiter = ",", index_col=0)
+        energy = pd.read_csv(file+'_energy.txt', delimiter = ",", index_col=0)
+        controls = pd.read_csv(file+'_control_signal.txt', delimiter = ",", index_col=0)
         
         controls = PostprocessFunctions.modify_df(controls)#, t_start, t_end)
         temp_flow = PostprocessFunctions.modify_df(temp_flow)#, t_start, t_end)
-        energy = PostprocessFunctions.modify_df(energy)#, t_start, t_end)/3600     # kJ/hr to kW 
+        energy = PostprocessFunctions.modify_df(energy)/3600#, t_start, t_end)/3600     # kJ/hr to kW 
         
         energy = PostprocessFunctions.cal_energy(energy, controls)
         
@@ -333,16 +327,16 @@ class PostprocessFunctions:
         return dfresults, rldc
     
     @staticmethod
-    def create_dfs(file, prefix):
+    def create_dfs(prefix, file):
         global DT, dt, t_start, t_end
 
-        if 'cp' in file:
-            controls, energy, temp_flow = PostprocessFunctions.cal_base_case(prefix)
+        if 'cp' in prefix:
+            controls, energy, temp_flow = PostprocessFunctions.cal_base_case(file)
             
         else:
-            temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter=",",index_col=0)
-            energy = pd.read_csv(prefix+'_energy.txt', delimiter=",", index_col=0)
-            controls = pd.read_csv(prefix+'_control_signal.txt', delimiter=",",index_col=0)
+            temp_flow = pd.read_csv(file+'_temp_flow.txt', delimiter=",",index_col=0)
+            energy = pd.read_csv(file+'_energy.txt', delimiter=",", index_col=0)
+            controls = pd.read_csv(file+'_control_signal.txt', delimiter=",",index_col=0)
             
             controls = PostprocessFunctions.modify_df(controls)#, t_start, t_end)
             temp_flow = PostprocessFunctions.modify_df(temp_flow)#, t_start, t_end)
