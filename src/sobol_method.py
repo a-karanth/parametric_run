@@ -86,7 +86,7 @@ def cal_bounds_scenarios(dct):
 #%% Function to assign index values to the samples
 def assign_indices(samples, inp, key_name, values):
     # samples: sample created by morris or sobol classes
-    # inp: dictionary if inputs containing the different parameters
+    # inp: dictionary of inputs containing the different parameters
     # key_name: adding columns that are common to all rows, that need not be in the SA. eg: design_case
     # values: the value to be filled in each row of these columns. eg: ST
     keys = list(inp.keys())
@@ -99,7 +99,7 @@ def assign_indices(samples, inp, key_name, values):
     if key_name:
         for i,j in zip(key_name,values):
             result[i] = j
-            if isinstance(j,str) and 'PVT_' in j: # if design_case contains PVT_batt
+            if isinstance(j,str) and 'PVT' in j: # if design_case contains PVT_batt
                 j = 'PVT_' + result['batt'].astype(str)
                 result[i] = j
             else:
@@ -206,17 +206,25 @@ indices_to_remove = pd.concat([remove1, remove2, remove3])
 test = test.drop(indices_to_remove.index)
 # test.to_csv('res/ff_sample_1.csv',index=False)
 
+#%%
+inp_pvt = {'volume' : [0.15, 0.25, 0.35, 0.45],
+            'draw':[1,2,3],
+            'design_case': ['PVT_0','PVT_buff'],
+            'r_level':['r0','r1']}
+
+df = full_factorial(inp_pvt,keys=['coll_area','flow_factor'], values=[8,30])
+df['draw'] = df['draw'].replace([1,2,3],['low','medium','high'])
 #%% function to perform SA on the generated samples
 from SALib.analyze import sobol as sobol_ana
 from SALib.analyze import morris as morris_ana
 
 def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_number=None):
     # to_number: which column has to be converted from string to number
-    df = pd.merge(sample, sim_results, how='left')
+    df = pd.merge(sample, sim_results, how='left')  #insert dfresults instead in the input
     missing = df[np.isnan(df[kpi])]
     X = sample.drop(columns2drop, axis=1)
     if to_number:
-        X[to_number] = (X[to_number].str.extract('(\d+)'))
+        X[to_number] = (X[to_number].str.extract('(\d+)').astype(int))
     X = X.to_numpy(dtype=float)
     Y = df[kpi].ravel()             #to flatten series into a numpy array
     if len(missing != 0):
@@ -240,18 +248,73 @@ def perform_sa(sa_type, kpi, problem, sample, sim_results, columns2drop, to_numb
     return Si, missing
 
 #%% collecting results
-# results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
-# results['total_costs'] = results['el_bill_1']+results['gas_bill']
-# results['total_emission'] = (results['el_em']+results['gas_em'])/1000
+results = pd.read_csv(res_folder+'sim_results.csv', index_col='label')
+results['total_costs'] = results['el_bill_0']+results['gas_bill']
+results['total_emissions'] = (results['el_em']+results['gas_em'])/1000
 
-# existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
-# existing['coll_area'] = existing['coll_area'].astype(int)
-# dfresults = pd.concat([existing, results],axis=1)
+existing = pd.read_csv(trn_folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
+existing['coll_area'] = existing['coll_area'].astype(int)
+dfresults = pd.concat([existing, results],axis=1)
+
 #%% add a column to calculate battery size
-# dfresults.insert(4,'batt',None)
-# dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
-# dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
+dfresults.insert(4,'batt',None)
+dfresults['batt'] = dfresults['design_case'].str.extract(r'(\d+)')
+dfresults['batt'] = dfresults['batt'].fillna(0).astype(int)
 # dfresults = dfresults.drop_duplicates(ignore_index=True)
+
+#%%
+dfresults['draw'] = dfresults['draw'].replace(['old','low','high'], [0,1,2])
+dfresults['r_level'] = dfresults['r_level'].replace(['r0','r1','r2'], [0,1,2])
+#%% ST
+inp_dict = {'volume' : [0.15, 0.25],
+            'coll_area': [ 4, 10, 20],
+            'flow_factor': [25, 40],
+            'r_level': [0,1,2],
+            'draw':[1,2]}
+
+problem, samp = prepare_sa('sobol', inp_dict, 
+                           key_names=['design_case','batt'], values=['ST',0], N=256, prnt=True, prefix='x')
+
+Si, missing = perform_sa('sobol', 'total_costs', problem, samp, dfresults, ['design_case','batt'])
+Si.plot()
+plt.suptitle('Design_case: ST')
+#%% PVT
+inp_pvt = {'volume' : [0.15, 0.25, 0.35, 0.45],
+            'draw':[1,2,3],
+            'design_case': ['PVT_0','PVT_buff']}
+
+problem, samp = prepare_sa('sobol', inp_pvt, 
+                           key_names=['coll_area','flow_factor','batt'], values=[8,25,0], N=256, prnt=True, prefix='y')
+
+Si, missing = perform_sa('sobol', 'total_costs', problem, samp, dfresults, ['design_case'])
+Si.plot()
+plt.suptitle('Design_case: PVT')
+
+#%% CP
+inp_cp = {'volume' : [0.15, 0.25],
+            'coll_area': [0, 4, 10, 20],
+            'r_level': [0,1,2],
+            'draw':[1,2]}
+
+problem, samp = prepare_sa('sobol', inp_cp, 
+                           key_names=['design_case','flow_factor','batt'], values=['cp_PV',0,0,0], N=256, prnt=True, prefix='y')
+
+Si, missing = perform_sa('sobol', 'total_costs', problem, samp, dfresults, ['design_case'])
+Si.plot()
+plt.suptitle('Design_case: current practice')
+
+#%% ASHP
+inp_ashp = {'volume' : [0.15, 0.25],
+            'coll_area': [4, 10, 20],
+            'r_level': ['r0','r1','r2'],
+            'draw':[1,2]}
+
+problem, samp = prepare_sa('sobol', inp_ashp, 
+                           key_names=['design_case','flow_factor','batt'], values=['ASHP',0,0,0], N=256, prnt=True, prefix='y')
+
+Si, missing = perform_sa('sobol', 'total_costs', problem, samp, dfresults, ['design_case'], to_number='r_level')
+Si.plot()
+plt.suptitle('Design_case: ASHP')
 
 #%% Running a loop to find samples with all existing data
 # count = 0
