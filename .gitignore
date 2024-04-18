@@ -10,6 +10,7 @@ src/*.b18
 src/*.xlsx
 
 src/res/*.txt
+src/res/*.csv
 
 src/*.dck
 !zpy_wwhp.dck
@@ -19,7 +20,11 @@ src/*.dck
 # Ignore all .txt files in the trn folder
 src/res/trn/*.txt
 
-src/res/*.csv
+src/*.tpf
+!src/wwhp.tpf
+!src/wwhp_cp.tpf
+!src/ashp.tpf
+
 src/penalty.ipynb
 
 trials/
