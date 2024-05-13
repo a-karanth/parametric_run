@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 from matplotlib import pyplot as plt
+from matplotlib.patches import Ellipse, Polygon
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 pd.options.mode.chained_assignment = None  
@@ -16,6 +17,7 @@ matplotlib.rcParams['lines.linewidth'] = 0.8
 matplotlib.rcParams["figure.autolayout"] = True
 import matplotlib.dates as mdates
 from PostprocessFunctions import PostprocessFunctions as pf
+import seaborn as sns
 
 class Plots:
     def __init__(self, con,en,tf):
@@ -28,18 +30,123 @@ class Plots:
             self.energy[i].plot(ax=ax)
         pf.plot_specs(ax, t1,t2, None, None, ylabel='p')
             
-    def plot_hp(self, ax, t1, t2):
-        self.energy[['Qhp4dhw','Qhp4irr']].plot.area(ax=ax, alpha=0.4)
-        self.energy['Qhp'].plot(ax=ax, color='black', linewidth=0.6, alpha=0.6)
-        pf.plot_specs(ax, t1, t2, None, None, title='Heat pump load [kW]', ygrid=True)
-        
-    def plot_dhw(self, ax, t1, t2):
-        self.temp_flow[['T1_dhw','Tavg_dhw']].plot(ax=ax)
-        pf.plot_specs(ax, t1, t2, None, None, ylabel='t', title='DHW Tank', ygrid=True)
+    def plot_t_coll(self, ax, t1,t2):
+        self.temp_flow[['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax, color=['tab:blue','tab:orange','darkred'])
+        pf.plot_specs(ax,t1,t2,None,None,ylabel='t', title='Collector panel',
+                      legend_loc='upper left', ygrid=True)
     
-    def plot_dhw_aux(self, ax, t1, t2):
-        self.energy['Qaux_dhw'].plot.area(alpha=0.4)
-        pf.plot_specs(ax, t1, t2, None, None, ylabel='Aux demand [kW]', ygrid=True)
+    def plot_q_coll(self, ax, t1,t2):
+        self.energy['QuColl'].plot.area(ax=ax, color=['gold'],alpha=0.2,stacked=False)
+        pf.plot_specs(ax,t1,t2,None,None,ylabel='q', legend_loc='upper right')
+        
+    def plot_c_coll(self, ax, t1,t2):
+        self.controls[['coll_pump','ctr_irr','ctr_coll_t']].plot(ax=ax, style='--', color=['gray','orange', 'red'])
+        self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
+        pf.plot_specs(ax,t1,t2,None,1.5,ylabel='controls', legend_loc='upper right')
+        
+    def plot_t_hp(self,ax,t1,t2):
+        self.temp_flow[['Tcoll_out','Thp_source_out','Thp_load_out','Thp_load_in']].plot(ax=ax,
+                                                                                         color=['olivedrab','yellowgreen',
+                                                                                                'firebrick','tab:red'])
+        pf.plot_specs(ax,t1,t2,None,100, ylabel='t',title='HP', 
+                      legend_loc='upper left',ygrid=True)
+        
+    def plot_q_hp(self, ax, t1, t2):
+        self.energy[['Qhp4dhw','Qhp4irr','Qaux_hp']].plot.area(ax=ax, alpha=0.4,stacked=False)
+        self.energy['Qhp'].plot(ax=ax, color='black', style='--')
+        
+        pf.plot_specs(ax, t1, t2, None, None, legend_loc='upper right')
+        
+    def plot_c_hp(self, ax, t1, t2):
+        self.controls['ctr_hp'].plot(ax=ax,style=':', color='black', alpha=0.8)
+        if 'hp_div' in self.controls.columns:
+            self.controls['hp_div'].plot(ax=ax,color='black',style='--')
+        elif 'div_load' in self.controls.columns:
+            self.controls['div_load'].plot(ax=ax,color='black',style='--')
+        self.controls['demand'].plot(ax=ax, alpha=0.5,color="skyblue")
+        ax.fill_between(self.controls.index, self.controls['demand'], color="skyblue", alpha=0.4, hatch='//')
+
+        pf.plot_specs(ax, t1, t2, None, 1.2, legend_loc='upper right')
+        
+    def plot_t_dhw(self, ax, t1, t2):
+        self.temp_flow['T1_dhw'].plot(ax=ax, color='rebeccapurple', alpha=1.0, label='T1_dhw')
+        self.temp_flow['Tavg_dhw'].plot(ax=ax, color='rebeccapurple', alpha=0.6, label='Tavg_dhw')
+        self.temp_flow['T6_dhw'].plot(ax=ax, color='rebeccapurple', alpha=0.3, label='T6_dhw')
+        self.controls['tset_dhw'].plot(ax=ax, color='rebeccapurple', style='--', label='Tset_dhw')
+        pf.plot_specs(ax, t1, t2, None, 85, ylabel='t', title='DHW Tank', 
+                      legend_loc='upper left', ygrid=True)
+    
+    def plot_q_dhw(self, ax, t1, t2):
+        self.energy['Qaux_dhw'].plot.area(ax=ax, alpha=0.4,stacked=False)
+        pf.plot_specs(ax, t1, t2, None, None, ylabel='Aux demand [kW]', 
+                      legend_loc='upper right', ygrid=True)
+        
+    def plot_t_shbuff(self, ax, t1, t2):
+        self.temp_flow[['T1_sh']].plot(ax=ax, color='firebrick', alpha=1.0, label='T1_sh')
+        self.temp_flow[['Tavg_sh']].plot(ax=ax, color='firebrick', alpha=0.6, label='Tavg_sh')
+        self.temp_flow[['T6_sh']].plot(ax=ax, color='firebrick', alpha=0.3, label='T6_sh')
+        pf.plot_specs(ax, t1, t2, None, None, ylabel='t', title='DHW Tank', 
+                      legend_loc='upper left', ygrid=True)
+    
+    def plot_c_shbuff(self,ax,t1,t2):
+        if 'ctr_buff' in self.controls.columns:
+            self.controls[['ctr_dhw','ctr_buff']].plot(ax=ax,style='--', color=['rebeccapurple','firebrick'])
+        elif 'ctr_sh_buff' in self.controls.columns:
+            self.controls[['ctr_dhw','ctr_sh_buff']].plot(ax=ax,style='--', color=['rebeccapurple','firebrick'])
+        pf.plot_specs(ax, t1, t2, None, 1.2, legend_loc='upper right', title='SH buffer and DHW tank control signals')
+        
+    def plot_t_sh(self, ax, t1,t2):
+        self.temp_flow[['Tfloor1','Tfloor2']].plot(ax=ax,color=['mediumvioletred', 'green'])
+        self.temp_flow[['Tset1','Tset2']].plot(ax=ax,style=':',color=['mediumvioletred', 'green'])
+        pf.plot_specs(ax, t1, t2, None, 30, ylabel='Room temp [degC]',
+                      title='Space heating', legend_loc='upper left', ygrid=True)
+    
+    def plot_q_sh(self, ax, t1,t2):
+        self.energy[['Qrad1','Qrad2']].plot.area(ax=ax,color=['mediumvioletred', 'green'],alpha=0.2,stacked=False)
+        pf.plot_specs(ax, t1, t2, None, None, ylabel='Q radiator [kWh]', legend_loc='upper right')
+    
+    def plot_c_sh(self, ax, t1,t2):
+        self.controls['sh_div'].plot(ax=ax,color='black',style='--')
+        self.controls['ctr_sh'].plot(ax=ax,style=':', color='black', alpha=0.8)
+        pf.plot_specs(ax, t1, t2, None, 1.2, ylabel='Q radiator [kWh]', legend_loc='upper right')
+    
+    def check_sim(self, t1,t2,file):
+        fig, ((ax1,ax5),(ax2,ax6),(ax3,ax7),(ax4,ax8)) = plt.subplots(4,2, figsize=(19,9))
+        ax10,ax20, ax30, ax40 = ax1.twinx(), ax2.twinx(), ax3.twinx(), ax4.twinx()
+        # ax50,ax60, ax70, ax80 = ax5.twinx(), ax6.twinx(), ax7.twinx(), ax8.twinx()
+        
+        self.plot_q_coll(ax10,t1,t2)
+        self.plot_t_coll(ax1,t1,t2)
+        self.plot_c_coll(ax5,t1,t2)
+        
+        self.plot_q_hp(ax20,t1,t2)
+        self.plot_t_hp(ax2,t1,t2)
+        self.plot_c_hp(ax6,t1,t2)
+        
+        self.plot_q_dhw(ax30,t1,t2)
+        self.plot_t_dhw(ax3, t1,t2)
+        self.plot_t_shbuff(ax3, t1,t2)
+        self.plot_c_shbuff(ax7, t1, t2)
+       
+        self.plot_q_sh(ax40,t1,t2) 
+        self.plot_t_sh(ax4,t1,t2) 
+        self.plot_c_sh(ax8,t1,t2)
+        fig.suptitle(file)
+        
+        self.plot_unmet()
+        
+        tsourcein_low = (self.temp_flow['Tcoll_out']<-25)*self.controls['ctr_hp']
+        tloadin_low = (self.temp_flow['Thp_load_in']<10)*self.controls['ctr_hp']
+        tsourceout_high = (self.temp_flow['Thp_source_out']>35)*self.controls['ctr_hp']
+        tloadout_high = (self.temp_flow['Thp_load_out']>60)*self.controls['ctr_hp']
+        total_heat = round(self.energy['Qheat'].sum()*0.1,2)
+        print(f'Temperature entering HP source is lower than lower limit for {tsourcein_low.sum()} timesteps')
+        print(f'Temperature entering HP load is lower than lower limit for {tloadin_low.sum()} timesteps')
+        print(f'Temperature exiting HP source is greater than upper limit for {tsourceout_high.sum()} timesteps')
+        print(f'Temperature exiting HP load is greater than upper limit for {tloadout_high.sum()} timesteps')
+        print(f'Q heat = {total_heat} kWh')
+        
+        return fig
         
     def plot_sh_dhw(self, t1,t2):    
         comp, (dhw,sh,rt) = plt.subplots(3,1, figsize=(19,9),sharex=True)
@@ -70,6 +177,9 @@ class Plots:
         pf.plot_specs(rt0, t1,t2,0,1, ylabel='irr')
         
     def plot_q(self, t1, t2):
+        """
+        Plot of Qs: HP, aux, PV, to grid, from grid, to-from battery.
+        """
         q, (load,batt,temp) = plt.subplots(3, 1, gridspec_kw={'height_ratios': [1,2, 1]}, figsize=(11,8))
         
         self.energy[['Qpv', 'Qhp', 'Qaux_dhw']].plot(ax=load)
@@ -86,14 +196,20 @@ class Plots:
         pf.plot_specs(temp, t1,t2, 0, 90, ylabel='t', title='Avg tank temperature')
         
         
-    def plot_wea(self, temp_flow, energy, month):
+    def plot_wea(self, month):
         t1 = datetime(2001, month, 14, 0,0,0)
         t1 = t1 + relativedelta(day=1)
         t2 = t1 + relativedelta(day=31)+timedelta(days=1)
         fig, ax = plt.subplots(figsize = (10,6))
         self.temp_flow['Tamb'].plot(ax=ax, color = 'darkred')
         pf.plot_specs(ax, t1,t2,-10,40, ylabel='t', title='Weather for month '+str(month),
-                      legend_loc='upper left')
+                      legend_loc='upper left',ygrid=True)
+        
+        
+        # daily_temp = self.temp_flow['Tamb'].resample('D').agg(['min', 'max'])
+        # day = daily_temp.index
+        # ax.bar(day, daily_temp['max'], bottom=daily_temp['min'], color='green', alpha=1, width=0.5, label='Daily Temp Range')
+        
         ax0 = ax.twinx()
         self.energy['Qirr'].plot(ax=ax0, color = 'orange')
         pf.plot_specs(ax0, t1,t2,0,1.2, ylabel='irr', legend_loc='upper right')
@@ -309,3 +425,54 @@ class Plots:
         ax.grid(visible=True, axis='y', linestyle='--', alpha=0.7, which='both')
         ax.legend()
         return scatter, cbar
+    
+    def plot_unmet(self):
+        tf = (self.temp_flow.resample('H').mean())[:-1]
+        c = (self.controls.resample('H').mean())[:-1]
+        df = tf[['Tfloor1','Tfloor2','Tset1','Tset2']]
+        df[['occ_living','occ_first']] = c[['occ_living','occ_first']]
+        df['T1'] = df['Tfloor1']#*[1 if i>0 else np.NaN for i in df['occ_living']]
+        df['T2'] = df['Tfloor2']#*[1 if i>0 else np.NaN for i in df['occ_first']]
+        
+        df['diff1']= df['T1']-df['Tset1']
+        df['diff2']= df['T2']-df['Tset2']
+        
+        df['low_band1']= [1 if  -0.5<=i<0 else 2 if -1.2<=i<-0.5 else 3 if i<-1.2 else 0 for i in df['diff1']]
+        df['low_band2']= [1 if  -0.5<=i<0 else 2 if -1.2<=i<-0.5 else 3 if i<-1.2 else 0 for i in df['diff2']]
+
+        #seaborn plot
+        df['day'] = df.index.dayofyear
+        df['hour'] = tf.index.hour
+        pivot_table1 = df.pivot_table(values='T1', index='hour', columns='day', aggfunc='mean')
+        pivot_table2 = df.pivot_table(values='T2', index='hour', columns='day', aggfunc='mean')
+        pivot_table3 = df.pivot_table(values='low_band1', index='hour', columns='day', aggfunc='mean')
+        pivot_table4 = df.pivot_table(values='low_band2', index='hour', columns='day', aggfunc='mean')
+        fig,(ax1,ax2,ax3,ax4)=plt.subplots(4,1,figsize=(12,8))
+        sns.heatmap(pivot_table1,cmap='Spectral_r', ax=ax1,vmin=15,vmax=32)
+        sns.heatmap(pivot_table2,cmap='Spectral_r', ax=ax2,vmin=15,vmax=32)
+        sns.heatmap(pivot_table3,ax=ax3)
+        sns.heatmap(pivot_table4,ax=ax4)
+        
+        ax1.invert_yaxis()
+        ax2.invert_yaxis()
+        ax3.invert_yaxis()
+        ax4.invert_yaxis()
+        
+        # #matplotlib plot
+        # day = tf.index.dayofyear.unique()
+        # t1 = df['T1'].values.reshape(24, len(day), order="F")
+        # t2 = df['T2'].values.reshape(24, len(day), order="F")
+        
+        # xgrid = np.arange(day.max()) 
+        # ygrid = np.arange(0,24,1)
+        
+        # fig,(ax1,ax2)=plt.subplots(2,1)
+        # heatmap = ax1.pcolormesh(xgrid, ygrid, t1, cmap='Spectral_r', vmin=12, vmax=26)
+        # cbar1 = ax1.figure.colorbar(heatmap, ax=ax1)
+        # cbar1.set_label('Troom [dgeC]')
+        # heatmap = ax2.pcolormesh(xgrid, ygrid, t2, cmap='Spectral_r', vmin=12, vmax=26)
+        # cbar2 = ax2.figure.colorbar(heatmap, ax=ax2)
+        # cbar2.set_label('Troom [dgeC]')
+        
+        # ax1.set_ylim([6.5,22.5])
+        # ax2.set_ylim([6.5,22.5])
