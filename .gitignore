@@ -13,9 +13,13 @@ src/res/*.txt
 src/res/*.csv
 
 src/*.dck
-!zpy_wwhp.dck
-!zpy_wwhp_cp.dck
-!zpy_ashp.dck
+!src/zpy_wwhp.dck
+!src/zpy_wwhp_cp.dck
+!src/zpy_ashp.dck
+!src/zpy_wwhp_buffer3.dck
+!src/wwhp_no_ss_buff.dck
+!src/wwhp_2buffers.dck
+!src/wwhp_buffer3.dck
 
 # Ignore all .txt files in the trn folder
 src/res/trn/*.txt
@@ -24,6 +28,8 @@ src/*.tpf
 !src/wwhp.tpf
 !src/wwhp_cp.tpf
 !src/ashp.tpf
+!src/wwhp_no_ss_buff.tpf
+!src/wwhp_2buffers.tpf
 
 src/penalty.ipynb
 
