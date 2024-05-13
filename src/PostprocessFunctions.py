@@ -60,9 +60,9 @@ class PostprocessFunctions:
                                           controls.iloc[i]['ctr_irr']==0) else 0 for i in range(len(energy))]
         energy['Qhp4sh'] = q_sh
         energy['gas'] = 0
-        energy['Qdev'] = energy[['dev_living','dev_living2' , 'dev_kit', 'dev_bed1', 'dev_bed2',
+        energy['Qdev'] = energy[['dev_living1','dev_living2' , 'dev_kitchen', 'dev_bed1', 'dev_bed2',
                                  'dev_bed3', 'dev_attic', 'dev_entree', 'dev_bath']].sum(axis = 1, skipna = True)
-        energy['Qltg'] = energy[['ltg_living', 'ltg_living2', 'ltg_kit', 'ltg_bed1', 'ltg_bed2',
+        energy['Qltg'] = energy[['ltg_living1', 'ltg_living2', 'ltg_kitchen', 'ltg_bed1', 'ltg_bed2',
                                  'ltg_bed3', 'ltg_attic', 'ltg_entree', 'ltg_bath']].sum(axis = 1, skipna = True)
         energy['Qheat'] = energy['Qhp']*energy['COP']
         energy['Qcoll_cum'] = energy['QuColl'].cumsum()*0.1
@@ -240,7 +240,7 @@ class PostprocessFunctions:
     
     def cal_ldc(energy):
         global dt
-        energyH = (energy.resample('H').sum())*dt #hourly energy
+        energyH = ((energy.resample('H').sum())*dt) [:-1]#hourly energy
         rldc = pd.DataFrame()
         rldc['net_import']=-energyH['Q2grid']+energyH['Qfrom_grid']            
         rldc = rldc.sort_values(by=['net_import'], ascending = False)
@@ -263,8 +263,8 @@ class PostprocessFunctions:
         opp_import_intercept = round(0.01*import_intercept)
         opp_import = rldc.loc[opp_import_intercept, rldc.columns[0]]
         
-        export_intercept = 8760-import_intercept
-        opp_export_intercept = 8760 - round(0.01*export_intercept)
+        export_intercept = len(rldc)-import_intercept
+        opp_export_intercept = len(rldc) - round(0.01*export_intercept)
         opp_export = rldc.loc[opp_export_intercept, rldc.columns[0]]
         return opp_import, opp_export, opp_import_intercept, opp_export_intercept
         
