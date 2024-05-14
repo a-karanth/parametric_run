@@ -36,68 +36,64 @@ t_start = datetime(2001,2,9, 0,0,0)
 t_end = datetime(2001,2,17, 0,0,0)
 
 #%% Read files
-if 'cp' in file:
-    controls, energy, temp_flow = pf.cal_base_case(prefix)
-    
-else:
-    temp_flow = pd.read_csv(prefix+'_temp_flow.txt', delimiter=",",index_col=0)
-    energy = pd.read_csv(prefix+'_energy.txt', delimiter=",", index_col=0)
-    controls = pd.read_csv(prefix+'_control_signal.txt', delimiter=",",index_col=0)
-    
-    controls = pf.modify_df(controls)#, t_start, t_end)
-    temp_flow = pf.modify_df(temp_flow)#, t_start, t_end)
-    energy = pf.modify_df(energy)/3600#, t_start, t_end)/3600     # kJ/hr to kW 
-    energy = pf.cal_energy(energy, controls)
+controls, energy, temp_flow = pf.create_dfs(file,prefix)
 
-# occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
-# occ = pf.modify_df(occ, t_start, t_end)
-# controls = pd.concat([controls,occ],axis=1)
+occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
+mb = pd.read_csv(directory+folder+file+'_mass_balance.txt', delimiter=",",index_col=0)
+mb = pf.modify_df(mb)
+occ = pf.modify_df(occ)
+occ = occ[:energy.index[-1]] #make occ dataframe as long as the rest of the dfs. especially for incomplete sims
+controls = pd.concat([controls,occ],axis=1)
 
-# temp_flow = pf.unmet_hours(controls, temp_flow)
+temp_flow = pf.unmet_hours(controls, temp_flow)
 
-# energy_monthly, energy_annual = pf.cal_integrals(energy)
+energy_monthly, energy_annual = pf.cal_integrals(energy)
 
-# el_bill, gas_bill = pf.cal_costs(energy)
-# el_em, gas_em = pf.cal_emissions(energy)
-# pl,pe = pf.peak_load(energy)
-# rldc,ldc = pf.cal_ldc(energy)
-# opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
-# cop = pf.cal_cop(energy)
-# penalty, energy = pf.cal_penalty(energy)
+el_bill, gas_bill = pf.cal_costs(energy)
+el_em, gas_em = pf.cal_emissions(energy)
+pl,pe = pf.peak_load(energy)
+rldc,ldc = pf.cal_ldc(energy)
+opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
+cop = pf.cal_cop(energy)
+penalty, energy = pf.cal_penalty(energy)
 
 #%% plots
 pt = Plots(controls, energy, temp_flow)
-t1 = datetime(2001,1,1, 0,0,0)
-t2 = datetime(2001,1,8, 0,0,0)
-pt.plot_q(t1, t2)
+t1 = datetime(2001,1,18, 0,0,0)
+t2 = datetime(2001,1,19, 0,0,0)
 
-#%% plotlt plot for residual LDC
-import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
-from plotly.subplots import make_subplots
-pio.renderers.default = 'browser'
-fig = make_subplots(rows=1)
+fig = pt.check_sim(t1,t2,file)
 
-color_scale = plotly.colors.sequential.Viridis
-color_scale = plotly.colors.qualitative.Bold
+test = pd.DataFrame()
+test['Thp_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*controls['hx_bypass']
+test['Thx_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*(controls['hx_bypass']==0)
 
-data = rldc['net_import']
-fig.add_trace(go.Scatter(x=rldc.index, 
-                          y=data, 
-                          text=rldc['timestamp'],
-                          hoverinfo="y+text"
-                          )
-               )
-fig.show()
+figx,ax = plt.subplots(figsize= (5,6))
+energy_monthly.index = energy_monthly.index.strftime('%b')
+energy_monthly[['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
+qtot = round(energy_monthly['Qheat'].sum(),0)
+plt.xticks(rotation=0)
+pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
+print(mb.sum())
 
-#%%
+#%% Change xlim of all axes
+t1 = datetime(2001,1,8, 0,0,0)
+t2 = datetime(2001,1,9, 0,0,0)
+for ax in fig.axes:
+    ax.set_xlim([t1,t2])
+# Redraw the figure to update the display
+fig.canvas.draw()
+
+#%% initialize for multiple files
 c1, e1, tf1= {}, {}, {}
 r1,l1 = {}, {}
+m = {}
 occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
-occ = pf.modify_df(occ)#, t_start, t_end)
+occ = pf.modify_df(occ)
 #%% run multiple files
 files = [#'2000',
-         '2001', '2002', '2003', '2004', '2005', '2006', #'2007',
-         '2008', '2009', '2010', '2011', '2012', '2013']
+         'test33','x']#,'z','test30']
+        # '2008', '2009', '2010', '2011', '2012', '2013']
 
 if 'e' in locals():                                     #for running the cell again
     existing_keys = list(e1.keys())                     #without having to run all labels again
@@ -109,48 +105,143 @@ for file in new_files:
     print(file)
     prefix = directory + folder + file
     controls, energy, temp_flow = pf.create_dfs(file,prefix)
-        
+    energy_monthly, energy_annual = pf.cal_integrals(energy)
+    # temp_flow['mdhw2tap_cum'] = temp_flow['mdhw2tap'].cumsum()
     controls = pd.concat([controls,occ],axis=1)
-    temp_flow = pf.unmet_hours(controls, temp_flow)
-    rldc,ldc = pf.cal_ldc(energy)
+    # temp_flow = pf.unmet_hours(controls, temp_flow)
+    # rldc,ldc = pf.cal_ldc(energy)
     
     c1[file] = controls
     e1[file] = energy
     tf1[file] = temp_flow
-    r1[file] = rldc
-    l1[file] = ldc
+    # r1[file] = rldc
+    # l1[file] = ldc
+    m[file] = energy_monthly
 #%% create filtered dictionary
-files = ['2008', '2009', '2010', '2011', '2012', '2013']
+# files = ['2008', '2009', '2010', '2011', '2012', '2013']
 c = {key: c1[key] for key in files}
 e = {key: e1[key] for key in files}
 tf = {key: tf1[key] for key in files}
+pt = {}
+
+#%% plot check sims
+key = 'x'
+pt = Plots(c[key], e[key], tf[key])
+t1 = datetime(2001,1,18, 0,0,0)
+t2 = datetime(2001,1,19, 0,0,0)
+qtot = round(m[key]['Qheat'].sum(),0)
+fig = pt.check_sim(t1,t2,key)
+plt.suptitle(key)
+figx,ax = plt.subplots(figsize= (5,6))
+m[key].index = m[key].index.strftime('%b')
+m[key][['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
+plt.xticks(rotation=0)
+pf.plot_specs(ax,title=f'Monthly consumption: {key},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
+
+#%% check sims plot in plotly using rangeslider
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+# Generate random time series data
+np.random.seed(42)
+# dates = c[key].index
+# tf = temp_flow.copy()
+# e = energy.copy()
+# c = controls.copy()
+# Create a 4x2 subplot layout
+fig = make_subplots(
+    rows=4, cols=2,
+    shared_xaxes=True,
+    vertical_spacing=0.1,
+    subplot_titles=("Collector Panel", "Collector Control",
+                    "Heat Pump", "Heat Pump Control",
+                    "DHW Tank", "DHW Control",
+                    "Space Heating", "Heating Control"),
+    specs=[
+        [{"secondary_y": True}, {"secondary_y": True}],
+        [{"secondary_y": True}, {"secondary_y": True}],
+        [{"secondary_y": True}, {"secondary_y": True}],
+        [{"secondary_y": True}, {"secondary_y": True}]
+    ]
+)
+
+# Add traces to each subplot
+fig.add_trace(go.Scatter(x=tf.index, y=tf["Tcoll_in"], mode="lines", name="Tcoll_in"), row=1, col=1)
+fig.add_trace(go.Scatter(x=tf.index, y=tf["Tcoll_out"], mode="lines", name="Tcoll_out"), row=1, col=1)
+fig.add_trace(go.Scatter(x=tf.index, y=tf["Tamb"], mode="lines", name="Tamb"), row=1, col=1)
+fig.add_trace(go.Scatter(x=tf.index, y=e["QuColl"], mode="lines", name="QuColl"), row=1, col=1, secondary_y=True)
+
+fig.add_trace(go.Scatter(x=c.index, y=c["coll_pump"], mode="lines", name="coll_pump"), row=1, col=2)
+fig.add_trace(go.Scatter(x=c.index, y=c["ctr_irr"], mode="lines", name="ctr_irr"), row=1, col=2)
+fig.add_trace(go.Scatter(x=c.index, y=c["ctr_coll_t"], mode="lines", name="ctr_coll_t"), row=1, col=2)
+fig.add_trace(go.Scatter(x=c.index, y=e["Qirr"], mode="lines", name="Qirr"), row=1, col=2, secondary_y=True)
+
+# Update layout
+fig.update_layout(
+    height=800,
+    showlegend=True,
+    title="4x2 Subplots with Range Slider",
+    xaxis_rangeslider_visible=True
+)
+
+# Show plot
+fig.show()
 #%%
-t1 = datetime(2001,1,11, 0,0,0)
-t2 = datetime(2001,1,12, 0,0,0)
+t1 = datetime(2001,6,6, 0,0,0)
+t2 = datetime(2001,6,12, 0,0,0)
 
 fig, axs = plt.subplots(len(e), 1, figsize=(10, 2*len(e)))
 axs0 = [ax.twinx() for ax in axs]
 for i, label in enumerate(e):
-    pt = Plots(c[label],e[label],tf[label])
-    e[label]['Qhp'].plot.area(ax=axs[i], alpha=0.2, stacked=False)
-    # e[label][['Qheat_living1','Qheat_living2']].sum(axis=1).plot(ax=axs[i], label='Qheat')
+    pt[label] = Plots(c[label],e[label],tf[label])
+    e[label][['Qhp','Qrad1','Qrad2']].plot.area(ax=axs[i], alpha=0.2, stacked=False)
+    # e[label][['Qrad1','Qrad2']].sum(axis=1).plot(ax=axs[i], label='Qsh_delivered')
     # c[label][['heatingctr1','heatingctr2']].plot(ax=axs[i],style='--', color=['lightskyblue','dodgerblue'])
     # tf[label]['unmet'].plot(ax=axs[i],style='--', color='black')
-    # tf[label][['Tfloor1','Tfloor2','Thp_load_out']].plot(ax=axs0[i], 
-    #                                       color=['mediumvioletred', 'darkmagenta','green'])
-    # temp_flow[['Tset1','Tset2']].plot(ax=axs0[i], style='--', 
-    #                                           color=['mediumvioletred', 'darkmagenta'])
+    tf[label][['Tfloor1','Tfloor1_2','Tfloor2']].plot(ax=axs0[i], 
+                                          color=['mediumvioletred', 'darkmagenta','green'])
+    tf[label][['T1op_1','T1op_2','T2op']].plot(ax=axs0[i],  style=':',
+                                          color=['mediumvioletred', 'darkmagenta','green'])
+    temp_flow[['Tset1','Tset2']].plot(ax=axs0[i], style='--', 
+                                              color=['mediumvioletred', 'green'])
     # pf.plot_specs(axs[i], t1,t2, 0,5, 'energy[kWh]',legend_loc='upper left')
     # pf.plot_specs(axs0[i], t1,t2, -15,34, 'Temperature [deg C]',legend_loc='upper right')
-    e[label][['QuColl','Qheat','Qaux_dhw']].plot.area(ax=axs[i], alpha=0.2, stacked=False)
-    tf[label]['Tcoll_out'].plot(ax=axs0[i])
-    pf.plot_specs(axs[i], t1,t2, 0,6, 'energy[kWh]',legend_loc='upper left')
-    pf.plot_specs(axs0[i], t1,t2, None,None, 't',legend_loc='upper right')
+    # e[label][['QuColl','Qheat','Qaux_dhw']].plot.area(ax=axs[i], alpha=0.2, stacked=False)
+    # tf[label][['Tcoll_in','Tcoll_out','Tamb']].plot(ax=axs0[i])
+    pf.plot_specs(axs[i], t1,t2, -2,6, 'energy[kWh]',legend_loc='upper left')
+    pf.plot_specs(axs0[i], t1,t2, 10,30, 't',legend_loc='upper right')
     heating_demand = round(e[label]['Qheat'].sum()*0.1, 2)
-    unmet = round(tf[label]['unmet'].sum(),2)
+    # unmet = round(tf[label]['unmet'].sum(),2)
     axs[i].set_title(label)
     print(label + '(heat) ='+ str(heating_demand) + #' kWh, unmet hours = '+str(unmet)+
           ' Qhp = '+str(round(e[label]['Qhp'].sum()*0.1,2)))
+
+#%% QuColl cumulative plot
+import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
+from plotly.subplots import make_subplots
+pio.renderers.default = 'browser'
+
+colors = ['blue', 'green', 'red', 'purple', 'orange', 'yellow']
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+for i, label in enumerate(e):
+    color = colors[i % len(colors)]
+    pt[label] = Plots(c[label],e[label],tf[label])
+    
+    fig.add_trace(go.Scatter(x=e[label].index, y=e[label]['Qcoll_cum'], 
+                             mode='lines', name=label,
+                             line=dict(color=color, dash='solid')))
+    fig.add_trace(go.Scatter(x=e[label].index, y=e[label]['QuColl'],
+                             mode='lines', name=label,
+                             line=dict(color=color, dash='dot')), 
+                  secondary_y=True)
+
+fig.update_layout(title='Qcoll_cum and QuColl from Different DataFrames',
+                  xaxis_title='Index',
+                  yaxis_title='kWh')
+fig.update_yaxes(title_text="QuColl Value", secondary_y=True)
+
 
 #%% cp - plots
 t1 = datetime(2001,1,10, 0,0,0)
@@ -185,7 +276,7 @@ energy[['Qhp_heating_out','Qrad1']].plot(ax=ax20, style='--')
 pf.plot_specs(ax2, t1,t2, 40,70, ylabel='t',legend_loc='upper left')
 pf.plot_specs(ax20, t1,t2, -0.1,25, 'Energy delivered by Radiator [kW]',legend_loc='upper right')
 
-#%% namual calculation of Qrad
+#%% manual calculation of Qrad
 q_rad = temp_flow['mrad1_in']*4.182*(temp_flow['Trad1_in']-temp_flow['Trad1_return'])/3600
 q_hp = temp_flow['mhp_load_out']*4.182*(temp_flow['Thp_load_out']-temp_flow['Thp_load_in'])/3600
 fig,ax = plt.subplots()
@@ -342,38 +433,16 @@ df['ht_to_load'].plot(ax=ax, kind='bar',position=1, width=0.2,color='green')
 df[['ht_from_source','Qhp']].plot(ax=ax, kind='bar',stacked=True,position=0, width=0.2, color=['gold','skyblue'])
 ax.legend()
 
-#%% pvt load loop calculation
-t1 = datetime(2001,2,12, 7,0,0)
-t2 = datetime(2001,2,12, 22,0,0)
-fig, (ax2,ax0,ax, ax4) = plt.subplots(4,1)
-
-temp_flow[['Tcoll_out','Tcoll_in']].plot(ax=ax2, color=['firebrick','tab:blue'])
-pf.plot_specs(ax2, t1,t2,None,None,ylabel='t', legend_loc='center left', title='Collector panel')
-
-temp_flow['m_coll'].plot(ax=ax0)
-ax00 = ax0.twinx()
-energy['QuColl'].plot(ax=ax00, color='gold')
-pf.plot_specs(ax00, t1,t2,-0.2,None,ylabel='Energy', legend_loc='center right')
-
-controls['coll_pump'].plot(ax=ax)
-controls['pvt_load_loop'].plot.area(ax=ax,alpha=0.2)
-pf.plot_specs(ax0, t1,t2,None,None,ylabel='f', legend_loc='center left')
-pf.plot_specs(ax, t1,t2,None,None,ylabel='p', legend_loc='center right')  
-
-controls['ctr_irr'].plot.area(ax=ax4, color='gold', alpha=0.2)
-controls['ctr_sh'].plot(ax=ax4, marker='*')
-controls['ctr_dhw'].plot(ax=ax4, linestyle='--')
-pf.plot_specs(ax4, t1,t2,None,None,ylabel='controls', legend_loc='center right')
-
-fig.suptitle(plot_name)
-
 #%% Scatter plot on the HP performance map
 from plotting_performance_data import plot_performance_map
 t1 = datetime(2001,1,1, 0,0,0)
 t2 = datetime(2002,1,1, 0,0,0)
 tf = temp_flow[t1:t2]
 fig, ax = plot_performance_map()
-plt.scatter(tf['Tcoll_out'],tf['Thp_load_in'], edgecolors= "black", facecolors='none', linewidth=0.6)
+plt.scatter(tf['Tcoll_out'],tf['thp_load_in_dhw'], edgecolors= "green", facecolors='none', linewidth=0.6)
+plt.scatter(tf['Tcoll_out'],tf['thp_load_in_dhw'], edgecolors= "green", facecolors='none', linewidth=0.6,label='DHW')
+plt.scatter(tf['Tcoll_out'],tf['thp_load_in_sh'], edgecolors= "red", facecolors='none', linewidth=0.6,label='SH')
+plt.legend()
 
 import plotly.graph_objects as go
 
@@ -396,7 +465,7 @@ fig.update_layout(
 
 fig.show()
 
-#%%
+#%% collector and HP plotly plot
 import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
 from plotly.subplots import make_subplots
 pio.renderers.default = 'browser'
@@ -439,7 +508,6 @@ fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Thp_source_in'], name="
                           line_color='rgb(245,161,39)'), row=3, col=1)
 fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Thp_load_in'], name="Thp_load_in",
                           line_color='blue'), row=3, col=1)
-
               
 fig.update_layout(title_text='Test',
                   xaxis_rangeslider_visible=True, xaxis_rangeslider_thickness=0.05,
@@ -455,3 +523,63 @@ res = ctr['coll_pump'].compare(coll_pump)
 fig,ax= plt.subplots()
 ctr['coll_pump'].plot.area(ax=ax,alpha=0.2)
 coll_pump.plot(ax=ax)
+
+#%% new columns to segrregate Tcond_in into dhw and sh columns
+temp_flow['thp_load_in_dhw'] = temp_flow['Thp_load_in']*(controls['ctr_dhw'])
+controls['no_dhw'] = controls['ctr_dhw'].apply(lambda x: 1 if x == 0 else 0)
+temp_flow['thp_load_in_sh'] = temp_flow['Thp_load_in']*(controls['no_dhw'])
+temp_flow['thp_load_in_dhw'].replace(0,np.NaN, inplace=True)
+temp_flow['thp_load_in_sh'].replace(0,np.NaN, inplace=True)
+
+#%% Calculate base case: demand vs outdoor temp, annual energy demand 
+#   (cp_PV: case 1047, WWHP with ST: case 1089; ASHP: case 1049)
+qheat_sh = energy['Qheat_living1']+energy['Qheat_living2']+energy['Qheat_bed1']+energy['Qheat_bed2']
+Qheat_sh = qheat_sh.resample('D').sum()*0.1
+
+avg_temp = temp_flow['Tamb'].resample('D').mean()[:-1]
+Qheat_tot = (energy['Qheat'].resample('D').sum()*0.1)[:-1]
+df = pd.concat([avg_temp,Qheat_tot], axis=1)
+
+fig,ax = plt.subplots()
+ax.scatter(df['Tamb'],df['Qheat'],s=20, edgecolors= "darkred", facecolors='none', linewidth=0.6)
+pf.plot_specs(ax,xlabel='Avg outdoor temp [deg C]', ylabel='Total heat demand [kWh]', 
+              title='Heat signature of the base case', ygrid=True)
+
+test = df[(df['Tamb']<0) & (df['Qheat']>80)]
+
+#%% Compare base case, WWHP and ASHP from cases 1047_cp, 1089, 1059 resp.
+e,tf = {},{}
+for i in e1:
+    e[i] = (e1[i].resample('D').sum()*0.1)[:-1]
+    tf[i] = tf1[i].resample('D').mean()[:-1]
+    
+df = pd.concat([tf['1047_cp']['Tamb'],
+                e['1047_cp']['Qheat'],
+                e['1089']['Qhp_heating_out'],
+                e['1059']['Qhp_heating_out']],axis=1,
+               keys = ['Tamb',"Heat demand","WWHP",'ASHP' ])
+df2 = df.sort_values(by='Tamb')
+
+fig,ax = plt.subplots()
+ax.plot(df2['Tamb'],df2['WWHP'],label='WWHP')
+ax.plot(df2['Tamb'],df2['ASHP'],label='ASHP')
+ax.plot(df2['Tamb'],df2['Heat demand'],'--',label='Bldg demand')
+ax.legend()
+
+#%% plotlt plot for residual LDC
+import plotly, plotly.graph_objects as go, plotly.offline as offline, plotly.io as pio
+from plotly.subplots import make_subplots
+pio.renderers.default = 'browser'
+fig = make_subplots(rows=1)
+
+color_scale = plotly.colors.sequential.Viridis
+color_scale = plotly.colors.qualitative.Bold
+
+data = rldc['net_import']
+fig.add_trace(go.Scatter(x=rldc.index, 
+                          y=data, 
+                          text=rldc['timestamp'],
+                          hoverinfo="y+text"
+                          )
+               )
+fig.show()
