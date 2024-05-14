@@ -10,7 +10,7 @@ thisModule = os.path.splitext(os.path.basename(__file__))[0]
    
 def Initialization(TRNData):
     global ctr_hp, div_load, div_pvt, demand, ctrIRR,hp_aux, coll_pump
-    global ctr_coll_t, ctrDHW, dhw_stat, hx_bypass, load_hx_bypass
+    global ctr_coll_t, ctrDHW, dhw_stat, hx_bypass, load_hx_bypass, hp_aux
     global tavg_dhw, tavg_buff, tcoll_in, tcoll_out
     global tset_dhw
     global heating_season, ctrSH, sh_div, ctrSHbuff, night, legionella, operation_mode
@@ -21,7 +21,7 @@ def StartTime(TRNData):
 
     # Define local short names for convenience (this is optional)
     ctr_hp, div_load, demand, ctrIRR, coll_pump = 0,0,0,0,0
-    ctr_coll_t, ctrDHW, dhw_stat, hx_bypass, load_hx_bypass = 0,0,0,0,0
+    ctr_coll_t, ctrDHW, dhw_stat, hx_bypass, load_hx_bypass, hp_aux = 0,0,0,0,0,0
     tavg_dhw, tavg_buff = 30,30
     tset_dhw = 20
     aux_set = 45
@@ -64,6 +64,7 @@ def StartTime(TRNData):
     TRNData[thisModule]["outputs"][15] = div_load*1
     TRNData[thisModule]["outputs"][16] = aux_set*1
     TRNData[thisModule]["outputs"][17] = tset_dhw*1
+    TRNData[thisModule]["outputs"][18] = hp_aux*1
     # Calculate the outputs
     # Set outputs in TRNData
     return
@@ -107,7 +108,7 @@ def cal_controls (control_case, dhw_demand, ctrDHW, ctrSHbuff, hx_bypass, coll_p
                 
     if not(demand) and ctrIRR:
         tset_dhw = dhw_set_max
-    elif demand and not(coll_pump):
+    elif demand and not(ctrIRR):
         tset_dhw = dhw_set_min
     elif tset_dhw <=-9000:
         tset_dhw = 40
@@ -139,7 +140,7 @@ def Iteration(TRNData):
     tset_dhw = TRNData[thisModule]["inputs"][16] 
     operation_mode = TRNData[thisModule]["inputs"][17]
     
-    heating_season = (month>10 or month<5)
+    heating_season = (month>=10 or month<=5)
     ctrSH = (ctrfloor1 or ctrfloor2) and heating_season
     sh_div = (ctrfloor1 and ctrfloor2)*0.5 + (ctrfloor1 or ctrfloor2)*(ctrfloor1 < ctrfloor2)
     night = dhw_stat and (5 <hour <=6)
@@ -148,8 +149,9 @@ def Iteration(TRNData):
     ctrDHW = (dhw_stat) or legionella or night    
     dhw_demand = dhw_load>0
     
+    
     # coll_pump = ((ctrIRR or ctr_coll_t) or -25<tcoll_in<=tamb)
-    coll_pump = ((ctrIRR or ctr_coll_t) or tcoll_in<=tamb) 
+    coll_pump = ctrIRR or ctr_coll_t or tcoll_in<=tamb
     # coll_pump = 0.8 if ctrIRR else 1 if -25<tcoll_in<=tamb or ctr_coll_t else 0
     hx_bypass = tcoll_out<35
     
@@ -157,7 +159,10 @@ def Iteration(TRNData):
     hx_bypass, coll_pump, ctr_hp, demand, load_hx_bypass, div_load, aux_set, tset_dhw = cal_controls(control_case, dhw_demand, 
                                                                                                     ctrDHW, ctrSHbuff, hx_bypass, 
                                                                                                     coll_pump, tset_dhw,ctrIRR)
-
+    if div_load:
+        hp_aux=0
+    else:
+        hp_aux=1
     # Set outputs in TRNData    
     TRNData[thisModule]["outputs"][0] = ctrfloor1*1
     TRNData[thisModule]["outputs"][1] = ctrfloor2*1
@@ -177,7 +182,8 @@ def Iteration(TRNData):
     TRNData[thisModule]["outputs"][15] = div_load*1
     TRNData[thisModule]["outputs"][16] = aux_set*1
     TRNData[thisModule]["outputs"][17] = tset_dhw*1
-
+    TRNData[thisModule]["outputs"][18] = hp_aux*1
+    
     return
 
 def EndOfTimeStep(TRNData):
