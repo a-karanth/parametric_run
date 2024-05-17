@@ -59,30 +59,78 @@ penalty, energy = pf.cal_penalty(energy)
 
 #%% plots
 pt = Plots(controls, energy, temp_flow)
-t1 = datetime(2001,1,18, 0,0,0)
-t2 = datetime(2001,1,19, 0,0,0)
+t1 = datetime(2001,1,8, 0,0,0)
+t2 = datetime(2001,1,9, 0,0,0)
 
-fig = pt.check_sim(t1,t2,file)
+fig = pt.check_sim(t1,t2,file,ssbuff=True)
 
 test = pd.DataFrame()
 test['Thp_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*controls['hx_bypass']
 test['Thx_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*(controls['hx_bypass']==0)
 
-figx,ax = plt.subplots(figsize= (5,6))
-energy_monthly.index = energy_monthly.index.strftime('%b')
-energy_monthly[['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
-qtot = round(energy_monthly['Qheat'].sum(),0)
-plt.xticks(rotation=0)
-pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
+# figx,ax = plt.subplots(figsize= (5,6))
+# energy_monthly.index = energy_monthly.index.strftime('%b')
+# energy_monthly[['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
+# qtot = round(energy_monthly['Qheat'].sum(),0)
+# plt.xticks(rotation=0)
+# pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
 print(mb.sum())
 
+figy, (axy, axz, axw) = plt.subplots(3,1)
+axy0 = axy.twinx()
+# temp_flow['mssbuff_load'].plot.area(ax=axy0, alpha=0.2, color='darkred')
+# temp_flow['mssbuff_source'].plot.area(ax=axy0, alpha=0.2, color='lightseagreen')
+# temp_flow[['Tssbuff_load_out','Tssbuff_load_in','Tssbuff_source_out','Tssbuff_source_in','Tavg_ssbuff']].plot(ax=axy, color=['darkred','indianred','lightseagreen','teal','black'])
+# temp_flow['Tcoll_in'].plot(ax=axy, color='gray', linewidth=2, style='--')
+# controls[['hx_bypass','ssbuff_stat']].plot(ax=axy, color=['black','red'], style='--')
+# axy.legend(loc='upper left')
+# axy.set_ylabel('Temperature [degC]')
+# axy0.set_ylabel('mass flow [kg/hr]')
+# axy0.legend(loc='upper right')
+# axy0.set_ylim([0,16000])
+# axy.grid(linestyle='--', alpha=0.5)
+
+# axz0 = axz.twinx()
+# energy[['Qssbuff_source','Qssbuff_load']].plot(ax=axz, color=['lightseagreen', 'darkred'])
+# mb[['coll_pump','hp_source_pump']].plot.area(ax=axz0,color=['lightseagreen', 'darkred'], alpha=0.2, stacked=False)
+# axz.legend(loc='upper left')
+# axz.grid(linestyle='--', alpha=0.5)
+# axz0.set_ylabel('mass balance error')
+# axz.set_ylabel('Energy tranfser [kW]')
+# axz0.legend(loc='upper right')
+
+temp_flow[['mrad_mix_out','msh_load_in']].plot.area(ax=axw, color=['teal','orange'], stacked=False, alpha=0.2)
+temp_flow['msh_load_out'].plot(ax=axw, color='firebrick', linewidth=0.8)
+axw0 = axw.twinx()
+mb['sh_pump'].plot(ax=axw0, style='--')
+# make controls specialized dataframe
+spec = controls[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load']]
+test = controls[(controls['dhw_demand']==0) &
+                (controls['ctr_dhw']==0) &
+                (controls['ctr_sh_buff']==1) &
+                (controls['ssbuff_stat']==0) &
+                (controls['ctr_irr']==0) &
+                (controls['coll_pump']==1)]
+
+test2 = controls[(controls['ctr_coll_t']==1) &
+                 (controls['coll_pump']==0)]
+spec = test2[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','ctr_coll_t']]
+                
 #%% Change xlim of all axes
-t1 = datetime(2001,1,8, 0,0,0)
-t2 = datetime(2001,1,9, 0,0,0)
+t1 = datetime(2001,1,27, 0,0,0)
+t2 = datetime(2001,1,29, 0,0,0)
 for ax in fig.axes:
     ax.set_xlim([t1,t2])
 # Redraw the figure to update the display
-fig.canvas.draw()
+figy.canvas.draw()
+
+fig, csh, f, ret = pt.plot_coll_loop_ss_buff(t1,t2)
+plt.figure()
+temp_flow['mcoll_in'].plot.area(alpha=0.2)
+temp_flow['mcoll_out'].plot(style='--', linewidth=2)
+plt.legend()
+plt.xlim([t1,t2])
+# mb['coll_pump'].plot(ax=csh, marker='^', color='r', linewidth=0.5)
 
 #%% initialize for multiple files
 c1, e1, tf1= {}, {}, {}
