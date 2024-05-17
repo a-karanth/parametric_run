@@ -32,6 +32,16 @@ class Plots:
             
     def plot_t_coll(self, ax, t1,t2):
         self.temp_flow[['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax, color=['tab:blue','tab:orange','darkred'])
+        if 'Thx_source_out' in self.temp_flow.columns:
+            self.temp_flow['Thx_source_out'].plot(ax=ax, color='tab:blue', style='--')
+        pf.plot_specs(ax,t1,t2,None,None,ylabel='t', title='Collector panel',
+                      legend_loc='upper left', ygrid=True)
+        
+    def plot_t_coll_ssbuff(self, ax, t1,t2):
+        self.temp_flow[['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax, color=['tab:blue','tab:orange','darkred'])
+        if 'Thx_source_out' in self.temp_flow.columns:
+            self.temp_flow['Thx_source_out'].plot(ax=ax, color='tab:blue', style='--')
+        self.temp_flow[['Tssbuff_load_out','Tssbuff_source_out']].plot(ax=ax, label=['Tss_top','Tss_bottom'], color=['mediumvioletred','palevioletred'])
         pf.plot_specs(ax,t1,t2,None,None,ylabel='t', title='Collector panel',
                       legend_loc='upper left', ygrid=True)
     
@@ -42,6 +52,13 @@ class Plots:
     def plot_c_coll(self, ax, t1,t2):
         self.controls[['coll_pump','ctr_irr','ctr_coll_t']].plot(ax=ax, style='--', color=['gray','orange', 'red'])
         self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
+        pf.plot_specs(ax,t1,t2,None,1.5,ylabel='controls', legend_loc='upper right')
+        
+    def plot_c_coll_ssbuff(self, ax, t1,t2):
+        self.controls[['coll_pump','ctr_irr','ctr_coll_t']].plot(ax=ax, style='--', color=['gray','orange', 'red'])
+        self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
+        self.controls['hx_bypass'].plot(ax=ax, color='skyblue', alpha=1, marker ='*', markersize=4)
+        self.controls['ssbuff_stat'].plot(ax=ax, color='black', marker='s', alpha=0.5, markersize=2)
         pf.plot_specs(ax,t1,t2,None,1.5,ylabel='controls', legend_loc='upper right')
         
     def plot_t_hp(self,ax,t1,t2):
@@ -98,6 +115,8 @@ class Plots:
     def plot_t_sh(self, ax, t1,t2):
         self.temp_flow[['Tfloor1','Tfloor2']].plot(ax=ax,color=['mediumvioletred', 'green'])
         self.temp_flow[['Tset1','Tset2']].plot(ax=ax,style=':',color=['mediumvioletred', 'green'])
+        if 'Tfloor1_air' in self.temp_flow.columns:
+            self.temp_flow[['Tfloor1_air','Tfloor2_air']].plot(ax=ax,style='--',color=['mediumvioletred', 'green'])
         pf.plot_specs(ax, t1, t2, None, 30, ylabel='Room temp [degC]',
                       title='Space heating', legend_loc='upper left', ygrid=True)
     
@@ -110,14 +129,18 @@ class Plots:
         self.controls['ctr_sh'].plot(ax=ax,style=':', color='black', alpha=0.8)
         pf.plot_specs(ax, t1, t2, None, 1.2, ylabel='Q radiator [kWh]', legend_loc='upper right')
     
-    def check_sim(self, t1,t2,file):
+    def check_sim(self, t1,t2,file, ssbuff=False):
         fig, ((ax1,ax5),(ax2,ax6),(ax3,ax7),(ax4,ax8)) = plt.subplots(4,2, figsize=(19,9))
         ax10,ax20, ax30, ax40 = ax1.twinx(), ax2.twinx(), ax3.twinx(), ax4.twinx()
         # ax50,ax60, ax70, ax80 = ax5.twinx(), ax6.twinx(), ax7.twinx(), ax8.twinx()
-        
         self.plot_q_coll(ax10,t1,t2)
-        self.plot_t_coll(ax1,t1,t2)
-        self.plot_c_coll(ax5,t1,t2)
+        if not ssbuff:
+            self.plot_t_coll(ax1,t1,t2)
+            self.plot_c_coll(ax5,t1,t2)
+        
+        else:
+            self.plot_t_coll_ssbuff(ax1,t1,t2)
+            self.plot_c_coll_ssbuff(ax5,t1,t2)
         
         self.plot_q_hp(ax20,t1,t2)
         self.plot_t_hp(ax2,t1,t2)
@@ -134,6 +157,7 @@ class Plots:
         fig.suptitle(file)
         
         self.plot_unmet()
+        plt.suptitle(file)
         
         tsourcein_low = (self.temp_flow['Tcoll_out']<-25)*self.controls['ctr_hp']
         tloadin_low = (self.temp_flow['Thp_load_in']<10)*self.controls['ctr_hp']
@@ -263,35 +287,41 @@ class Plots:
         
         
     def plot_sh(self,t1,t2):
-        fig, (csh, c, t, f, tank) = plt.subplots(5,1, figsize=(19,9),sharex=True)
-        self.controls['ctr_sh'].plot.area(ax=csh, alpha=0.4, color='orange')
+        fig, (csh,f, ret) = plt.subplots(3,1, figsize=(19,9),sharex=True)
         self.controls['sh_div'].plot(ax=csh,style='--', color='black')
-        self.controls[['ctr_dhw','ctr_irr']].plot(ax=csh, style='-^')
-        pf.plot_specs(csh, t1,t2,0,1.1, title='SH loop signals')
 
-        self.controls['heatingctr1'].plot.area(ax=c, alpha=0.4, color='orange')
-        self.controls['heatingctr2'].plot(ax=c, color='black', style='--')
+        self.temp_flow[['mrad1_in','mrad2_in']].plot.area(ax=f, alpha=0.1, stacked=True)
+        self.temp_flow['mrad_mix_out'].plot(ax=ret,linewidth=2, color='teal')
         
-        self.temp_flow[['Tfloor1','Tfloor2']].plot(ax=t, color=['red','green'])
-        self.temp_flow[['Tset1','Tset2']].plot(ax=t, color=['red','green'], alpha=0.5)       
+        self.temp_flow[['mrad1_out','mrad2_out']].plot.area(ax=ret, alpha=0.1, stacked=True)
+      
+        pf.plot_specs(csh, t1,t2, title='SH loop signals and mass balance',ygrid=True)
+        pf.plot_specs(f, t1,t2, title='Flow rate to radiators', 
+                      ygrid=True, legend_loc='upper left')
+        pf.plot_specs(ret, t1,t2, title='Flow rate from radiators', 
+                      ygrid=True, legend_loc='upper left')
+        return fig, csh, f, ret
+    
+    def plot_coll_loop_ss_buff(self,t1,t2):
+        fig, (csh,f, ret) = plt.subplots(3,1, figsize=(19,9),sharex=True)
+        self.controls['coll_pump'].plot.area(ax=csh, color='skyblue', alpha=0.1)
+        self.controls['hx_bypass'].plot(ax=csh,style='--', color='black')
         
-        self.temp_flow['mrad1_in'].plot.area(ax=f, alpha=0.3)
-        self.temp_flow['mrad2_in'].plot(ax=f)
-        f0 = f.twinx()
-        self.energy[['Qrad1','Qrad2']].plot(ax=f0, style='--')
+        self.temp_flow['mcoll_in'].plot(ax=f,linewidth=2, color='black', marker='^')
+        # self.temp_flow['mcoll_out'].plot(ax=f,linewidth=2, color='teal')
+        # self.temp_flow[['mhx_source_in','mssbuff_source_in']].plot.area(ax=f, alpha=0.1, stacked=True)
         
-        self.temp_flow[['T1_sh','T4_sh','T6_sh']].plot(ax=tank)
+        # self.temp_flow[['mhx_source_out','mssbuff_source']].plot.area(ax=ret, alpha=0.1, stacked=True)
+        self.temp_flow['mmix_pvt_out'].plot(ax=ret,linewidth=2, color='teal')
         
-        pf.plot_specs(csh, t1,t2, title='space heating loop controls')
-
-        pf.plot_specs(csh, t1,t2, title='space heating controls')
-        pf.plot_specs(c, t1,t2,0,1.1, title='Thermostat signals', legend_loc='lower right')
-        pf.plot_specs(t, t1,t2,8,None, ylabel='Room temperature [deg C]', 
-                      legend_loc='lower left', ygrid=True)
-        pf.plot_specs(f, t1,t2, title='Flow rate and heat exchanfe from radiators', 
-                      ygrid=True, legend_loc='lower left')
-        pf.plot_specs(f0, t1,t2, legend_loc='lower right')
-        pf.plot_specs(tank, t1,t2, title='tank temperatures', ylabel='t', ygrid=True)
+        # self.temp_flow[['mrad1_out','mrad2_out']].plot.area(ax=ret, alpha=0.1, stacked=True)
+      
+        pf.plot_specs(csh, t1,t2, title='SH loop signals and mass balance',ygrid=True)
+        pf.plot_specs(f, t1,t2, title='Flow rate to from diverter', 
+                      ygrid=True, legend_loc='upper left')
+        pf.plot_specs(ret, t1,t2, title='Flow rate to and out of mixer', 
+                      ygrid=True, legend_loc='upper left')
+        return fig, csh, f, ret
 
         
     def plot_batt(self, prefix, t_start, t_end):
@@ -476,3 +506,26 @@ class Plots:
         
         # ax1.set_ylim([6.5,22.5])
         # ax2.set_ylim([6.5,22.5])
+        
+        def plot_pvt_load_loop(self, t1,t2):
+
+            fig, (ax2,ax0,ax, ax4) = plt.subplots(4,1)
+    
+            self.temp_flow[['Tcoll_out','Tcoll_in']].plot(ax=ax2, color=['firebrick','tab:blue'])
+            pf.plot_specs(ax2, t1,t2,None,None,ylabel='t', legend_loc='center left', title='Collector panel')
+    
+            self.temp_flow['mcoll_in'].plot(ax=ax0)
+            ax00 = ax0.twinx()
+            self.energy['QuColl'].plot(ax=ax00, color='gold')
+            pf.plot_specs(ax00, t1,t2,-0.2,None,ylabel='Energy', legend_loc='center right')
+    
+            self.controls['coll_pump'].plot(ax=ax)
+            self.controls['hx_bypass'].plot.area(ax=ax,alpha=0.2)
+            pf.plot_specs(ax0, t1,t2,None,None,ylabel='f', legend_loc='center left')
+            pf.plot_specs(ax, t1,t2,None,None,ylabel='p', legend_loc='center right')  
+    
+            self.controls['ctr_irr'].plot.area(ax=ax4, color='gold', alpha=0.2)
+            self.controls['ctr_sh'].plot(ax=ax4, marker='*')
+            self.controls['ctr_dhw'].plot(ax=ax4, linestyle='--')
+            pf.plot_specs(ax4, t1,t2,None,None,ylabel='controls', legend_loc='center right')
+    
