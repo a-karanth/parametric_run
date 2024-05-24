@@ -58,6 +58,8 @@ cop = pf.cal_cop(energy)
 penalty, energy = pf.cal_penalty(energy)
 
 #%% plots
+import matplotlib.ticker as ticker
+
 pt = Plots(controls, energy, temp_flow)
 t1 = datetime(2001,1,8, 0,0,0)
 t2 = datetime(2001,1,9, 0,0,0)
@@ -76,33 +78,39 @@ test['Thx_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*(controls[
 # pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
 print(mb.sum())
 
-figy, (axy, axz, axw) = plt.subplots(3,1)
+figy, (axy, axz) = plt.subplots(2,1)
 axy0 = axy.twinx()
-# temp_flow['mssbuff_load'].plot.area(ax=axy0, alpha=0.2, color='darkred')
-# temp_flow['mssbuff_source'].plot.area(ax=axy0, alpha=0.2, color='lightseagreen')
-# temp_flow[['Tssbuff_load_out','Tssbuff_load_in','Tssbuff_source_out','Tssbuff_source_in','Tavg_ssbuff']].plot(ax=axy, color=['darkred','indianred','lightseagreen','teal','black'])
+temp_flow['mssbuff_load'].plot.area(ax=axy0, alpha=0.2, color='darkred')
+temp_flow['mssbuff_source'].plot.area(ax=axy0, alpha=0.2, color='lightseagreen')
+temp_flow[['Tssbuff_load_out','Tssbuff_load_in','Tssbuff_source_out','Tssbuff_source_in','Tavg_ssbuff']].plot(ax=axy, color=['darkred','indianred','lightseagreen','teal','black'])
 # temp_flow['Tcoll_in'].plot(ax=axy, color='gray', linewidth=2, style='--')
-# controls[['hx_bypass','ssbuff_stat']].plot(ax=axy, color=['black','red'], style='--')
-# axy.legend(loc='upper left')
-# axy.set_ylabel('Temperature [degC]')
-# axy0.set_ylabel('mass flow [kg/hr]')
-# axy0.legend(loc='upper right')
-# axy0.set_ylim([0,16000])
-# axy.grid(linestyle='--', alpha=0.5)
+controls[['hx_bypass','ssbuff_stat']].plot(ax=axy, color=['black','red'], style='--')
+axy.legend(loc='upper left')
+axy.set_ylabel('Temperature [degC]')
+axy0.set_ylabel('mass flow [kg/hr]')
+axy0.legend(loc='upper right')
+axy0.set_ylim([0,10000])
+#test of setting ticks only upto 800
+def custom_ticks(value, pos):
+    if value > 800:
+        return ''
+    return int(value)
 
-# axz0 = axz.twinx()
-# energy[['Qssbuff_source','Qssbuff_load']].plot(ax=axz, color=['lightseagreen', 'darkred'])
-# mb[['coll_pump','hp_source_pump']].plot.area(ax=axz0,color=['lightseagreen', 'darkred'], alpha=0.2, stacked=False)
-# axz.legend(loc='upper left')
-# axz.grid(linestyle='--', alpha=0.5)
-# axz0.set_ylabel('mass balance error')
-# axz.set_ylabel('Energy tranfser [kW]')
-# axz0.legend(loc='upper right')
+axy0.yaxis.set_major_formatter(ticker.FuncFormatter(custom_ticks))
+axy0.yaxis.set_major_locator(ticker.MultipleLocator(800))  # Add ticks up to 800
 
-temp_flow[['mrad_mix_out','msh_load_in']].plot.area(ax=axw, color=['teal','orange'], stacked=False, alpha=0.2)
-temp_flow['msh_load_out'].plot(ax=axw, color='firebrick', linewidth=0.8)
-axw0 = axw.twinx()
-mb['sh_pump'].plot(ax=axw0, style='--')
+fig.autofmt_xdate()
+axy.grid(linestyle='--', alpha=0.5)
+
+axz0 = axz.twinx()
+energy[['Qssbuff_source','Qssbuff_load']].plot(ax=axz, color=['lightseagreen', 'darkred'])
+mb[['coll_pump','hp_source_pump']].plot.area(ax=axz0,color=['lightseagreen', 'darkred'], alpha=0.2, stacked=False)
+axz.legend(loc='upper left')
+axz.grid(linestyle='--', alpha=0.5)
+axz0.set_ylabel('mass balance error')
+axz.set_ylabel('Energy tranfser [kW]')
+axz0.legend(loc='upper right')
+
 # make controls specialized dataframe
 spec = controls[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load']]
 test = controls[(controls['dhw_demand']==0) &
@@ -117,21 +125,48 @@ test2 = controls[(controls['ctr_coll_t']==1) &
 spec = test2[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','ctr_coll_t']]
                 
 #%% Change xlim of all axes
-t1 = datetime(2001,1,27, 0,0,0)
-t2 = datetime(2001,1,29, 0,0,0)
-for ax in fig.axes:
+t1 = datetime(2001,2,21, 0,0,0)
+t2 = datetime(2001,2,22, 0,0,0)
+for ax in figy.axes:
     ax.set_xlim([t1,t2])
 # Redraw the figure to update the display
 figy.canvas.draw()
 
+# test for mass balace in collector
+
 fig, csh, f, ret = pt.plot_coll_loop_ss_buff(t1,t2)
+# coll_pump test, collector coll_in vs coll_out
 plt.figure()
 temp_flow['mcoll_in'].plot.area(alpha=0.2)
 temp_flow['mcoll_out'].plot(style='--', linewidth=2)
 plt.legend()
 plt.xlim([t1,t2])
-# mb['coll_pump'].plot(ax=csh, marker='^', color='r', linewidth=0.5)
+mb['coll_pump'].plot(ax=csh, marker='^', color='r', linewidth=0.5)
 
+#%% radiator and collector test test
+df = pd.DataFrame()
+df['Trad1'] = temp_flow['Trad1_in']*(temp_flow['mrad1_in']>0)
+df['Trad2'] = temp_flow['Trad2_in']*(temp_flow['mrad2_in']>0)
+df = df.replace(0,np.NaN)
+figr, (rad,coll) = plt.subplots(2,1)
+df[['Trad1','Trad2']].plot(ax=rad, color=['firebrick', 'teal'])
+temp_flow[['Tfloor1','Tfloor2']].plot(ax=rad, color=['firebrick', 'teal'], style=':')
+
+
+# coll0 = coll.twinx()
+# controls['hx_bypass'].plot(ax=coll0, color='black', style=':')
+# controls['ssbuff_stat'].plot(ax=coll0, color='orange', style='--')
+temp_flow[['Tssbuff_source_out','Tcoll_in']].plot(ax=coll)
+temp_flow['Thx_source_out'].plot(ax=coll, style='--')
+coll.legend(loc='upper left')         
+coll.grid(axis='y',which='both',alpha=0.2,color='black')
+
+# t1 = datetime(2001,2,11, 0,0,0)
+# t2 = datetime(2001,2,18, 0,0,0)
+# for ax in figr.axes:
+#     ax.set_xlim([t1,t2])
+# # Redraw the figure to update the display
+# figr.canvas.draw()
 #%% initialize for multiple files
 c1, e1, tf1= {}, {}, {}
 r1,l1 = {}, {}
