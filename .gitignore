@@ -18,6 +18,7 @@ src/*.dck
 !src/zpy_ashp.dck
 !src/zpy_wwhp_buffer3.dck
 !src/wwhp_no_ss_buff.dck
+!src/wwhp_with_ss_buff.dck
 !src/wwhp_2buffers.dck
 !src/wwhp_buffer3.dck
 
@@ -29,6 +30,7 @@ src/*.tpf
 !src/wwhp_cp.tpf
 !src/ashp.tpf
 !src/wwhp_no_ss_buff.tpf
+!src/wwhp_with_ss_buff.tpf
 !src/wwhp_2buffers.tpf
 
 src/penalty.ipynb
