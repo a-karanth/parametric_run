@@ -84,20 +84,16 @@ def read_modify_files(label):
     energy.columns = [col.strip() for col in energy.columns]
     controls.columns = [col.strip() for col in controls.columns]
     
-    temp_flow.drop(columns=[#'T2_dhw','T3_dhw','T4_dhw','T5_dhw',
-                          #  'T2_sh','T3_sh','T4_sh','T5_sh',
+    temp_flow.drop(columns=['T2_dhw','T3_dhw','T4_dhw','T5_dhw',
+                            'T2_sh','T3_sh','T4_sh','T5_sh',
                             'Taux2tap', 'maux2tap',], 
                    inplace=True, errors='ignore')
     energy.drop(columns=['Qaux_tap',], inplace=True, errors='ignore')
     
-    temp_flow.to_csv(prefix+'_temp_flow.txt')
-    energy.to_csv(prefix+'_energy.txt')
-    controls.to_csv(prefix+'_control_signal.txt')
-    
-    if prefix+'_mass_balance.txt' in os.listdir(directory+trn_folder):
-        mb = pd.read_csv(prefix+'_mass_balance.txt', delimiter=",",index_col=0)
-        mb.columns = [col.strip() for col in mb.columns]
-        mb.to_csv(prefix+'_mass_balance.txt')
+    # temp_flow.to_csv(prefix+'_temp_flow.txt')
+    # energy.to_csv(prefix+'_energy.txt')
+    # controls.to_csv(prefix+'_control_signal.txt')
+
 #%%% run parallely using Joblib
 from joblib import Parallel, delayed
 import time
@@ -108,7 +104,7 @@ t2 = time.time()
 print(t2-t1)
 
 #%% modify custom files
-list_labels = [str(i) for i in np.arange(861, 1180)]
+list_labels = ['2010', '2011', '2012', '2013']
 for label in list_labels:
     read_modify_files(label)
 #%% add new columns to list_of inputs file
