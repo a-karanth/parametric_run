@@ -206,7 +206,7 @@ ctrHP		! control_calc:ctrHP ->Heating Control Signal
 *** External files
 ASSIGN "C:\TRNSYS18\Tess Models\SampleCatalogData\Water-to-WaterHeatPumps\Normalized\WWHP_Cooling-Normalized.dat" 77
 *|? Which file contains the cooling performance data? |1000
-ASSIGN "C:\TRNSYS18\Tess Models\SampleCatalogData\Water-to-WaterHeatPumps\Normalized\WWHP_heating_extrapolated.dat" 78
+ASSIGN "C:\TRNSYS18\Tess Models\SampleCatalogData\Water-to-WaterHeatPumps\Normalized\WWHP_heating_extrapolated_comma.dat" 78
 *|? Which file contains the heating performance data? |1000
 *------------------------------------------------------------------------------
 
