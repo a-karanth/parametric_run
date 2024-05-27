@@ -46,6 +46,16 @@ class PostprocessFunctions:
         return df
     
     @staticmethod
+    def extract_params(df2):#, t_start, t_end):
+        global DT, dt, t_start, t_end
+        # to identify parameters and extract headers and data
+        df=df2.copy()
+        headers = [i.strip() for i in df.columns]
+        df.columns = headers
+        df= df.drop(columns = df.columns[-1])
+        return df
+    
+    @staticmethod
     def cal_energy(energy, controls):
         energy['SOC'] = energy['SOC']*3600
         energy['COP'] = energy['COP']*3600
