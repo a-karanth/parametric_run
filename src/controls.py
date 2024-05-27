@@ -165,7 +165,7 @@ def Iteration(TRNData):
     operation_mode = TRNData[thisModule]["inputs"][17]
     tss_top  = TRNData[thisModule]["inputs"][18]
     
-    heating_season = (month>=10 or month<=5)
+    heating_season = (month>=9 or month<=6)
     ctrSH = (ctrfloor1 or ctrfloor2) and heating_season
     sh_div = (ctrfloor1 and ctrfloor2)*0.5 + (ctrfloor1 or ctrfloor2)*(ctrfloor1 < ctrfloor2)
     night = dhw_stat and (5 <hour <=6)
