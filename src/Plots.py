@@ -478,16 +478,30 @@ class Plots:
         pivot_table3 = df.pivot_table(values='low_band1', index='hour', columns='day', aggfunc='mean')
         pivot_table4 = df.pivot_table(values='low_band2', index='hour', columns='day', aggfunc='mean')
         fig,(ax1,ax2,ax3,ax4)=plt.subplots(4,1,figsize=(12,8))
-        sns.heatmap(pivot_table1,cmap='Spectral_r', ax=ax1,vmin=15,vmax=32)
-        sns.heatmap(pivot_table2,cmap='Spectral_r', ax=ax2,vmin=15,vmax=32)
-        sns.heatmap(pivot_table3,ax=ax3)
-        sns.heatmap(pivot_table4,ax=ax4)
+        sns.heatmap(pivot_table1,cmap='Spectral_r', ax=ax1,vmin=15,vmax=32, cbar=False)
+        sns.heatmap(pivot_table2,cmap='Spectral_r', ax=ax2,vmin=15,vmax=32, cbar=False)
+        sns.heatmap(pivot_table3,ax=ax3, cbar=False)
+        sns.heatmap(pivot_table4,ax=ax4, cbar=False)
         
-        ax1.invert_yaxis()
-        ax2.invert_yaxis()
-        ax3.invert_yaxis()
-        ax4.invert_yaxis()
+        # days_in_year = [0, 31, 59, 90, 120, 151, 181, 212, 242, 273, 303, 334]
+        for ax in fig.axes:
+            # Set x-axis ticks and labels
+            ax.invert_yaxis()
+            ax.set_xticks([0, 31, 59, 90, 120, 151, 181, 212, 242, 273, 303, 334] )
+            ax.set_xticklabels([str(mdates.num2date(i).strftime('%b')) for i in 
+                                [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]])
+            plt.setp(ax.get_xticklabels(), rotation=0, ha="left", rotation_mode="anchor")
+            plt.setp(ax.get_yticklabels(), rotation=0)
+            
+            # Add color bar
+            cbar = ax.figure.colorbar(ax.collections[0], ax=ax)
+            cbar.ax.tick_params(labelsize=8)
         
+            if ax==ax3 or ax==ax4:
+                cbar.set_ticks([0, 1, 2, 3])
+                cbar.set_ticklabels(["0", "0.5", "1.2", ">1.2"])
+        
+        fig.tight_layout()
         # #matplotlib plot
         # day = tf.index.dayofyear.unique()
         # t1 = df['T1'].values.reshape(24, len(day), order="F")
