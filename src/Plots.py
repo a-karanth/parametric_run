@@ -364,14 +364,12 @@ class Plots:
         pf.plot_specs(ctr,t1,t2,None,None,title='ctr',ylabel='control signal')
         pf.plot_specs(ctr0,t1,t2,None,None,ylabel='t')
         
-    def plot_colormap(self, ax, column, label, cmap='bone', vmin=None, vmax=None):
+    def plot_colormap(self, ax, df, label, cmap='bone', vmin=None, vmax=None):
         
         DT = (self.energy.index[1]-self.energy.index[0]).seconds/60
         day = self.energy.index.dayofyear
-        if column != 'Tavg_dhw':
-            data = self.energy[column]
-        else:
-            data = self.temp_flow[column]
+        
+        data = df
         data = data[:-1]
         data = data.values.reshape(int(60*24/DT), len(day.unique()), order="F")
 
@@ -382,20 +380,20 @@ class Plots:
         heatmap = ax.pcolormesh(xgrid, ygrid, data, cmap=cmap, vmin=vmin, vmax=vmax)
 
         ax.set_xticks([0, 31, 59, 90, 120, 151, 181, 212, 242, 273, 303, 334] )
-        ax.set_xticklabels([str(mdates.num2date(i).strftime('%b %d')) for i in 
+        ax.set_xticklabels([str(mdates.num2date(i).strftime('%b')) for i in 
                             [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]])
         plt.setp(ax.get_xticklabels(), rotation=0, ha="left", rotation_mode="anchor")
 
-        ax.set_yticks(np.arange(0,24,2), fontsize=10)
+        ax.set_yticks(np.arange(0,24,2))
         hours = [f'{h:02d}:00' for h in range(0,24,2)]
-        ax.set_yticklabels(hours)
+        ax.set_yticklabels(hours, fontsize=10)
 
         # Add a colorbar
         cbar = ax.figure.colorbar(heatmap, ax=ax)
         cbar.set_label(label)
         ax.set_frame_on(False) # remove all spines
 
-        ax.set_title(column)
+        ax.set_title(label)
         ax.set_ylabel('Hour of day')
     
     def plot_controls_cp(self,t1, t2):
