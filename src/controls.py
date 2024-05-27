@@ -176,7 +176,7 @@ def Iteration(TRNData):
     
     
     # coll_pump = ((ctrIRR or ctr_coll_t) or -25<tcoll_in<=tamb)
-    coll_pump = ctrIRR or ctr_coll_t or tcoll_in<=tamb
+    coll_pump = ctrIRR or ctr_coll_t or tcoll_in<tamb
     # coll_pump = 0.8 if ctrIRR else 1 if -25<tcoll_in<=tamb or ctr_coll_t else 0
     hx_bypass = tcoll_out<35
     
