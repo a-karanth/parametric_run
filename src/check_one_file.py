@@ -28,7 +28,7 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = 'x'
+file = 'test37'
 prefix = directory + folder + file
 
 inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
@@ -38,11 +38,13 @@ t_end = datetime(2001,2,17, 0,0,0)
 #%% Read files
 controls, energy, temp_flow = pf.create_dfs(file,prefix)
 
-occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
 mb = pd.read_csv(directory+folder+file+'_mass_balance.txt', delimiter=",",index_col=0)
 mb = pf.modify_df(mb)
+occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
 occ = pf.modify_df(occ)
 occ = occ[:energy.index[-1]] #make occ dataframe as long as the rest of the dfs. especially for incomplete sims
+param = pd.read_csv(directory+folder+file+'_parameters.txt', delimiter=",",index_col=0)
+param = pf.extract_params(param)
 controls = pd.concat([controls,occ],axis=1)
 
 temp_flow = pf.unmet_hours(controls, temp_flow)
@@ -61,8 +63,8 @@ penalty, energy = pf.cal_penalty(energy)
 import matplotlib.ticker as ticker
 
 pt = Plots(controls, energy, temp_flow)
-t1 = datetime(2001,1,8, 0,0,0)
-t2 = datetime(2001,1,9, 0,0,0)
+t1 = datetime(2001,2,13, 0,0,0)
+t2 = datetime(2001,2,14, 0,0,0)
 
 fig = pt.check_sim(t1,t2,file,ssbuff=True)
 
@@ -70,12 +72,12 @@ test = pd.DataFrame()
 test['Thp_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*controls['hx_bypass']
 test['Thx_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*(controls['hx_bypass']==0)
 
-# figx,ax = plt.subplots(figsize= (5,6))
-# energy_monthly.index = energy_monthly.index.strftime('%b')
-# energy_monthly[['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
-# qtot = round(energy_monthly['Qheat'].sum(),0)
-# plt.xticks(rotation=0)
-# pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
+figx,ax = plt.subplots(figsize= (5,6))
+energy_monthly.index = energy_monthly.index.strftime('%b')
+energy_monthly[['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
+qtot = round(energy_monthly['Qheat'].sum(),0)
+plt.xticks(rotation=0)
+pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
 print(mb.sum())
 
 figy, (axy, axz) = plt.subplots(2,1)
@@ -111,23 +113,52 @@ axz0.set_ylabel('mass balance error')
 axz.set_ylabel('Energy tranfser [kW]')
 axz0.legend(loc='upper right')
 
-# make controls specialized dataframe
-spec = controls[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load']]
-test = controls[(controls['dhw_demand']==0) &
-                (controls['ctr_dhw']==0) &
-                (controls['ctr_sh_buff']==1) &
-                (controls['ssbuff_stat']==0) &
-                (controls['ctr_irr']==0) &
-                (controls['coll_pump']==1)]
+for ax in figy.axes:
+    ax.set_xlim([t1,t2])
+# Redraw the figure to update the display
+figy.canvas.draw()
 
+#%% checking the unique control states
+# make controls specialized dataframe
+spec = controls[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','tset_dhw']]
+unique = spec.drop_duplicates()
+left = unique[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump']]
+unique_left = left.drop_duplicates()
+right = unique[['ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','tset_dhw']]
+right_unique = right.drop_duplicates()
+
+
+controls['operation_mode'] = None
+
+conditions = [
+    (controls['coll_pump'] == 0)  & (controls['ctr_hp'] == 0) & (controls['demand'] == 0),
+    (controls['coll_pump'] == 1) & (controls['hx_bypass'] == 1) & (controls['ctr_hp'] == 0) & (controls['demand'] == 0),
+    (controls['coll_pump'] == 0) & (controls['ctr_hp'] == 1) & (controls['demand'] == 1),
+    (controls['coll_pump'] == 1) & (controls['hx_bypass'] == 1) & (controls['ctr_hp'] == 1) & (controls['demand'] == 1),
+    (controls['coll_pump'] == 1) & (controls['hx_bypass'] == 1) & (controls['ctr_hp'] == 0) & (controls['demand'] == 1),
+    (controls['coll_pump'] == 0) & (controls['ctr_hp'] == 0) & (controls['demand'] == 1),
+    (controls['coll_pump'] == 1) & (controls['hx_bypass'] == 0) & (controls['ctr_hp'] == 0) & (controls['demand'] == 1),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 0),
+    (controls['coll_pump'] == 1) & (controls['hx_bypass'] == 0) & (controls['ctr_hp'] == 0) & (controls['demand'] == 0) #load side is off, so energy is wasted/curtailed
+]
+
+# Define corresponding operation_mode values
+values = [0, 1, 2, 3, 4, 5, 6, 7,0]
+# Use np.select to assign values based on conditions
+controls['operation_mode'] = np.select(conditions, values, default=None)
+
+percentage_occurrence = controls['operation_mode'].value_counts(normalize=True) * 100
+
+# Sort by index to ensure the order is [0, 1, 2, 3, 4, 5, 6, 7]
+percentage_occurrence = percentage_occurrence.sort_index()
 test2 = controls[(controls['ctr_coll_t']==1) &
                  (controls['coll_pump']==0)]
 spec = test2[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','ctr_coll_t']]
                 
 #%% Change xlim of all axes
-t1 = datetime(2001,2,21, 0,0,0)
-t2 = datetime(2001,2,22, 0,0,0)
-for ax in figy.axes:
+t1 = datetime(2001,4,22, 0,0,0)
+t2 = datetime(2001,4,23, 0,0,0)
+for ax in fig.axes:
     ax.set_xlim([t1,t2])
 # Redraw the figure to update the display
 figy.canvas.draw()
@@ -142,6 +173,17 @@ temp_flow['mcoll_out'].plot(style='--', linewidth=2)
 plt.legend()
 plt.xlim([t1,t2])
 mb['coll_pump'].plot(ax=csh, marker='^', color='r', linewidth=0.5)
+
+fig_coll, c = plt.subplots()
+temp_flow[['Tamb','Tcoll_in']].plot(ax=c)
+c0 = c.twinx()
+c_irr = controls['ctr_irr']/3
+c_coll_t = controls['ctr_coll_t']*(2/3)
+controls['coll_pump'].plot(ax=c0, color='gray',style='--')
+c_irr.plot(ax=c0, color='orange', style='--')
+c_coll_t.plot(ax=c0, color='red', style='--')
+energy['QuColl'].plot.area(ax=c0, color='gold', alpha=0.2, stacked=False)
+c.set_xlim([t1,t2])
 
 #%% radiator and collector test test
 df = pd.DataFrame()
