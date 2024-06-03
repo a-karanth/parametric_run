@@ -28,7 +28,7 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = 'test37'
+file = 'y'
 prefix = directory + folder + file
 
 inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
@@ -63,8 +63,8 @@ penalty, energy = pf.cal_penalty(energy)
 import matplotlib.ticker as ticker
 
 pt = Plots(controls, energy, temp_flow)
-t1 = datetime(2001,2,13, 0,0,0)
-t2 = datetime(2001,2,14, 0,0,0)
+t1 = datetime(2001,2,7, 0,0,0)
+t2 = datetime(2001,2,7, 8,0,0)
 
 fig = pt.check_sim(t1,t2,file,ssbuff=True)
 
@@ -72,12 +72,7 @@ test = pd.DataFrame()
 test['Thp_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*controls['hx_bypass']
 test['Thx_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*(controls['hx_bypass']==0)
 
-figx,ax = plt.subplots(figsize= (5,6))
-energy_monthly.index = energy_monthly.index.strftime('%b')
-energy_monthly[['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
-qtot = round(energy_monthly['Qheat'].sum(),0)
-plt.xticks(rotation=0)
-pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
+figx = pt.plot_monthly(file)
 print(mb.sum())
 
 figy, (axy, axz) = plt.subplots(2,1)
@@ -120,14 +115,15 @@ figy.canvas.draw()
 
 #%% checking the unique control states
 # make controls specialized dataframe
-spec = controls[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','tset_dhw']]
+spec = controls[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','ctr_coll_t','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','tset_dhw','coll_pump2']]
+spec['operation_window'] = ((temp_flow['Tssbuff_load_out'] > -25) & (temp_flow['Tssbuff_load_out'] < 35))*1
 unique = spec.drop_duplicates()
-left = unique[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump']]
+left = unique[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'operation_window','ssbuff_stat', 'ctr_irr','ctr_coll_t','coll_pump','tset_dhw','coll_pump2']]
 unique_left = left.drop_duplicates()
 right = unique[['ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','tset_dhw']]
 right_unique = right.drop_duplicates()
-
-
+new_spec = controls[['coll_pump','ctr_irr', 'demand','ssbuff_stat', 'op_window','ctr_hp', 'hx_bypass','tset_dhw','coll_pump2','ctr_dhw']].drop_duplicates()
+#%% plotting percetnatge of occurance of different modes - mostly based on right hand values
 controls['operation_mode'] = None
 
 conditions = [
@@ -150,19 +146,74 @@ controls['operation_mode'] = np.select(conditions, values, default=None)
 percentage_occurrence = controls['operation_mode'].value_counts(normalize=True) * 100
 
 # Sort by index to ensure the order is [0, 1, 2, 3, 4, 5, 6, 7]
-percentage_occurrence = percentage_occurrence.sort_index()
-test2 = controls[(controls['ctr_coll_t']==1) &
-                 (controls['coll_pump']==0)]
-spec = test2[['dhw_demand', 'ctr_dhw','ctr_sh_buff', 'ssbuff_stat', 'ctr_irr','coll_pump', 'ctr_hp','hx_bypass', 'load_hx_bypass','demand','div_load','ctr_coll_t']]
+percentage_occurrence = percentage_occurrence.sort_index().drop(index=0)
+percentage_df = percentage_occurrence.to_frame().T
+percentage_df.index = [None]
+n_col = len(percentage_df.columns)
+
+from matplotlib.cm import get_cmap
+fig, ax = plt.subplots(figsize=(10, 3))
+cmap = get_cmap('PiYG', n_col)
+colors = [cmap(i) for i in range(n_col)]
+percentage_df.plot.barh(ax=ax, stacked=True, color=colors, edgecolor='black', linewidth=0.5)
+
+ax.set_xlabel('Percentage Occurrence')
+ax.set_title('Percentage Occurrence of Each Operation Mode')
+ax.legend(title='Operation Mode', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.show()
+
+#%% environmental conditions driven operation models
+controls['operation_mode2'] = None
+conditions = [
+    (controls['coll_pump'] == 0) & (controls['ctr_irr'] == 0) & (controls['demand'] == 0) ,
+    (controls['coll_pump'] == 0) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 0) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 1),
+    (controls['coll_pump'] == 0) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 0) & (controls['ctr_hp'] == 0),
+    (controls['coll_pump'] == 0) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 1),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 0) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 0) & (controls['ctr_hp'] == 0),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 0) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 0),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 0) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 1),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 0) & (controls['ctr_hp'] == 0),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 1),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 0) & (controls['ssbuff_stat'] == 0) & (controls['op_window'] == 0) & (controls['tset_dhw'] == 70),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 0) & (controls['ssbuff_stat'] == 0) & (controls['op_window'] == 1) & (controls['tset_dhw'] == 70),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 0) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 0) & (controls['ctr_hp'] == 0),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 0) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 0),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 0) & (controls['op_window'] == 1) & (controls['tset_dhw'] == 70),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 0) & (controls['ctr_hp'] == 0),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['ssbuff_stat'] == 1) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 1),
+    (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 0) & (controls['ssbuff_stat'] == 0) & (controls['op_window'] == 1) & (controls['ctr_hp'] == 0)
+]
+
+values = [0, 1, 2, 1, 3, 3, 4, 5, 6, 7, 7, 3, 3, 7, 5, 6, 8]
+values = [0, 1, 2, 1, 3, 3, 8, 7, 6, 4, 4, 3, 3, 4, 7, 6, 5]
+controls['operation_mode2'] = np.select(conditions, values, default=None)
+
+percentage_occurrence = controls['operation_mode2'].value_counts(normalize=True) * 100
+percentage_occurrence = percentage_occurrence.sort_index().drop(index=0)
+percentage_df = percentage_occurrence.to_frame().T
+percentage_df.index = [None]
+n_col = len(percentage_df.columns)
+
+#%%
+from matplotlib.cm import get_cmap
+fig, ax = plt.subplots(figsize=(10, 3))
+cmap = get_cmap('PiYG', n_col)
+colors = [cmap(i) for i in range(n_col)]
+percentage_df.plot.bar(ax=ax, stacked=True, color=colors, edgecolor='black', linewidth=0.5)
+
+ax.set_xlabel('Percentage Occurrence')
+ax.set_title('Percentage Occurrence of Each Operation Mode')
+ax.legend(title='Operation Mode', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.show()
                 
 #%% Change xlim of all axes
-t1 = datetime(2001,4,22, 0,0,0)
-t2 = datetime(2001,4,23, 0,0,0)
+t1 = datetime(2001,3,14, 9,0,0)
+t2 = datetime(2001,3,15, 9,0,0)
 for ax in fig.axes:
     ax.set_xlim([t1,t2])
 # Redraw the figure to update the display
 figy.canvas.draw()
-
+ 
 # test for mass balace in collector
 
 fig, csh, f, ret = pt.plot_coll_loop_ss_buff(t1,t2)
@@ -217,7 +268,7 @@ occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
 occ = pf.modify_df(occ)
 #%% run multiple files
 files = [#'2000',
-         'test33','x']#,'z','test30']
+         'test35','test37','y', 'test38']
         # '2008', '2009', '2010', '2011', '2012', '2013']
 
 if 'e' in locals():                                     #for running the cell again
@@ -235,6 +286,7 @@ for file in new_files:
     controls = pd.concat([controls,occ],axis=1)
     # temp_flow = pf.unmet_hours(controls, temp_flow)
     # rldc,ldc = pf.cal_ldc(energy)
+    energy_monthly.index = energy_monthly.index.strftime('%b')
     
     c1[file] = controls
     e1[file] = energy
@@ -250,19 +302,56 @@ tf = {key: tf1[key] for key in files}
 pt = {}
 
 #%% plot check sims
-key = 'x'
+key = 'test38'
 pt = Plots(c[key], e[key], tf[key])
-t1 = datetime(2001,1,18, 0,0,0)
-t2 = datetime(2001,1,19, 0,0,0)
+t1 = datetime(2001,2,13, 0,0,0)
+t2 = datetime(2001,2,14, 0,0,0)
 qtot = round(m[key]['Qheat'].sum(),0)
-fig = pt.check_sim(t1,t2,key)
-plt.suptitle(key)
-figx,ax = plt.subplots(figsize= (5,6))
-m[key].index = m[key].index.strftime('%b')
-m[key][['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
-plt.xticks(rotation=0)
-pf.plot_specs(ax,title=f'Monthly consumption: {key},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
+fig = pt.check_sim(t1,t2,key,ssbuff=True)
+fig_flow, ax_flow = plt.subplots()
+ax_flow0 = ax_flow.twinx()
+temp_flow[['Tcoll_in','Tcoll_out']].plot(ax=ax_flow)
+temp_flow[['mcoll_in','mcoll_out']].plot(ax=ax_flow0, style='--')
+ax_flow.set_xlim([t1,t2])
+ax_flow.legend(loc='upper left')
 
+figx = pt.plot_monthly(key)
+
+
+#%%
+barWidth = 0.2
+compare1 = 'test35'
+compare2 = 'y'
+r1 = np.arange(len(m[compare1]))
+r2 = [x + barWidth for x in r1]
+r3 = [x + 2 * barWidth for x in r1]
+r4 = [x + 3 * barWidth for x in r1]
+r5 = [x + 4 * barWidth for x in r1]
+r6 = [x + 5 * barWidth for x in r1]
+
+
+plt.figure(figsize=(7, 7))
+
+# Plotting for test35
+bars1 = plt.bar(r1, m[compare1]['Qhp'], color='tab:blue', width=barWidth, edgecolor='grey', label='Qhp')
+bars2 = plt.bar(r3, m[compare1]['Qaux_hp'], color='tab:orange', width=barWidth, edgecolor='grey', label='Qaux_hp')
+bars3 =  plt.bar(r5, m[compare1]['Qaux_dhw'], color='tab:green', width=barWidth, edgecolor='grey', label='Qaux_dhw')
+
+bars4 = plt.bar(r2, m[compare2]['Qhp'], color='tab:blue', width=barWidth, edgecolor='grey',alpha=0.4, label='Qhp')
+bars5 = plt.bar(r4, m[compare2]['Qaux_hp'], color='tab:orange', width=barWidth, edgecolor='grey',alpha=0.4, label='Qaux_hp')
+bars6 = plt.bar(r6, m[compare2]['Qaux_dhw'], color='tab:green', width=barWidth, edgecolor='grey',alpha=0.4, label='Qaux_dhw')
+
+plt.xlabel('Month', fontweight='bold')
+month = m[key].index.strftime('%b')
+plt.xticks([r + 2.5 * barWidth for r in range(len(m['test35']['Qhp']))], month)
+
+legend1 = plt.legend([bars1, bars2, bars3], ['Qhp', 'Qaux_hp', 'Qaux_dhw'], loc='upper left')
+# legend2 = plt.legend([bars1, bars4], ['without buffer', 'with buffer'], loc='upper right')
+
+plt.gca().add_artist(legend1)
+
+plt.title('Monthly Energy Consumption Comparison')
+plt.ylabel('Energy consumption [kWh]')
 #%% check sims plot in plotly using rangeslider
 import pandas as pd
 import numpy as np
