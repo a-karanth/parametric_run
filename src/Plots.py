@@ -34,45 +34,54 @@ class Plots:
         self.temp_flow[['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax, color=['tab:blue','tab:orange','darkred'])
         if 'Thx_source_out' in self.temp_flow.columns:
             self.temp_flow['Thx_source_out'].plot(ax=ax, color='tab:blue', style='--')
-        pf.plot_specs(ax,t1,t2,None,None,ylabel='t', title='Collector panel',
-                      legend_loc='upper left', ygrid=True)
+        pf.plot_specs(ax,t1,t2,-30,90,ylabel='t', title='Collector panel',
+                      legend_loc='upper right', ygrid=True)
         
     def plot_t_coll_ssbuff(self, ax, t1,t2):
         self.temp_flow[['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax, color=['tab:blue','tab:orange','darkred'])
         if 'Thx_source_out' in self.temp_flow.columns:
             self.temp_flow['Thx_source_out'].plot(ax=ax, color='tab:blue', style='--')
         self.temp_flow[['Tssbuff_load_out','Tssbuff_source_out']].plot(ax=ax, label=['Tss_top','Tss_bottom'], color=['mediumvioletred','palevioletred'])
-        pf.plot_specs(ax,t1,t2,None,None,ylabel='t', title='Collector panel',
-                      legend_loc='upper left', ygrid=True)
+        pf.plot_specs(ax,t1,t2,-30,90,ylabel='t', title='Collector panel',
+                      legend_loc='upper right', ygrid=True)
     
     def plot_q_coll(self, ax, t1,t2):
         self.energy['QuColl'].plot.area(ax=ax, color=['gold'],alpha=0.2,stacked=False)
-        pf.plot_specs(ax,t1,t2,None,None,ylabel='q', legend_loc='upper right')
+        pf.plot_specs(ax,t1,t2,None,None,ylabel='q', legend_loc='upper left')
         
     def plot_c_coll(self, ax, t1,t2):
-        self.controls[['coll_pump','ctr_irr','ctr_coll_t']].plot(ax=ax, style='--', color=['gray','orange', 'red'])
+        self.controls['ctr_irr2'] = self.controls['ctr_irr']/3
+        self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*2/3
+        self.controls[['coll_pump','ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', 
+                                                                   color=['gray','orange', 'red'], 
+                                                                   label=['coll_pump','ctr_irr','ctr_coll_t'])
         self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
         pf.plot_specs(ax,t1,t2,None,1.5,ylabel='controls', legend_loc='upper right')
         
     def plot_c_coll_ssbuff(self, ax, t1,t2):
-        self.controls[['coll_pump','ctr_irr','ctr_coll_t']].plot(ax=ax, style='--', color=['gray','orange', 'red'])
+        self.controls['ctr_irr2'] = self.controls['ctr_irr']/3
+        self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*2/3
+        self.controls[['coll_pump','ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', 
+                                                                   color=['gray','orange', 'red'], 
+                                                                   label=['coll_pump','ctr_irr','ctr_coll_t'])
         self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
         self.controls['hx_bypass'].plot(ax=ax, color='skyblue', alpha=1, marker ='*', markersize=4)
         self.controls['ssbuff_stat'].plot(ax=ax, color='black', marker='s', alpha=0.5, markersize=2)
         pf.plot_specs(ax,t1,t2,None,1.5,ylabel='controls', legend_loc='upper right')
         
     def plot_t_hp(self,ax,t1,t2):
-        self.temp_flow[['Tcoll_out','Thp_source_out','Thp_load_out','Thp_load_in']].plot(ax=ax,
-                                                                                         color=['olivedrab','yellowgreen',
+        self.temp_flow[['Tcoll_out','Thp_source_in','Thp_source_out','Thp_load_out','Thp_load_in']].plot(ax=ax,
+                                                                                         color=['tab:blue','olivedrab','yellowgreen',
                                                                                                 'firebrick','tab:red'])
         pf.plot_specs(ax,t1,t2,None,100, ylabel='t',title='HP', 
-                      legend_loc='upper left',ygrid=True)
+                      legend_loc='upper right',ygrid=True)
         
     def plot_q_hp(self, ax, t1, t2):
-        self.energy[['Qhp4dhw','Qhp4irr','Qaux_hp']].plot.area(ax=ax, alpha=0.4,stacked=False)
+        # self.energy[['Qhp4dhw','Qhp4irr','Qaux_hp']].plot.area(ax=ax, alpha=0.4,stacked=False)
         self.energy['Qhp'].plot(ax=ax, color='black', style='--')
+        self.energy['Qaux_hp'].plot.area(ax=ax, alpha=0.4,stacked=False,color='tab:green')
         
-        pf.plot_specs(ax, t1, t2, None, None, legend_loc='upper right')
+        pf.plot_specs(ax, t1, t2, None, None, legend_loc='upper left')
         
     def plot_c_hp(self, ax, t1, t2):
         self.controls['ctr_hp'].plot(ax=ax,style=':', color='black', alpha=0.8)
@@ -80,6 +89,9 @@ class Plots:
             self.controls['hp_div'].plot(ax=ax,color='black',style='--')
         elif 'div_load' in self.controls.columns:
             self.controls['div_load'].plot(ax=ax,color='black',style='--')
+        if 'op_window' in self.controls.columns:
+            self.controls['op_window2'] = self.controls['op_window']/2
+            self.controls['op_window2'].plot(ax=ax, color='skyblue', style='--')
         self.controls['demand'].plot(ax=ax, alpha=0.5,color="skyblue")
         ax.fill_between(self.controls.index, self.controls['demand'], color="skyblue", alpha=0.4, hatch='//')
 
@@ -91,19 +103,19 @@ class Plots:
         self.temp_flow['T6_dhw'].plot(ax=ax, color='rebeccapurple', alpha=0.3, label='T6_dhw')
         self.controls['tset_dhw'].plot(ax=ax, color='rebeccapurple', style='--', label='Tset_dhw')
         pf.plot_specs(ax, t1, t2, None, 85, ylabel='t', title='DHW Tank', 
-                      legend_loc='upper left', ygrid=True)
+                      legend_loc='upper right', ygrid=True)
     
     def plot_q_dhw(self, ax, t1, t2):
         self.energy['Qaux_dhw'].plot.area(ax=ax, alpha=0.4,stacked=False)
         pf.plot_specs(ax, t1, t2, None, None, ylabel='Aux demand [kW]', 
-                      legend_loc='upper right', ygrid=True)
+                      legend_loc='upper left', ygrid=True)
         
     def plot_t_shbuff(self, ax, t1, t2):
         self.temp_flow[['T1_sh']].plot(ax=ax, color='firebrick', alpha=1.0, label='T1_sh')
         self.temp_flow[['Tavg_sh']].plot(ax=ax, color='firebrick', alpha=0.6, label='Tavg_sh')
         self.temp_flow[['T6_sh']].plot(ax=ax, color='firebrick', alpha=0.3, label='T6_sh')
         pf.plot_specs(ax, t1, t2, None, None, ylabel='t', title='DHW Tank', 
-                      legend_loc='upper left', ygrid=True)
+                      legend_loc='upper right', ygrid=True)
     
     def plot_c_shbuff(self,ax,t1,t2):
         if 'ctr_buff' in self.controls.columns:
@@ -115,14 +127,14 @@ class Plots:
     def plot_t_sh(self, ax, t1,t2):
         self.temp_flow[['Tfloor1','Tfloor2']].plot(ax=ax,color=['mediumvioletred', 'green'])
         self.temp_flow[['Tset1','Tset2']].plot(ax=ax,style=':',color=['mediumvioletred', 'green'])
-        if 'Tfloor1_air' in self.temp_flow.columns:
-            self.temp_flow[['Tfloor1_air','Tfloor2_air']].plot(ax=ax,style='--',color=['mediumvioletred', 'green'])
+        # if 'Tfloor1_air' in self.temp_flow.columns:
+        #     self.temp_flow[['Tfloor1_air','Tfloor2_air']].plot(ax=ax,style='--',color=['mediumvioletred', 'green'])
         pf.plot_specs(ax, t1, t2, None, 30, ylabel='Room temp [degC]',
-                      title='Space heating', legend_loc='upper left', ygrid=True)
+                      title='Space heating', legend_loc='upper right', ygrid=True)
     
     def plot_q_sh(self, ax, t1,t2):
         self.energy[['Qrad1','Qrad2']].plot.area(ax=ax,color=['mediumvioletred', 'green'],alpha=0.2,stacked=False)
-        pf.plot_specs(ax, t1, t2, None, None, ylabel='Q radiator [kWh]', legend_loc='upper right')
+        pf.plot_specs(ax, t1, t2, None, None, ylabel='Q radiator [kWh]', legend_loc='upper left')
     
     def plot_c_sh(self, ax, t1,t2):
         self.controls['sh_div'].plot(ax=ax,color='black',style='--')
@@ -133,26 +145,26 @@ class Plots:
         fig, ((ax1,ax5),(ax2,ax6),(ax3,ax7),(ax4,ax8)) = plt.subplots(4,2, figsize=(19,9))
         ax10,ax20, ax30, ax40 = ax1.twinx(), ax2.twinx(), ax3.twinx(), ax4.twinx()
         # ax50,ax60, ax70, ax80 = ax5.twinx(), ax6.twinx(), ax7.twinx(), ax8.twinx()
-        self.plot_q_coll(ax10,t1,t2)
+        self.plot_q_coll(ax1,t1,t2)
         if not ssbuff:
-            self.plot_t_coll(ax1,t1,t2)
+            self.plot_t_coll(ax10,t1,t2)
             self.plot_c_coll(ax5,t1,t2)
         
         else:
-            self.plot_t_coll_ssbuff(ax1,t1,t2)
+            self.plot_t_coll_ssbuff(ax10,t1,t2)
             self.plot_c_coll_ssbuff(ax5,t1,t2)
         
-        self.plot_q_hp(ax20,t1,t2)
-        self.plot_t_hp(ax2,t1,t2)
+        self.plot_q_hp(ax2,t1,t2)
+        self.plot_t_hp(ax20,t1,t2)
         self.plot_c_hp(ax6,t1,t2)
         
-        self.plot_q_dhw(ax30,t1,t2)
-        self.plot_t_dhw(ax3, t1,t2)
-        self.plot_t_shbuff(ax3, t1,t2)
+        self.plot_q_dhw(ax3,t1,t2)
+        self.plot_t_dhw(ax30, t1,t2)
+        self.plot_t_shbuff(ax30, t1,t2)
         self.plot_c_shbuff(ax7, t1, t2)
        
-        self.plot_q_sh(ax40,t1,t2) 
-        self.plot_t_sh(ax4,t1,t2) 
+        self.plot_q_sh(ax4,t1,t2) 
+        self.plot_t_sh(ax40,t1,t2) 
         self.plot_c_sh(ax8,t1,t2)
         fig.suptitle(file)
         
@@ -540,4 +552,15 @@ class Plots:
             self.controls['ctr_sh'].plot(ax=ax4, marker='*')
             self.controls['ctr_dhw'].plot(ax=ax4, linestyle='--')
             pf.plot_specs(ax4, t1,t2,None,None,ylabel='controls', legend_loc='center right')
-    
+            
+    def plot_monthly(self,file):
+        dt = (self.energy.index[2] - self.energy.index[1]).total_seconds()/3600
+        monthly = self.energy.resample('M').sum()*dt   
+        qtot = round(monthly['Qheat'].sum(),0)
+        
+        month = monthly.index.strftime('%b')
+        fig,ax = plt.subplots(figsize= (5,6))
+        monthly[['Qhp','Qaux_hp','Qaux_dhw']].plot.bar(ax=ax)
+        ax.set_ylim([0,1300])
+        ax.set_xticklabels(month, rotation=0)
+        pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
