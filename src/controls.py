@@ -13,19 +13,19 @@ def Initialization(TRNData):
     global ctr_coll_t, ctrDHW, dhw_stat, hx_bypass, load_hx_bypass, hp_aux
     global tavg_dhw, tavg_buff, tcoll_in, tcoll_out
     global tset_dhw, tss_top
-    global heating_season, ctrSH, sh_div, ctrSHbuff, night, legionella, operation_mode
+    global heating_season, ctrSH, sh_div, ctrSHbuff, night, legionella, operation_mode, op_window
     # This model has nothing to initialize    
     return
 
 def StartTime(TRNData):
 
     # Define local short names for convenience (this is optional)
-    ctr_hp, div_load, demand, ctrIRR, coll_pump = 0,0,0,0,0
+    ctr_hp, div_load, demand, ctrIRR, coll_pump, coll_pump2 = 0,0,0,0,0,0
     ctr_coll_t, ctrDHW, dhw_stat, hx_bypass, load_hx_bypass, hp_aux = 0,0,0,0,0,0
     tavg_dhw, tavg_buff = 30,30
     tset_dhw = 20
     aux_set = 45
-    heating_season, ctrSH, sh_div, ctrSHbuff, night, legionella, dhw_demand, operation_mode  =0,0,0,0,0,0,0,0
+    heating_season, ctrSH, sh_div, ctrSHbuff, night, legionella, dhw_demand, operation_mode, op_window  =0,0,0,0,0,0,0,0,0
     
     ctrfloor1 = TRNData[thisModule]["inputs"][0]
     ctrfloor2 = TRNData[thisModule]["inputs"][1]
@@ -66,16 +66,20 @@ def StartTime(TRNData):
     TRNData[thisModule]["outputs"][16] = aux_set*1
     TRNData[thisModule]["outputs"][17] = tset_dhw*1
     TRNData[thisModule]["outputs"][18] = hp_aux*1
+    TRNData[thisModule]["outputs"][19] = coll_pump2*1
+    TRNData[thisModule]["outputs"][20] = op_window*1
     # Calculate the outputs
     # Set outputs in TRNData
     return
 
-def cal_controls (control_case, dhw_demand, ctrDHW, ctrSHbuff, hx_bypass, coll_pump, tset_dhw, ctrIRR, tss_top, ss_stat):
+def cal_controls (control_case, dhw_demand, ctrDHW, ctrSHbuff, hx_bypass, coll_pump, tset_dhw, ctrIRR, op_window, ss_stat):
     demand = ctrDHW or ctrSHbuff
+    coll_pump2 = coll_pump
     if ctrSHbuff and not(dhw_demand): #if SH and DHW tank have to charge, but there is no dhw demand, then prioritize SH
         div_load = 0
     else:
         div_load = ctrDHW
+        
     
     aux_set = 50
 
@@ -117,30 +121,26 @@ def cal_controls (control_case, dhw_demand, ctrDHW, ctrSHbuff, hx_bypass, coll_p
             tset_dhw = tset_dhw
     
     else:
-        ctr_hp = demand and -25<tss_top<35
+        ctr_hp = demand and op_window
         hx_bypass = ss_stat
         load_hx_bypass = ctr_hp
         if not(hx_bypass) and coll_pump and not(ctr_hp):
             load_hx_bypass = 0
-        
-        if ctrSHbuff and not(dhw_demand): #if SH and DHW tank have to charge, but there is no dhw demand, then prioritize SH
-            div_load = 0
-        else:
-            div_load = ctrDHW
             
         if not(demand) and ctrIRR and not(ss_stat):
             tset_dhw = 70
         elif ss_stat and not(ctrIRR) and not(coll_pump):
-            tset_dhw = 50
+            tset_dhw = 60
         elif tset_dhw <=-9000:
-            tset_dhw = 50
+            tset_dhw = 60
         else:
             tset_dhw = tset_dhw
         
         if coll_pump and ctr_hp and not(hx_bypass):
-            coll_pump =0 
+            coll_pump2 =0 
         
-    return hx_bypass, coll_pump, ctr_hp, demand, load_hx_bypass, div_load, aux_set, tset_dhw
+        
+    return hx_bypass, coll_pump, ctr_hp, demand, load_hx_bypass, div_load, aux_set, tset_dhw, coll_pump2
 
 def Iteration(TRNData):
 
@@ -179,12 +179,14 @@ def Iteration(TRNData):
     coll_pump = ctrIRR or ctr_coll_t or tcoll_in<tamb
     # coll_pump = 0.8 if ctrIRR else 1 if -25<tcoll_in<=tamb or ctr_coll_t else 0
     hx_bypass = tcoll_out<35
+    op_window = -25<tss_top<35
     
     control_case = 'base' if operation_mode==1 else 'sahw' if operation_mode==2 else 'sdhw' if operation_mode==3 else 'with ss buff' 
-    hx_bypass, coll_pump, ctr_hp, demand, load_hx_bypass, div_load, aux_set, tset_dhw = cal_controls(control_case, dhw_demand, 
+    hx_bypass, coll_pump, ctr_hp, demand, load_hx_bypass, div_load, aux_set, tset_dhw, coll_pump2 = cal_controls(control_case, dhw_demand, 
                                                                                                     ctrDHW, ctrSHbuff, hx_bypass, 
                                                                                                     coll_pump, tset_dhw,ctrIRR,  
-                                                                                                    tss_top, ss_stat)
+                                                                                                    op_window, ss_stat)
+
     if div_load:
         hp_aux=0
     else:
@@ -209,6 +211,8 @@ def Iteration(TRNData):
     TRNData[thisModule]["outputs"][16] = aux_set*1
     TRNData[thisModule]["outputs"][17] = tset_dhw*1
     TRNData[thisModule]["outputs"][18] = hp_aux*1
+    TRNData[thisModule]["outputs"][19] = coll_pump2*1
+    TRNData[thisModule]["outputs"][20] = op_window*1
     
     return
 
