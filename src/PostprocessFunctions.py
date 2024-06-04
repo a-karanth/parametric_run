@@ -337,10 +337,10 @@ class PostprocessFunctions:
         return dfresults, rldc
     
     @staticmethod
-    def create_dfs(prefix, file):
+    def create_dfs(label, file):
         global DT, dt, t_start, t_end
 
-        if 'cp' in prefix:
+        if 'cp' in label:
             controls, energy, temp_flow = PostprocessFunctions.cal_base_case(file)
             
         else:
@@ -354,6 +354,14 @@ class PostprocessFunctions:
             energy = PostprocessFunctions.cal_energy(energy, controls)
         
         return controls,energy,temp_flow
+    
+    @staticmethod
+    def create_additional_dfs(file):
+        mb = pd.read_csv(file+'_mass_balance.txt', delimiter=",",index_col=0)
+        mb = PostprocessFunctions.modify_df(mb)
+        param = pd.read_csv(file+'_parameters.txt', delimiter=",",index_col=0)
+        param = PostprocessFunctions.extract_params(param)
+        return mb, param
     
     def unmet_delta(controls, energy, temp_flow):
         temp_flow['unmet_delta'] = 0
