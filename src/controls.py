@@ -169,6 +169,8 @@ def Iteration(TRNData):
     
     heating_season = (month>=9 or month<=6)
     ctrSH = (ctrfloor1 or ctrfloor2) and heating_season
+    if (month>=6 or month<=9) and not(ctrfloor1 or ctrfloor2):
+        ctrSHbuff=0     #if there is no SH demand from June-September, turn off SHbuffer controller
     sh_div = (ctrfloor1 and ctrfloor2)*0.5 + (ctrfloor1 or ctrfloor2)*(ctrfloor1 < ctrfloor2)
     night = dhw_stat and (5 <hour <=6)
     legionella = (week==7) and (6<hour<=8)
