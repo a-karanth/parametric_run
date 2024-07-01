@@ -33,9 +33,10 @@ class Plots:
     def plot_t_coll(self, ax, t1,t2):
         self.temp_flow[['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax, color=['tab:blue','tab:orange','darkred'])
         if 'Thx_source_out' in self.temp_flow.columns:
-            self.temp_flow['Thx_source_out'].plot(ax=ax, color='tab:blue', style='--')
+            self.temp_flow['Thx_source_out'].plot(ax=ax, color='tab:orange', style='--')
         pf.plot_specs(ax,t1,t2,-30,90,ylabel='t', title='Collector panel',
                       legend_loc='upper right', ygrid=True)
+        ax.set_yticks(np.arange(-30, 90, 20))
         
     def plot_t_coll_ssbuff(self, ax, t1,t2):
         self.temp_flow[['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax, color=['tab:blue','tab:orange','darkred'])
@@ -44,43 +45,58 @@ class Plots:
         self.temp_flow[['Tssbuff_load_out','Tssbuff_source_out']].plot(ax=ax, label=['Tss_top','Tss_bottom'], color=['mediumvioletred','palevioletred'])
         pf.plot_specs(ax,t1,t2,-30,90,ylabel='t', title='Collector panel',
                       legend_loc='upper right', ygrid=True)
+        ax.set_yticks(np.arange(-30, 90, 20))
     
     def plot_q_coll(self, ax, t1,t2):
         self.energy['QuColl'].plot.area(ax=ax, color=['gold'],alpha=0.2,stacked=False)
-        pf.plot_specs(ax,t1,t2,None,None,ylabel='q', legend_loc='upper left')
+        pf.plot_specs(ax,t1,t2,-5,10,ylabel='q', legend_loc='upper left')
         
     def plot_c_coll(self, ax, t1,t2):
-        self.controls['ctr_irr2'] = self.controls['ctr_irr']/3
-        self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*2/3
-        self.controls[['coll_pump','ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', 
-                                                                   color=['gray','orange', 'red'], 
-                                                                   label=['coll_pump','ctr_irr','ctr_coll_t'])
+        self.controls['ctr_irr2'] = self.controls['ctr_irr']*0.7
+        self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*0.6
+        self.controls[['ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', color=['orange', 'red'])
+        if 't_inlet_below_ambient' in self.controls.columns:
+            self.controls['t_inlet_below_ambient2'] = self.controls['t_inlet_below_ambient']*0.5
+            self.controls['t_inlet_below_ambient2'].plot(ax=ax, style='--', color='green')
+        if 'coll_in_thresh' in self.controls.columns:
+            self.controls['coll_in_thresh2'] = self.controls['coll_in_thresh']*0.4
+            self.controls['coll_in_thresh2'].plot(ax=ax, style='--', color='hotpink')
+        self.controls['hx_bypass'].plot(ax=ax, color='skyblue', alpha=1, marker ='*', markersize=4)
+
+        self.controls['coll_pump'].plot.area(ax=ax, alpha=0.2, color='gray')
+        
         self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
-        pf.plot_specs(ax,t1,t2,None,1.5,ylabel='controls', legend_loc='upper right')
+        ax.legend(['coll_pump', 'ctr_irr', 'ctr_coll_t', 't_inlet_below_ambient','Qirr'])
+        pf.plot_specs(ax,t1,t2,None,1.3,ylabel='controls', legend_loc='upper right')
         
     def plot_c_coll_ssbuff(self, ax, t1,t2):
-        self.controls['ctr_irr2'] = self.controls['ctr_irr']/3
-        self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*2/3
-        self.controls[['coll_pump','ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', 
-                                                                   color=['gray','orange', 'red'], 
-                                                                   label=['coll_pump','ctr_irr','ctr_coll_t'])
+        self.controls['ctr_irr2'] = self.controls['ctr_irr']*0.7
+        self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*0.6
+        self.controls[['ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', color=['orange', 'red'])
+        if 't_inlet_below_ambient' in self.controls.columns:
+            self.controls['t_inlet_below_ambient2'] = self.controls['t_inlet_below_ambient']*0.5
+            self.controls['t_inlet_below_ambient2'].plot(ax=ax, style='--', color='green')
+        if 'coll_in_thresh' in self.controls.columns:
+            self.controls['coll_in_thresh2'] = self.controls['coll_in_thresh']*0.4
+            self.controls['coll_in_thresh2'].plot(ax=ax, style='--', color='hotpink')
+        self.controls['coll_pump'].plot.area(ax=ax, alpha=0.2, color='gray' )
         self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
         self.controls['hx_bypass'].plot(ax=ax, color='skyblue', alpha=1, marker ='*', markersize=4)
         self.controls['ssbuff_stat'].plot(ax=ax, color='black', marker='s', alpha=0.5, markersize=2)
-        pf.plot_specs(ax,t1,t2,None,1.5,ylabel='controls', legend_loc='upper right')
+        ax.legend(['coll_pump', 'ctr_irr', 'ctr_coll_t', 't_inlet_below_ambient','Qirr','hx_bypass','ssbuff_stat'])
+        pf.plot_specs(ax,t1,t2,None,1.3,ylabel='controls', legend_loc='upper right')
         
     def plot_t_hp(self,ax,t1,t2):
         self.temp_flow[['Tcoll_out','Thp_source_in','Thp_source_out','Thp_load_out','Thp_load_in']].plot(ax=ax,
                                                                                          color=['tab:blue','olivedrab','yellowgreen',
                                                                                                 'firebrick','tab:red'])
-        pf.plot_specs(ax,t1,t2,None,100, ylabel='t',title='HP', 
-                      legend_loc='upper right',ygrid=True)
+        pf.plot_specs(ax,t1,t2,-35,100, ylabel='t',title='HP', legend_loc='upper right',ygrid=True)
+        ax.set_yticks(np.arange(-35, 100, 20))
         
     def plot_q_hp(self, ax, t1, t2):
         # self.energy[['Qhp4dhw','Qhp4irr','Qaux_hp']].plot.area(ax=ax, alpha=0.4,stacked=False)
         self.energy['Qhp'].plot(ax=ax, color='black', style='--')
         self.energy['Qaux_hp'].plot.area(ax=ax, alpha=0.4,stacked=False,color='tab:green')
-        
         pf.plot_specs(ax, t1, t2, None, None, legend_loc='upper left')
         
     def plot_c_hp(self, ax, t1, t2):
@@ -88,9 +104,10 @@ class Plots:
         if 'hp_div' in self.controls.columns:
             self.controls['hp_div'].plot(ax=ax,color='black',style='--')
         elif 'div_load' in self.controls.columns:
-            self.controls['div_load'].plot(ax=ax,color='black',style='--')
+            self.controls['div_load2'] = self.controls['div_load'] * 0.7
+            self.controls['div_load2'].plot(ax=ax,color='black',style='--')
         if 'op_window' in self.controls.columns:
-            self.controls['op_window2'] = self.controls['op_window']/2
+            self.controls['op_window2'] = self.controls['op_window']*0.9
             self.controls['op_window2'].plot(ax=ax, color='skyblue', style='--')
         self.controls['demand'].plot(ax=ax, alpha=0.5,color="skyblue")
         ax.fill_between(self.controls.index, self.controls['demand'], color="skyblue", alpha=0.4, hatch='//')
@@ -107,7 +124,7 @@ class Plots:
     
     def plot_q_dhw(self, ax, t1, t2):
         self.energy['Qaux_dhw'].plot.area(ax=ax, alpha=0.4,stacked=False)
-        pf.plot_specs(ax, t1, t2, None, None, ylabel='Aux demand [kW]', 
+        pf.plot_specs(ax, t1, t2, 0, 1.5, ylabel='Aux demand [kW]', 
                       legend_loc='upper left', ygrid=True)
         
     def plot_t_shbuff(self, ax, t1, t2):
@@ -153,6 +170,10 @@ class Plots:
         else:
             self.plot_t_coll_ssbuff(ax10,t1,t2)
             self.plot_c_coll_ssbuff(ax5,t1,t2)
+        # self.temp_flow['Tcoll_in'].plot(ax=ax10, color='firebrick')
+        # self.temp_flow['Tamb'].plot(ax=ax10, color='red', style='--')
+        # pf.plot_specs(ax10,t1,t2,-10,20,ylabel='t', title='Collector panel',
+        #               legend_loc='upper right', ygrid=True)
         
         self.plot_q_hp(ax2,t1,t2)
         self.plot_t_hp(ax20,t1,t2)
@@ -168,8 +189,8 @@ class Plots:
         self.plot_c_sh(ax8,t1,t2)
         fig.suptitle(file)
         
-        self.plot_unmet()
-        plt.suptitle(file)
+        # self.plot_unmet()
+        # plt.suptitle(file)
         
         tsourcein_low = (self.temp_flow['Tcoll_out']<-25)*self.controls['ctr_hp']
         tloadin_low = (self.temp_flow['Thp_load_in']<10)*self.controls['ctr_hp']
@@ -397,7 +418,7 @@ class Plots:
         plt.setp(ax.get_xticklabels(), rotation=0, ha="left", rotation_mode="anchor")
 
         ax.set_yticks(np.arange(0,24,2))
-        hours = [f'{h:02d}:00' for h in range(0,24,2)]
+        hours = [f'{h:02d}' for h in range(0,24,2)]
         ax.set_yticklabels(hours, fontsize=10)
 
         # Add a colorbar
@@ -407,6 +428,7 @@ class Plots:
 
         ax.set_title(label)
         ax.set_ylabel('Hour of day')
+        ax.set_frame_on(True)
     
     def plot_controls_cp(self,t1, t2):
         ctr, (wea,cdhw,q,croom,csh) = plt.subplots(5,1, figsize=(19,9),sharex=True)
