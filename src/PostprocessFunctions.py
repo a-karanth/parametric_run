@@ -77,6 +77,26 @@ class PostprocessFunctions:
         energy['Qheat'] = energy['Qhp_load'] + energy['Qaux_hp'] + energy['Qaux_dhw']
         energy['Qcoll_cum'] = energy['QuColl'].cumsum()*0.1
         energy['Qpv_cum'] = energy['Qpv'].cumsum()*0.1
+        energy['QuColl_irr'] = energy['QuColl'] * controls['ctr_irr']
+        energy['QuColl_t'] = np.where(((controls['ctr_coll_t'] == 1) | (controls['t_inlet_below_ambient'] == 1)) & (controls['ctr_irr'] == 0), energy['QuColl'], 0)  # or any value you want when the condition is not met
+        energy['QuColl_pos'] = energy['QuColl'].apply(lambda x: x if x >= 0 else np.nan)
+        energy['QuColl_irr_pos'] = energy['QuColl_irr'].apply(lambda x: x if x >= 0 else np.nan)
+        energy['QuColl_t_pos'] = energy['QuColl_t'].apply(lambda x: x if x >= 0 else np.nan)
+        energy['QuColl_irr_neg'] = energy['QuColl_irr'].apply(lambda x: x if x < 0 else np.nan)
+        energy['QuColl_t_neg'] = energy['QuColl_t'].apply(lambda x: x if x < 0 else np.nan)
+        energy['QuColl_neg'] = energy['QuColl'].apply(lambda x: x if x < 0 else np.nan)
+        energy['Qhx_pos'] = energy['Qhx'].apply(lambda x: x if x >= 0 else np.nan)
+        energy['Qhx_neg'] = energy['Qhx'].apply(lambda x: x if x < 0 else np.nan)
+        energy['Qhp_source_pos'] = energy['Qhp_source'].apply(lambda x:x if x>=0 else np.nan)
+        energy['Qhp_source_neg'] = energy['Qhp_source'].apply(lambda x:x if x<0 else np.nan)
+        energy['Qsh_buff_in'] = energy['Qsh_buff_source'].apply(lambda x:x if x<=0 else np.nan)
+        energy['Qsh_buff_out'] = energy['Qsh_buff_source'].apply(lambda x:x if x>0 else np.nan)
+        energy['Qdhw_in'] = energy['Qdhw_source'].apply(lambda x:x if x<=0 else np.nan)
+        energy['Qdhw_out'] = energy['Qdhw_source'].apply(lambda x:x if x>0 else np.nan)
+        
+    
+        if 'Qloss_dhw' in energy.columns:
+            energy['Qloss_load'] = energy[['Qloss_dhw','Qloss_sh']].sum(axis=1, skipna=True)
         # for older results that did not have correct connections to printer
         #energy['Qdev'] = energy[['dev_living', 'dev_kit', 'dev_bed1', 'dev_bed2',
         #                         'dev_bed3', 'dev_attic']].sum(axis = 1, skipna = True)
@@ -109,6 +129,32 @@ class PostprocessFunctions:
         energy_monthly.drop(index=energy_monthly.index[-1], axis=0, inplace=True)
         energy_annual.drop(index=energy_annual.index[-1], axis=0, inplace=True)
         return energy_monthly, energy_annual
+    
+    @staticmethod
+    def cal_daily_hourly(energy):
+        global dt
+        energy_daily = energy.resample('D').sum()*dt
+        energy_hourly = energy.resample('H').sum()*dt
+        # energy_daily['Qstored_dhw'] = energy.resample('D').agg({'Qstored_dhw': 'last'}) # if you want the last value of each day
+        return energy_daily, energy_hourly
+    
+    @staticmethod
+    def cal_cumulative(energy):
+        columns = ['Qheat', 'Qhp', 'Qaux_hp']
+        cumulative_yearly = energy[columns].cumsum()
+    
+        # Create cumulative values on a monthly basis
+        cumulative_monthly = energy[columns].copy()
+        cumulative_monthly['Month'] = cumulative_monthly.index.to_period('M')
+        cumulative_monthly = cumulative_monthly.groupby('Month').cumsum()
+        # cumulative_monthly.drop(columns='Month', inplace=True)
+    
+        # Create cumulative values on a daily basis
+        cumulative_daily = energy[columns].copy()
+        cumulative_daily['Day'] = cumulative_daily.index.to_period('D')
+        cumulative_daily = cumulative_daily.groupby('Day').cumsum()
+        # cumulative_daily.drop(columns='Day', inplace=True)
+        return cumulative_yearly, cumulative_monthly, cumulative_daily
     
     @staticmethod
     def summarize_results(control, energy, temp_flow):
@@ -400,3 +446,15 @@ class PostprocessFunctions:
             case 'cp_PV':
                 cost = coll_area*pv_panels + inverter + tank
         return cost  
+    
+    def make_plot(ax, data, plotstyle, linestyle, color, t1=None,t2=None,
+                  ylim1=None, ylim2=None, ylabel='', title=None, legend_loc='best',                      
+                  xlabel=0, ygrid=None, sharedx=True, legend=True):
+        for d,p,l,c in zip(data, plotstyle, linestyle, color):
+            if plotstyle=='area':
+                data.plot.area(ax=ax,style=l,color=c, alpha=0.4)
+            else:
+                data.plot(ax=ax,style=l,color=c)
+        PostprocessFunctions.plot_specs(ax,t1,t2,ylim1,ylim2, ylabel,sharedx, legend, legend_loc, title,xlabel,ygrid)
+        return ax
+        
