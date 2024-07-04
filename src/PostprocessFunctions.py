@@ -140,9 +140,27 @@ class PostprocessFunctions:
     
     @staticmethod
     def cal_cumulative(energy):
-        columns = ['Qheat', 'Qhp', 'Qaux_hp']
-        cumulative_yearly = energy[columns].cumsum()
+        global dt
+        dt = 0.1
+        columns = ['Qheat', 'Qhp', 'Qaux_hp','emission','el_bill']
+        cumulative_yearly = energy[columns].cumsum()*dt
     
+        # Create cumulative values on a monthly basis
+        cumulative_monthly = energy[columns].copy()
+        cumulative_monthly['Month'] = cumulative_monthly.index.to_period('M')
+        cumulative_monthly = cumulative_monthly.groupby('Month').cumsum()*dt
+        # cumulative_monthly.drop(columns='Month', inplace=True)
+    
+        # Create cumulative values on a daily basis
+        cumulative_daily = energy[columns].copy()
+        cumulative_daily['Day'] = cumulative_daily.index.to_period('D')
+        cumulative_daily = cumulative_daily.groupby('Day').cumsum()*dt
+        # cumulative_daily.drop(columns='Day', inplace=True)
+        return cumulative_yearly, cumulative_monthly, cumulative_daily
+    
+    def cumulative_emission_costs(energy):
+        columns = ['emission','el_bill']
+        cumulative_yearly = energy[columns].cumsum()
         # Create cumulative values on a monthly basis
         cumulative_monthly = energy[columns].copy()
         cumulative_monthly['Month'] = cumulative_monthly.index.to_period('M')
@@ -235,7 +253,6 @@ class PostprocessFunctions:
         # returns energy bill in EUR. 
         # Costs are in EUR/kWh for electricity, EUR/m3 for gas
         el_import = math.ceil(energy['Qfrom_grid'].sum()*dt)
-
         el_bill={}
         for n in nm:     
             energy['export'] = energy['Q2grid'] * n
@@ -253,17 +270,28 @@ class PostprocessFunctions:
         gas_bill = (energy['gas']*gas_cost).sum()*dt
         return el_bill, gas_bill
     
-    def cal_emissions(energy, el_ef=340, gas_ef=2016):
-        # returns emissions in gCO2, 
-        # emission factor in gCO2/kWh for electricity, gCO2/m3 for gas
+    def cal_cost_df(energy, el_cost=0.4, feedin_tariff=0.07):
+        global dt
+        energy['export_cost'] = energy['Q2grid']*feedin_tariff *dt
+        energy['import_cost'] = energy['Qfrom_grid']*el_cost *dt
+        energy['el_bill'] = energy['import_cost']-energy['export_cost']
+        return energy
+    
+    def cal_emissions(energy, el_ef=340, gas_ef=2016/1000):
+        # returns emissions in kgCO2, 
+        # emission factor in gCO2/kWh for electricity, kgCO2/m3 for gas
+        global dt
+        dt=0.1
         aef = pd.read_csv('AEF_annual.csv', index_col=0)
         aef.columns=aef.columns.map(int)
         energy['aef']=0
         for index, imp in energy['aef'].items():
-            energy['aef'].loc[index] = aef[index.month][index.hour]
-        el_em = ((energy['Qfrom_grid']*energy['aef']).sum()*dt)/1000
-        gas_em = ((energy['gas']*gas_ef).sum()*dt)/1000
-        return el_em, gas_em
+            energy['aef'].loc[index] = (aef[index.month][index.hour])
+            # energy['aef'] = energy['aef']/1000
+        energy['emission'] = energy['Qfrom_grid']*energy['aef']*dt/1000
+        el_em = ((energy['Qfrom_grid']*energy['aef']).sum())
+        gas_em = ((energy['gas']*gas_ef).sum())
+        return el_em, gas_em, energy
     
     def peak_load(energy):
         # peak load, peak import
@@ -458,3 +486,283 @@ class PostprocessFunctions:
         PostprocessFunctions.plot_specs(ax,t1,t2,ylim1,ylim2, ylabel,sharedx, legend, legend_loc, title,xlabel,ygrid)
         return ax
         
+    def comp_en_for_one_day(energy,day):
+        energy_daily,energy_hourly = PostprocessFunctions.cal_daily_hourly(energy)
+        en = energy_daily.loc[day]
+        return en
+    
+    def make_sankey_flows(en, parameters, return_extra_data=True):
+        if parameters['operation_mode'].iloc[0] != 4:
+            en['Qssbuff_load'] = 0
+            
+            # Define the sources, targets, and labels as a dictionary
+            flows = {
+                'Irradiance': {'source': 'Irradiance', 'target':'Collector','value': en['QuColl_irr_pos']},
+                'Temp diff': {'source': 'Temp diff', 'target':'Collector','value': en['QuColl_t_pos']},
+                'coll_loss': {'source': 'Collector', 'target':'Coll_loss','value': -en['QuColl_neg']},
+                'HX': {'source': 'Collector', 'target': 'node', 'value': en['Qhx_pos']}, 
+                'Coll_load': {'source': 'Collector','target':'HPsource', 'value':(en['QuColl_irr_pos']+en['QuColl_t_pos']-en['Qhx_pos']+en['QuColl_neg'])},
+                'Qhp_source': {'source': 'HPsource', 'target': 'HP', 'value': en['Qhp_source']},
+                'Qhp': {'source': 'Power', 'target': 'HP', 'value': en['Qhp']},
+                'Qhp_load': {'source': 'HP', 'target': 'node', 'value': en['Qhp_load']},
+                'Qaux_hp': {'source': 'Aux_hp', 'target': 'node', 'value': en['Qaux_hp']},
+                'Qsh_buff_source': {'source': 'node', 'target': 'SH', 'value': -en['Qsh_buff_source']},
+                'Qsh_buff_load': {'source': 'SH', 'target': 'SH_load', 'value': en['Qsh_buff_load']},
+                'Qloss_sh': {'source': 'SH', 'target': 'SH_loss', 'value': en['Qloss_sh']},
+                'Qstored_sh': {'source': 'SH', 'target': 'SH_stored', 'value': en['Qstored_sh']},
+                'Qdhw_source': {'source': 'node', 'target': 'DHW', 'value': -en['Qdhw_in']},
+                'Qdhw_load': {'source': 'DHW', 'target': 'Tap', 'value': en['Qdhw_load']},
+                'Qloss_dhw': {'source': 'DHW', 'target': 'DHW_loss', 'value': en['Qloss_dhw']},
+                'Qstored_dhw': {'source': 'DHW', 'target': 'DHW_stored', 'value': en['Qstored_dhw']},
+                'HX_loss': {'source':'DHW', 'target':'HX loss', 'value': en['Qdhw_out']}
+            }
+        else:
+            # Define the sources, targets, and labels as a dictionary
+            flows = {
+                'Irradiance': {'source': 'Irradiance', 'target':'Collector','value': en['QuColl_irr_pos']},
+                'Temp diff': {'source': 'Temp diff', 'target':'Collector','value': en['QuColl_t_pos']},
+                'coll_loss': {'source': 'Collector', 'target':'Coll_loss','value': -en['QuColl_neg']},
+                'HX': {'source': 'Collector', 'target': 'node', 'value': en['Qhx_pos']}, 
+                'Qssbuff_source': {'source': 'Collector', 'target': 'SS_buff', 'value': -en['Qssbuff_source']},
+                'Qloss_ssbuff': {'source': 'SS_buff', 'target': 'SS_buff_loss', 'value': en['Qloss_ssbuff']},
+                'Qstored_buff': {'source': 'SS_buff', 'target': 'SS_buff_stored', 'value': en['Qstored_buff']},
+                'Qssbuff_load': {'source': 'SS_buff', 'target': 'HPsource', 'value': en['Qssbuff_load']},
+                'Qhp_source': {'source': 'HPsource', 'target': 'HP', 'value': en['Qhp_source']},
+                'Qhp': {'source': 'Power', 'target': 'HP', 'value': en['Qhp']},
+                'Qhp_load': {'source': 'HP', 'target': 'node', 'value': en['Qhp_load']},
+                'Qaux_hp': {'source': 'Aux_hp', 'target': 'node', 'value': en['Qaux_hp']},
+                'Qsh_buff_source': {'source': 'node', 'target': 'SH', 'value': -en['Qsh_buff_source']},
+                'Qsh_buff_load': {'source': 'SH', 'target': 'SH_load', 'value': en['Qsh_buff_load']},
+                'Qloss_sh': {'source': 'SH', 'target': 'SH_loss', 'value': en['Qloss_sh']},
+                'Qstored_sh': {'source': 'SH', 'target': 'SH_stored', 'value': en['Qstored_sh']},
+                'Qdhw_source': {'source': 'node', 'target': 'DHW', 'value': -en['Qdhw_in']},
+                'Qdhw_load': {'source': 'DHW', 'target': 'Tap', 'value': en['Qdhw_load']},
+                'Qloss_dhw': {'source': 'DHW', 'target': 'DHW_loss', 'value': en['Qloss_dhw']},
+                'Qstored_dhw': {'source': 'DHW', 'target': 'DHW_stored', 'value': en['Qstored_dhw']},
+                'HX_loss': {'source':'DHW', 'target':'HX loss', 'value': en['Qdhw_out']}
+            }
+        # Extract unique labels
+        unique_labels = list(set([flow['source'] for flow in flows.values()] + [flow['target'] for flow in flows.values()]))
+        unique_labels = sorted(unique_labels, key=lambda x: (x != 'SH', x == 'DHW', x))
+
+        # Create a mapping from labels to indices
+        label_to_index = {label: i for i, label in enumerate(unique_labels)}
+
+        # Update flows with indices
+        for key in flows:
+            if flows[key]['value'] < 0 and key not in ['Qssbuff_source', 'Qdhw_source', 'Qsh_buff_source', 'QuColl_neg']:
+                flows[key]['value'] *= -1  # Make the value positive
+                flows[key]['source'], flows[key]['target'] = flows[key]['target'], flows[key]['source']  # Swap source and target
+            flows[key]['source'] = label_to_index[flows[key]['source']]
+            flows[key]['target'] = label_to_index[flows[key]['target']]
+
+        if return_extra_data:        
+            return flows, unique_labels, label_to_index
+        else:
+            return flows
+        
+    def sankey_node_colors(unique_labels, sources):
+        node_colors_dict = {'Irradiance': 'rgba(255, 223, 0, 0.8)',
+                            'Temp diff': 'rgba(240,90,56,0.8)',
+                            'Collector': 'rgba(255, 165, 0, 0.8)',
+                            'Coll_loss': 'rgba(255, 69, 0, 0.8)',
+                            'SS_buff': 'rgba(70, 130, 180, 0.8)',
+                            'SS_buff_loss': 'rgba(123, 104, 238, 0.8)',
+                            'SS_buff_stored': 'rgba(106, 90, 205, 0.8)',
+                            'node': 'rgba(60, 179, 113, 0.8)',
+                            'HPsource': 'rgba(138, 43, 226, 0.8)',
+                            'HP': 'rgba(75, 0, 130, 0.8)',
+                            'Power': 'rgba(0, 0, 255, 0.8)',
+                            'Aux_hp': 'rgba(255, 20, 147, 0.8)',
+                            'SH': 'rgba(255, 105, 180, 0.8)',
+                            'SH_load': 'rgba(255, 182, 193, 0.8)',
+                            'SH_loss': 'rgba(255, 140, 0, 0.8)',
+                            'SH_stored': 'rgba(250, 159, 133, 0.8)',
+                            'DHW': 'rgba(0, 255, 255, 0.8)',
+                            'Tap': 'rgba(173, 216, 230, 0.8)',
+                            'DHW_loss': 'rgba(32, 178, 170, 0.8)',
+                            'DHW_stored': 'rgba(0, 206, 209, 0.8)',
+                            'HX loss': 'black',
+                            }
+
+        # Set node colors and link colors
+        node_colors = [node_colors_dict[label] for label in unique_labels]
+        link_colors = [node_colors_dict[unique_labels[src]].replace('0.8', '0.3') for src in sources]
+        return node_colors, link_colors
+    
+    def sankey_node_positions(unique_labels):
+        node_positions = {'Irradiance': (0.1, 0.2),
+                          'Temp diff':(0.1, 0.4),
+                          'Collector': (0.2, 0.3),
+                          'Coll_loss': (0.3, 0.15),
+                          'SS_buff': (0.4, 0.5),
+                          'SS_buff_loss': (0.5, 0.1),
+                          'SS_buff_stored': (0.5, 0.25),
+                          'HPsource': (0.45, 0.3),
+                          'HP': (0.55, 0.38),
+                          'Power': (0.1, 0.62),
+                          'Aux_hp': (0.1, 0.8),
+                          'node': (0.65, 0.38),
+                          'SH': (0.8, 0.2),  # SH at the top
+                          'SH_load': (0.9, 0.1),
+                          'SH_loss': (0.9, 0.25),
+                          'SH_stored': (0.75, 0.3),
+                          'DHW': (0.75, 0.55),  # DHW at the bottom
+                          'Tap': (0.9, 0.48),
+                          'DHW_loss': (0.9, 0.7),
+                          'DHW_stored': (0.7, 0.7),
+                          'HX loss': (0.9,0.8), }
+
+        # Get positions for all nodes, defaulting to (0.5, 0.5) if not specified
+        node_x = [node_positions[label][0] if label in node_positions else 0.5 for label in unique_labels]
+        node_y = [node_positions[label][1] if label in node_positions else 0.5 for label in unique_labels]
+        return node_x, node_y
+    
+    def sankey_node_totals(unique_labels, sources,targets,values):
+        node_totals = {label: 0 for label in unique_labels}
+        node_totals_load = {label: 0 for label in unique_labels}
+        for source, target, value in zip(sources, targets, values):
+            node_totals[unique_labels[source]] -= value  # Outgoing value
+            node_totals_load[unique_labels[target]] += value  # Incoming value
+        return node_totals, node_totals_load
+    
+    def compare_monthly_bars(m, compare1,compare2):
+        """
+        inputs: m --> dictionaly containing monthly aggregates
+                compare1/compare2 --> names of files to be compared
+        """
+        barWidth = 0.08
+        r1 = np.arange(len(m[compare1]))
+        r2 = [x + barWidth for x in r1]
+        r3 = [x + 2 * barWidth for x in r1]
+        r4 = [x + 3 * barWidth for x in r1]
+        r5 = [x + 4 * barWidth for x in r1]
+        r6 = [x + 5 * barWidth for x in r1]
+        r7 = [x + 6 * barWidth for x in r1]
+        r8 = [x + 7 * barWidth for x in r1]
+        r9 = [x + 8 * barWidth for x in r1]
+        r10 = [x + 9 * barWidth for x in r1]
+
+        plt.figure(figsize=(9, 7))
+
+        # Plotting for test35
+        bars1 = plt.bar(r1, m[compare1]['Qhp'], color='tab:blue', width=barWidth, edgecolor='grey', label='Qhp')
+        bars2 = plt.bar(r3, m[compare1]['Qaux_hp'], color='tab:orange', width=barWidth, edgecolor='grey', label='Qaux_hp')
+        bars3 =  plt.bar(r5, m[compare1]['Qaux_dhw'], color='tab:green', width=barWidth, edgecolor='grey', label='Qaux_dhw')
+        bars7 =  plt.bar(r7, m[compare1]['Qheat'], color='tab:red', width=barWidth, edgecolor='grey', label='Qheat')
+        # bars9 = plt.bar(r7, m[compare1]['Qloss_load'], color='grey', width=barWidth, edgecolor='grey', bottom=m[compare1]['Qheat'],  label='Qloss_load')
+
+        bars4 = plt.bar(r2, m[compare2]['Qhp'], color='tab:blue', width=barWidth, edgecolor='grey',alpha=0.4, label='Qhp')
+        bars5 = plt.bar(r4, m[compare2]['Qaux_hp'], color='tab:orange', width=barWidth, edgecolor='grey',alpha=0.4, label='Qaux_hp')
+        bars6 = plt.bar(r6, m[compare2]['Qaux_dhw'], color='tab:green', width=barWidth, edgecolor='grey',alpha=0.4, label='Qaux_dhw')
+        bars8 =  plt.bar(r8, m[compare2]['Qheat'], color='tab:red', width=barWidth, edgecolor='grey', alpha=0.4, label='Qheat')
+        # bars10 = plt.bar(r8, m[compare2]['Qloss_load'], color='grey', width=barWidth, edgecolor='grey', alpha=0.4, bottom=m[compare2]['Qheat'], label='Qloss_load')
+
+        plt.xlabel('Month', fontweight='bold')
+        month = m[compare1].index
+        plt.xticks([r + 2.5 * barWidth for r in range(len(m[compare1]['Qhp']))], month)
+
+        legend1 = plt.legend([bars1, bars2, bars3, bars7], ['Qhp', 'Qaux_hp', 'Qaux_dhw','Qheat'], loc='upper left')
+        # legend2 = plt.legend([bars1, bars4], ['without buffer', 'with buffer'], loc='upper right')
+        legend2 = plt.legend([bars1, bars4], [compare1, compare2], loc='upper right')
+
+        plt.gca().add_artist(legend1)
+
+        plt.title('Monthly Energy Consumption Comparison')
+        plt.ylabel('Energy consumption [kWh]')
+    
+    
+    def check_daily_totals(t1,t2,energy,keys):
+        # keys should a list!
+        e = energy.loc[t1:t2]
+        total = []
+        for key in keys:
+            value = round(e[key].sum()*0.1,2)
+            total.append(value)
+            print(f"{key} = {value} kWh")
+            
+    def plot_energy_cumulatives(compare, e, which):
+        c_yearly, c_monthly, c_daily = {},{},{}
+        for label in compare:
+            cumulative_yearly, cumulative_monthly, cumulative_daily = PostprocessFunctions.cal_cumulative(e[label])
+            c_yearly[label] = cumulative_yearly
+            c_monthly[label] = cumulative_monthly
+            c_daily[label] = cumulative_daily
+
+        df = c_daily if which=='daily' else c_monthly if which=='monthly' else c_yearly
+        styles = ['-', '--', '-.', ':']
+        style_handles = []
+        lines1, lines2 = [], []
+        lines3 = []
+        fig_cum, (ax_cum1,ax_cum2,ax_cum3) = plt.subplots(3,1, figsize=(10,7))
+
+        for i,label in enumerate(compare):
+            lines1.append(df[label][['Qhp','Qaux_hp']].plot(ax=ax_cum1, color=['blue', 'black'], style=styles[i]))
+            lines2.append(df[label]['Qheat'].plot(ax=ax_cum2, color='red', style=styles[i]))
+            lines3.append(df[label]['emission'].plot(ax=ax_cum3, color='green', style=styles[i]))
+            style_handles.append(plt.Line2D([0], [1], linestyle=styles[i], color='black', label=label))
+            
+        color_handles1 = [plt.Line2D([0], [0], color='blue', label='Qhp'),
+                         plt.Line2D([0], [0], color='black', label='Qaux_hp')]
+
+        color_handles2 = [plt.Line2D([0], [0], color='red', label='Qheat')]
+
+        color_handles3 = [plt.Line2D([0], [0], color='green', label='Emissions')]
+
+        color_legend_ax1 = ax_cum1.legend(handles=color_handles1, loc='upper left')
+        style_legend_ax1 = ax_cum1.legend(handles=style_handles, loc='upper right')
+        ax_cum1.add_artist(color_legend_ax1)
+        ax_cum1.add_artist(style_legend_ax1)
+
+        color_legend_ax2 = ax_cum2.legend(handles=color_handles2, loc='upper left', frameon=False)
+        color_legend_ax3 = ax_cum3.legend(handles=color_handles3, loc='upper left', frameon=False)
+
+        ax_cum1.set_ylabel('Qhp and Qaux_hp')
+        ax_cum2.set_ylabel('Qheat [kWh]')
+        ax_cum3.set_ylabel('emissions [kgCO2]')
+        plt.show()
+        
+    def plot_kpi_cumulatives(compare, e, which):
+        c_yearly, c_monthly, c_daily = {},{},{}
+        for label in compare:
+            cumulative_yearly, cumulative_monthly, cumulative_daily = PostprocessFunctions.cumulative_emission_costs(e[label])
+            c_yearly[label] = cumulative_yearly
+            c_monthly[label] = cumulative_monthly
+            c_daily[label] = cumulative_daily
+
+        df = c_daily if which=='daily' else c_monthly if which=='monthly' else c_yearly
+        styles = ['-', '--', '-.', ':']
+        style_handles = []
+        lines1, lines2 = [],[]
+        fig_cum, (ax_cum1, ax_cum2) = plt.subplots(2,1, figsize=(10,7))
+
+        for i,label in enumerate(compare):
+            lines1.append(df[label]['emission'].plot(ax=ax_cum1, color='green', style=styles[i]))
+            lines2.append(df[label]['el_bill'].plot(ax=ax_cum2, color= 'black', style=styles[i]))
+            
+            style_handles.append(plt.Line2D([0], [1], linestyle=styles[i], color='black', label=label))
+            
+        color_handles1 = [plt.Line2D([0], [0], color='green', label='emissions')]
+        color_handles2 = [plt.Line2D([0], [0], color='black', label='El bill')]
+
+
+        color_legend_ax1 = ax_cum1.legend(handles=color_handles1, loc='upper left')
+        style_legend_ax1 = ax_cum1.legend(handles=style_handles, loc='upper right')
+
+        color_legend_ax2 = ax_cum2.legend(handles=color_handles2, loc='upper left')
+        style_legend_ax2 = ax_cum2.legend(handles=style_handles, loc='upper right')
+        ax_cum1.add_artist(color_legend_ax1)
+        ax_cum2.add_artist(color_legend_ax2)
+
+        ax_cum1.set_ylabel('Emission [kgCO2]')
+        ax_cum2.set_ylabel('Electricity bill [EUR]')
+
+        plt.show()
+        
+    def new_columns_for_map(temp_flow, controls):
+        temp_flow['thp_load_in_dhw'] = temp_flow['Thp_load_in']*(controls['ctr_dhw'])
+        controls['no_dhw'] = controls['ctr_dhw'].apply(lambda x: 1 if x == 0 else 0)
+        temp_flow['thp_load_in_sh'] = temp_flow['Thp_load_in']*(controls['no_dhw'])
+        temp_flow['thp_load_in_dhw'].replace(0,np.NaN, inplace=True)
+        temp_flow['thp_load_in_sh'].replace(0,np.NaN, inplace=True)
+        return temp_flow, controls
