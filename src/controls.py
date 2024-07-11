@@ -47,6 +47,7 @@ def StartTime(TRNData):
     operation_mode = TRNData[thisModule]["inputs"][17]
     tss_top  = TRNData[thisModule]["inputs"][18]
     coll_in_thresh  = TRNData[thisModule]["inputs"][19]
+    thx_load_in  = TRNData[thisModule]["inputs"][20]
     
     TRNData[thisModule]["outputs"][0] = ctrfloor1*1
     TRNData[thisModule]["outputs"][1] = ctrfloor2*1
@@ -85,14 +86,13 @@ def cal_controls (control_case, dhw_demand, ctrDHW, ctrSHbuff, hx_bypass, coll_p
     aux_set = 50
 
     if control_case!='with ss buff':
-        ctr_hp = coll_pump and hx_bypass and demand
+        ctr_hp = coll_pump and hx_bypass and demand and op_window
         load_hx_bypass = hx_bypass
 
         dhw_set_max = 60
         dhw_set_min = 60
         match(control_case):
             case 'base':
-                ctr_hp = coll_pump and hx_bypass and demand
                 if hx_bypass and not(coll_pump):
                     load_hx_bypass=0
                 dhw_set_max = 70
@@ -166,6 +166,7 @@ def Iteration(TRNData):
     operation_mode = TRNData[thisModule]["inputs"][17]
     tss_top  = TRNData[thisModule]["inputs"][18]
     coll_in_thresh  = TRNData[thisModule]["inputs"][19]
+    thx_load_in  = TRNData[thisModule]["inputs"][20]
     
     heating_season = (month>=9 or month<=6)
     ctrSH = (ctrfloor1 or ctrfloor2) and heating_season
@@ -182,21 +183,29 @@ def Iteration(TRNData):
         t_inlet_below_ambient = tcoll_in < tamb
     else:
         t_inlet_below_ambient = tcoll_in <= tamb
-    coll_pump = ctrIRR or ctr_coll_t or t_inlet_below_ambient
+    coll_pump = ctrIRR  or t_inlet_below_ambient # or ctr_coll_t
     # coll_pump = 0.8 if ctrIRR else 1 if -25<tcoll_in<=tamb or ctr_coll_t else 0
     hx_bypass = tcoll_out<35
-    op_window = -25<tss_top<35
     
     control_case = 'base' if operation_mode==1 else 'sahw' if operation_mode==2 else 'sdhw' if operation_mode==3 else 'with ss buff' 
+    if control_case!='with ss buff':
+        op_window = -25<tcoll_out<35
+    else:
+        op_window = -25<tss_top<35
     hx_bypass, ctr_hp, demand, load_hx_bypass, div_load, aux_set, tset_dhw, coll_pump2 = cal_controls(control_case, dhw_demand, 
                                                                                                     ctrDHW, ctrSHbuff, hx_bypass, 
-                                                                                                    coll_pump, tset_dhw,ctrIRR,  
+                                                                                                    coll_pump, tset_dhw, ctrIRR,  
                                                                                                     op_window, ss_stat)
 
     if div_load:
         hp_aux=0
     else:
         hp_aux=1
+        
+    if thx_load_in>tcoll_out and hx_bypass==0 and coll_pump2==1:
+        coll_pump2=0
+        if demand:
+            aux_set = 50
     # Set outputs in TRNData    
     TRNData[thisModule]["outputs"][0] = ctrfloor1*1
     TRNData[thisModule]["outputs"][1] = ctrfloor2*1
