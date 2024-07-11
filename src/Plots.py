@@ -12,6 +12,8 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Ellipse, Polygon
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import plotly.express as px, plotly.io as pio
+pio.renderers.default = 'browser'
 pd.options.mode.chained_assignment = None  
 matplotlib.rcParams['lines.linewidth'] = 0.8
 matplotlib.rcParams["figure.autolayout"] = True
@@ -56,8 +58,8 @@ class Plots:
         self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*0.6
         self.controls[['ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', color=['orange', 'red'])
         if 't_inlet_below_ambient' in self.controls.columns:
-            self.controls['t_inlet_below_ambient2'] = self.controls['t_inlet_below_ambient']*0.5
-            self.controls['t_inlet_below_ambient2'].plot(ax=ax, style='--', color='green')
+            self.controls['t_diff'] = self.controls['t_inlet_below_ambient']*0.5
+            self.controls['t_diff'].plot(ax=ax, style='--', color='green')
         if 'coll_in_thresh' in self.controls.columns:
             self.controls['coll_in_thresh2'] = self.controls['coll_in_thresh']*0.4
             self.controls['coll_in_thresh2'].plot(ax=ax, style='--', color='hotpink')
@@ -66,7 +68,7 @@ class Plots:
         self.controls['coll_pump'].plot.area(ax=ax, alpha=0.2, color='gray')
         
         self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
-        ax.legend(['coll_pump', 'ctr_irr', 'ctr_coll_t', 't_inlet_below_ambient','Qirr'])
+        ax.legend(['coll_pump', 'ctr_irr', 'ctr_coll_t', 't_diff','Qirr'])
         pf.plot_specs(ax,t1,t2,None,1.3,ylabel='controls', legend_loc='upper right')
         
     def plot_c_coll_ssbuff(self, ax, t1,t2):
@@ -74,8 +76,8 @@ class Plots:
         self.controls['ctr_coll_t2'] = self.controls['ctr_coll_t']*0.6
         self.controls[['ctr_irr2','ctr_coll_t2']].plot(ax=ax, style='--', color=['orange', 'red'])
         if 't_inlet_below_ambient' in self.controls.columns:
-            self.controls['t_inlet_below_ambient2'] = self.controls['t_inlet_below_ambient']*0.5
-            self.controls['t_inlet_below_ambient2'].plot(ax=ax, style='--', color='green')
+            self.controls['t_diff'] = self.controls['t_inlet_below_ambient']*0.5
+            self.controls['t_diff'].plot(ax=ax, style='--', color='green')
         if 'coll_in_thresh' in self.controls.columns:
             self.controls['coll_in_thresh2'] = self.controls['coll_in_thresh']*0.4
             self.controls['coll_in_thresh2'].plot(ax=ax, style='--', color='hotpink')
@@ -83,7 +85,7 @@ class Plots:
         self.energy['Qirr'].plot(ax=ax,color='orange',linewidth=2)
         self.controls['hx_bypass'].plot(ax=ax, color='skyblue', alpha=1, marker ='*', markersize=4)
         self.controls['ssbuff_stat'].plot(ax=ax, color='black', marker='s', alpha=0.5, markersize=2)
-        ax.legend(['coll_pump', 'ctr_irr', 'ctr_coll_t', 't_inlet_below_ambient','Qirr','hx_bypass','ssbuff_stat'])
+        ax.legend(['coll_pump', 'ctr_irr', 'ctr_coll_t', 't_diff','Qirr','hx_bypass','ssbuff_stat'])
         pf.plot_specs(ax,t1,t2,None,1.3,ylabel='controls', legend_loc='upper right')
         
     def plot_t_hp(self,ax,t1,t2):
@@ -91,7 +93,7 @@ class Plots:
                                                                                          color=['tab:blue','olivedrab','yellowgreen',
                                                                                                 'firebrick','tab:red'])
         pf.plot_specs(ax,t1,t2,-35,100, ylabel='t',title='HP', legend_loc='upper right',ygrid=True)
-        ax.set_yticks(np.arange(-35, 100, 20))
+        ax.set_yticks(np.arange(-60, 100, 20))
         
     def plot_q_hp(self, ax, t1, t2):
         # self.energy[['Qhp4dhw','Qhp4irr','Qaux_hp']].plot.area(ax=ax, alpha=0.4,stacked=False)
@@ -108,7 +110,7 @@ class Plots:
             self.controls['div_load2'].plot(ax=ax,color='black',style='--')
         if 'op_window' in self.controls.columns:
             self.controls['op_window2'] = self.controls['op_window']*0.9
-            self.controls['op_window2'].plot(ax=ax, color='skyblue', style='--')
+            self.controls['op_window2'].plot(ax=ax, color='purple', style='--')
         self.controls['demand'].plot(ax=ax, alpha=0.5,color="skyblue")
         ax.fill_between(self.controls.index, self.controls['demand'], color="skyblue", alpha=0.4, hatch='//')
 
@@ -257,18 +259,20 @@ class Plots:
         t1 = datetime(2001, month, 14, 0,0,0)
         t1 = t1 + relativedelta(day=1)
         t2 = t1 + relativedelta(day=31)+timedelta(days=1)
-        fig, ax = plt.subplots(figsize = (10,6))
-        self.temp_flow['Tamb'].plot(ax=ax, color = 'darkred')
-        pf.plot_specs(ax, t1,t2,-10,40, ylabel='t', title='Weather for month '+str(month),
-                      legend_loc='upper left',ygrid=True)
+        fig, ax = plt.subplots(figsize = (10,3))
         
+        daily_temp = self.temp_flow['Tamb'].resample('D').agg(['min', 'max'])
+        self.temp_flow['daily_min'] = self.temp_flow.index.map(daily_temp['min'].reindex(self.temp_flow.index, method='ffill'))
+        self.temp_flow['daily_max'] = self.temp_flow.index.map(daily_temp['max'].reindex(self.temp_flow.index, method='ffill'))
         
-        # daily_temp = self.temp_flow['Tamb'].resample('D').agg(['min', 'max'])
-        # day = daily_temp.index
-        # ax.bar(day, daily_temp['max'], bottom=daily_temp['min'], color='green', alpha=1, width=0.5, label='Daily Temp Range')
+        ax.fill_between(self.temp_flow.index,self.temp_flow['daily_max'],self.temp_flow['daily_min'],color='gray',alpha=0.2, edgecolor=None)
+        ax.plot(self.temp_flow.index,self.temp_flow['Tamb'], color='firebrick',label='Tamb')
         
         ax0 = ax.twinx()
-        self.energy['Qirr'].plot(ax=ax0, color = 'orange')
+        ax0.plot(self.energy.index,self.energy['Qirr'], color='orange',label='Qirr')
+        
+        pf.plot_specs(ax, t1,t2,-10,40, ylabel='t', title='Weather for month '+str(month),
+                      legend_loc='upper left',ygrid=True)
         pf.plot_specs(ax0, t1,t2,0,1.2, ylabel='irr', legend_loc='upper right')
         
     def plot_controls(self,t1, t2):
@@ -586,3 +590,131 @@ class Plots:
         ax.set_ylim([0,1300])
         ax.set_xticklabels(month, rotation=0)
         pf.plot_specs(ax,title=f'Monthly consumption: {file},\n total heat demand: {qtot} kWh',ylabel='Energy conumption [kWh]', ygrid=True)
+        
+    def plot_hx_hp_loops(self,t1,t2):
+        fig, (hx,hp, temps) = plt.subplots(3,1)
+        hp0 = hp.twinx()
+        hx0 = hx.twinx()
+        temps0 = temps.twinx()
+        self.controls['ctr_hp'].plot(ax=hp, style='--')
+        self.controls[['ctr_sh_buff', 'ctr_dhw']].plot.area(ax=hp, alpha=0.2, color=['orange','pink'], stacked=False)
+        self.energy[['Qhp_load','Qaux_hp']].plot.area(ax=hp0, alpha=0.4, color=['gray','firebrick'],stacked=False) 
+        
+        
+        self.controls['load_bypass'] = self.controls['load_hx_bypass']*0.9
+        self.controls[['hx_bypass','load_bypass']].plot(ax=hx, style='--',color=['red','green'])
+        self.controls['coll_pump'].plot.area(ax=hx, alpha=0.2, color='orange')
+        self.energy[['Qhx','QuColl']].plot.area(ax=hx0, alpha=0.3, color=['gray','chocolate'],stacked=False)        
+        
+        self.temp_flow[['Tcoll_out','Thx_load_out']].plot(ax=temps, color=['orange', 'firebrick'])
+        self.temp_flow[['Tcoll_in','Thx_load_in']].plot(ax=temps, style='--', color=['orange', 'firebrick'])
+        self.temp_flow[['mmix_load_out']].plot.area(ax=temps0, alpha=0.2, color='skyblue', stacked=False)
+        pf.plot_specs(hx, t1,t2,0,1.2,ylabel='controls', legend_loc='upper left',title='HX')
+        pf.plot_specs(hx0, t1,t2,None,None,ylabel='heat transfer [kW]', legend_loc='upper right', ygrid=True)
+        
+        pf.plot_specs(hp, t1,t2,0,1.2,ylabel='controls', legend_loc='upper left',title='HP')
+        pf.plot_specs(hp0, t1,t2,None,None,ylabel='heat transfer [kW]', legend_loc='upper right', ygrid=True)
+        
+        pf.plot_specs(temps, t1,t2,title='Temperatures', legend_loc='upper left', ygrid=True)
+        pf.plot_specs(temps0, t1,t2,ylabel='Load pump flow [kh/hr]', legend_loc='upper right')
+        return fig
+        
+    def plot_coll_balance(self, mb, t1,t2):
+        fig, ((ax1,ax5),(ax2,ax6),(ax3,ax7),(ax4,ax8)) = plt.subplots(4,2, figsize=(19,9))
+        ax10,ax20, ax30, ax40 = ax1.twinx(), ax2.twinx(), ax3.twinx(), ax4.twinx()
+        
+        self.energy['QuColl'].plot.area(ax=ax1, color='gold', alpha=0.3, stacked=False)
+        
+        self.energy[['Qhx','Qhp','Qaux_hp']].plot.area(ax=ax2, alpha=0.2, color=['gray','red', 'blue'], stacked=False)
+        self.energy[['Qhp_source','Qhp_load']].plot.area(ax=ax6,alpha=0.2, stacked=False)
+        
+        mb['coll_pump'].plot(style='--', marker='^', ax=ax3, markersize=10)
+        mb['load_pump'].plot(style='--', marker='s', ax=ax3, markersize=5)
+        self.controls['hx_bypass'].plot(ax=ax7, style='--', marker='^', markersize=10)
+        self.controls['load_hx_bypass'].plot(ax=ax7, style='--', marker='s',markersize=5)
+        
+        self.temp_flow['mcoll_in'].plot.area(ax=ax4,alpha=0.3, stacked=False)
+        self.temp_flow[['mhp_source','mhx_source']].plot.area(ax=ax8,alpha=0.3,stacked=False)
+        self.temp_flow['mhp_load'].plot(ax=ax8,style='--')
+        
+        
+        pf.plot_specs(ax1, t1,t2,None,None, legend_loc='upper left',title='Collector',ygrid=True)
+        pf.plot_specs(ax2, t1,t2,None,None, legend_loc='upper right', ygrid=True)
+        pf.plot_specs(ax3, t1,t2,None,None, legend_loc='upper left',title='Mass balance erros')
+        pf.plot_specs(ax4, t1,t2,None,None, legend_loc='upper right', ygrid=True)
+        pf.plot_specs(ax6, t1,t2,None,None, legend_loc='upper left')
+        pf.plot_specs(ax7, t1,t2,None,None, legend_loc='upper left')
+        pf.plot_specs(ax8, t1,t2,None, 1500, legend_loc='upper left')
+        return fig
+        
+    def plot_hp_operation_on_map(self, file, t1=datetime(2001,1,1, 0,0,0), t2=datetime(2002,1,1, 0,0,0)):
+        from plotting_performance_data_ecoforest import plot_hp_performance
+        self.temp_flow, self.controls = pf.new_columns_for_map(self.temp_flow, self.controls)
+        temp_flow = self.temp_flow.loc[t1:t2]
+        controls = self.controls.loc[t1:t2]
+        
+        fig, ax, df = plot_hp_performance()
+        xi = temp_flow['Thp_source_in']*controls['ctr_hp']
+        yi_dhw = (temp_flow['Thp_load_in']*(controls['div_load']==1)*controls['ctr_hp']).replace(0,np.nan)
+        yi_sh = (temp_flow['Thp_load_in']*(controls['div_load']==0)*controls['ctr_hp']).replace(0,np.nan)
+        
+        ax.scatter(xi,yi_dhw, edgecolors= "navy", facecolors='none', linewidth=0.6,label='DHW', alpha=0.5)
+        ax.scatter(xi,yi_sh, edgecolors= "firebrick", facecolors='none', linewidth=0.6,label='SH', alpha=0.5)
+        ax.set_title(file)
+        return fig,ax
+    
+    def plot_cop_on_map(self, file, t1=datetime(2001,1,1, 0,0,0), t2=datetime(2002,1,1, 0,0,0)):
+        from plotting_performance_data_ecoforest import plot_hp_performance
+        import matplotlib.patches as mpatches
+        import matplotlib.lines as mlines
+        self.temp_flow, self.controls = pf.new_columns_for_map(self.temp_flow, self.controls)
+        temp_flow = self.temp_flow.loc[t1:t2]
+        controls = self.controls.loc[t1:t2]
+        energy = self.energy.loc[t1:t2]
+        
+        fig, ax, df = plot_hp_performance()
+        xi = temp_flow['Thp_source_in']*controls['ctr_hp']
+        yi_dhw = (temp_flow['Thp_load_in']*(controls['div_load']==1)*controls['ctr_hp']).replace(0,np.nan)
+        yi_sh = (temp_flow['Thp_load_in']*(controls['div_load']==0)*controls['ctr_hp']).replace(0,np.nan)
+        zi_dhw = (energy['COP']*(controls['div_load']==1)*controls['ctr_hp']).replace(0,np.nan)
+        zi_sh = (energy['COP']*(controls['div_load']==0)*controls['ctr_hp']).replace(0,np.nan)
+        
+        ax.scatter(xi, yi_sh, c=zi_sh, edgecolors='firebrick',label='SH', linewidth=0.6 ,s=40, alpha=0.8, vmin=1.78, vmax=5,cmap='turbo')
+        ax.scatter(xi, yi_dhw, c=zi_dhw, edgecolors='navy',label='DHW', linewidth=0.6 ,s=40, alpha=0.8, vmin=1.78, vmax=5,cmap='turbo')
+        
+        legend_handles = [mlines.Line2D([], [], color='firebrick', marker='o', linestyle='None', markerfacecolor='none', markersize=8, label='SH'),
+                          mlines.Line2D([], [], color='navy', marker='o', linestyle='None', markerfacecolor='none', markersize=8, label='DHW')]
+
+        # legend_handles = [mpatches.Patch(edgecolor='firebrick', facecolor='none', linewidth=2, label='SH'),
+        #                   mpatches.Patch(edgecolor='navy', facecolor='none', linewidth=2, label='DHW')]
+        # Add legend to the plot
+        ax.legend(handles=legend_handles, loc='upper left')
+        ax.set_title(file)
+        return fig,ax
+    
+    def plot_cop_on_map_plotly(self,file, t1=datetime(2001,1,1, 0,0,0), t2=datetime(2002,1,1, 0,0,0)):
+        self.temp_flow, self.controls = pf.new_columns_for_map(self.temp_flow, self.controls)
+        temp_flow = self.temp_flow.loc[t1:t2]
+        controls = self.controls.loc[t1:t2]
+        energy = self.energy.loc[t1:t2]
+        
+        xi = temp_flow['Thp_source_in']*controls['ctr_hp']
+        yi = (temp_flow['Thp_load_in']*controls['ctr_hp']).replace(0,np.nan)
+        zi = (energy['COP']*controls['ctr_hp']).replace(0,np.nan)
+        index = zi.index
+        df = pd.DataFrame({'xi': xi, 'yi': yi, 'zi': zi}, index=index)
+        # Create scatter plot
+        fig = px.scatter(df, x='xi', y='yi', color='zi',
+                         color_continuous_scale='turbo',
+                         labels={'zi': 'COP'},
+                         hover_name=df.index.astype(str)  # Hover to show index values
+                         )
+    
+        # Update layout for better visualization
+        fig.update_traces(marker=dict(size=10, opacity=0.6, line=dict(width=1, color='DarkSlateGrey')))
+        fig.update_layout(title='Scatter Plot with Hover Showing DataFrame Index',
+                          xaxis_title='Thp_source_in',
+                          yaxis_title='Thp_load_in',
+                          coloraxis_colorbar=dict(title='COP'))
+        fig.show()
+        return fig
