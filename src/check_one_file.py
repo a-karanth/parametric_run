@@ -28,23 +28,20 @@ directory = os.path.dirname(os.path.realpath(__file__))+'\\'
 folder = 'res\\trn\\'
 # directory = 'C:\\Users\\20181270\\OneDrive - TU Eindhoven\PhD\\TRNSYS\\Publication1\\'
 # folder = 'Restart\\'
-file = 'y'
-prefix = directory + folder + file
+label = 'x'
+file = directory + folder + label
 
 inputs = pd.read_csv(folder+'list_of_inputs.csv',header=0, index_col='label').sort_values(by='label')
 t_start = datetime(2001,2,9, 0,0,0)
 t_end = datetime(2001,2,17, 0,0,0)
 
 #%% Read files
-controls, energy, temp_flow = pf.create_dfs(file,prefix)
+controls, energy, temp_flow = pf.create_dfs(label,file)
 
-mb = pd.read_csv(directory+folder+file+'_mass_balance.txt', delimiter=",",index_col=0)
-mb = pf.modify_df(mb)
+mass_bal, param = pf.create_additional_dfs(file)
 occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
 occ = pf.modify_df(occ)
 occ = occ[:energy.index[-1]] #make occ dataframe as long as the rest of the dfs. especially for incomplete sims
-param = pd.read_csv(directory+folder+file+'_parameters.txt', delimiter=",",index_col=0)
-param = pf.extract_params(param)
 controls = pd.concat([controls,occ],axis=1)
 
 temp_flow = pf.unmet_hours(controls, temp_flow)
@@ -52,7 +49,7 @@ temp_flow = pf.unmet_hours(controls, temp_flow)
 energy_monthly, energy_annual = pf.cal_integrals(energy)
 
 el_bill, gas_bill = pf.cal_costs(energy)
-el_em, gas_em = pf.cal_emissions(energy)
+el_em, gas_em, energy = pf.cal_emissions(energy)
 pl,pe = pf.peak_load(energy)
 rldc,ldc = pf.cal_ldc(energy)
 opp_im, opp_ex, import_in, export_in = pf.cal_opp(rldc)
@@ -63,17 +60,17 @@ penalty, energy = pf.cal_penalty(energy)
 import matplotlib.ticker as ticker
 
 pt = Plots(controls, energy, temp_flow)
-t1 = datetime(2001,2,7, 0,0,0)
-t2 = datetime(2001,2,7, 8,0,0)
+t1 = datetime(2001,1,7, 0,0,0)
+t2 = datetime(2001,1,8, 0,0,0)
 
-fig = pt.check_sim(t1,t2,file,ssbuff=True)
+fig = pt.check_sim(t1,t2,file,ssbuff=False)
 
 test = pd.DataFrame()
 test['Thp_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*controls['hx_bypass']
 test['Thx_source'] = temp_flow['Thp_source_in']*controls['coll_pump']*(controls['hx_bypass']==0)
 
 figx = pt.plot_monthly(file)
-print(mb.sum())
+print(mass_bal.sum())
 
 figy, (axy, axz) = plt.subplots(2,1)
 axy0 = axy.twinx()
@@ -101,7 +98,7 @@ axy.grid(linestyle='--', alpha=0.5)
 
 axz0 = axz.twinx()
 energy[['Qssbuff_source','Qssbuff_load']].plot(ax=axz, color=['lightseagreen', 'darkred'])
-mb[['coll_pump','hp_source_pump']].plot.area(ax=axz0,color=['lightseagreen', 'darkred'], alpha=0.2, stacked=False)
+mass_bal[['coll_pump','hp_source_pump']].plot.area(ax=axz0,color=['lightseagreen', 'darkred'], alpha=0.2, stacked=False)
 axz.legend(loc='upper left')
 axz.grid(linestyle='--', alpha=0.5)
 axz0.set_ylabel('mass balance error')
@@ -205,11 +202,72 @@ ax.set_xlabel('Percentage Occurrence')
 ax.set_title('Percentage Occurrence of Each Operation Mode')
 ax.legend(title='Operation Mode', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.show()
-                
+
+#%% calculated operation modes - for with ss_buff and without ss_buff
+controls['operation_mode'] = None
+main_op_mode = p[key]['operation_mode']
+if main_op_mode==4:
+    conditions = [
+        (controls['coll_pump'] == 1)  & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 0), 
+        (controls['coll_pump'] == 1)  & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 1), 
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['hx_bypass'] == 0),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & ((controls['demand'] == 0) or controls['tset_dhw']==70),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 0),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 0) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 0) ,
+        (controls['coll_pump'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 0),
+        (controls['coll_pump'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 0) & (controls['demand'] == 1) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 0) & (controls['demand'] == 0) 
+    ]
+    
+    # Define corresponding operation_mode values
+    values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 8]
+    
+else:
+    conditions = [
+        (controls['coll_pump'] == 1)  & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['op_window'] == 1) & (energy['Qaux_hp'] == 0), 
+        (controls['coll_pump'] == 1)  & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['op_window'] == 1) & (energy['Qaux_hp'] == 1), 
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['demand'] == 1) & (controls['op_window'] == 0), #buffer charges
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 1) & (controls['ss_stat'] == 0) & ((controls['demand'] == 0) or controls['tset_dhw']==70),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 0),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 0) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 1) & (controls['ctr_irr'] == 0) & (controls['demand'] == 0) ,
+        (controls['coll_pump'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 0),
+        (controls['coll_pump'] == 0) & (controls['demand'] == 1) & (controls['hx_bypass'] == 1) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 0) & (controls['demand'] == 1) & (energy['Qaux_hp'] == 1),
+        (controls['coll_pump'] == 0) & (controls['demand'] == 0) 
+    ]
+    
+    # Define corresponding operation_mode values
+    values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 8]
+# Use np.select to assign values based on conditions
+controls['operation_mode'] = np.select(conditions, values, default=None)
+
+percentage_occurrence = controls['operation_mode'].value_counts(normalize=True) * 100
+
+# Sort by index to ensure the order is [0, 1, 2, 3, 4, 5, 6, 7]
+percentage_occurrence = percentage_occurrence.sort_index().drop(index=0)
+percentage_df = percentage_occurrence.to_frame().T
+percentage_df.index = [None]
+n_col = len(percentage_df.columns)
+
+from matplotlib.cm import get_cmap
+fig, ax = plt.subplots(figsize=(10, 3))
+cmap = get_cmap('PiYG', n_col)
+colors = [cmap(i) for i in range(n_col)]
+percentage_df.plot.barh(ax=ax, stacked=True, color=colors, edgecolor='black', linewidth=0.5)
+
+ax.set_xlabel('Percentage Occurrence')
+ax.set_title('Percentage Occurrence of Each Operation Mode')
+ax.legend(title='Operation Mode', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.show()                
 #%% Change xlim of all axes
-t1 = datetime(2001,3,14, 9,0,0)
-t2 = datetime(2001,3,15, 9,0,0)
-for ax in fig.axes:
+t1 = datetime(2001,6,13, 0,0,0)
+t2 = datetime(2001,6,14, 0,0,0)
+for ax in fig_cum.axes:
     ax.set_xlim([t1,t2])
 # Redraw the figure to update the display
 figy.canvas.draw()
@@ -254,21 +312,22 @@ temp_flow['Thx_source_out'].plot(ax=coll, style='--')
 coll.legend(loc='upper left')         
 coll.grid(axis='y',which='both',alpha=0.2,color='black')
 
-# t1 = datetime(2001,2,11, 0,0,0)
-# t2 = datetime(2001,2,18, 0,0,0)
-# for ax in figr.axes:
-#     ax.set_xlim([t1,t2])
+t1 = datetime(2001,1,5, 12,0,0)
+t2 = datetime(2001,1,5, 18,0,0)
+for ax in fig1.axes:
+    ax.set_xlim([t1,t2])
 # # Redraw the figure to update the display
 # figr.canvas.draw()
 #%% initialize for multiple files
 c1, e1, tf1= {}, {}, {}
 r1,l1 = {}, {}
-m = {}
+m,mb,p = {},{}, {}
 occ = pd.read_csv(directory+folder+'occ.txt', delimiter=",",index_col=0)
 occ = pf.modify_df(occ)
 #%% run multiple files
 files = [#'2000',
-         'test35','test37','y', 'test38']
+          'test70','test71',
+          'test75','test76', 'test77']
         # '2008', '2009', '2010', '2011', '2012', '2013']
 
 if 'e' in locals():                                     #for running the cell again
@@ -277,23 +336,27 @@ if 'e' in locals():                                     #for running the cell ag
 else:                                                   #if its a new run, then run all labels
     new_files = files
 
-for file in new_files:
-    print(file)
-    prefix = directory + folder + file
-    controls, energy, temp_flow = pf.create_dfs(file,prefix)
+for label in new_files:
+    print(label)
+    file = directory + folder + label
+    controls, energy, temp_flow = pf.create_dfs(label,file)
+    mass_balance,param = pf.create_additional_dfs(file)
     energy_monthly, energy_annual = pf.cal_integrals(energy)
-    # temp_flow['mdhw2tap_cum'] = temp_flow['mdhw2tap'].cumsum()
     controls = pd.concat([controls,occ],axis=1)
-    # temp_flow = pf.unmet_hours(controls, temp_flow)
+    energy = pf.cal_cost_df(energy)
+    el_em,gas_em, energy = pf.cal_emissions(energy)
     # rldc,ldc = pf.cal_ldc(energy)
     energy_monthly.index = energy_monthly.index.strftime('%b')
     
-    c1[file] = controls
-    e1[file] = energy
-    tf1[file] = temp_flow
-    # r1[file] = rldc
-    # l1[file] = ldc
-    m[file] = energy_monthly
+    c1[label] = controls
+    e1[label] = energy
+    tf1[label] = temp_flow
+    # r1[label] = rldc
+    # l1[label] = ldc
+    m[label] = energy_monthly
+    mb[label] = mass_balance
+    p[label] = param
+
 #%% create filtered dictionary
 # files = ['2008', '2009', '2010', '2011', '2012', '2013']
 c = {key: c1[key] for key in files}
@@ -302,56 +365,384 @@ tf = {key: tf1[key] for key in files}
 pt = {}
 
 #%% plot check sims
-key = 'test38'
+key = 'test76'
+if 'operation_mode' not in p[key].columns or p[key]['operation_mode'].iloc[0]!=4:
+    ssbuff=False
+else:
+    ssbuff=True
 pt = Plots(c[key], e[key], tf[key])
-t1 = datetime(2001,2,13, 0,0,0)
-t2 = datetime(2001,2,14, 0,0,0)
-qtot = round(m[key]['Qheat'].sum(),0)
-fig = pt.check_sim(t1,t2,key,ssbuff=True)
-fig_flow, ax_flow = plt.subplots()
-ax_flow0 = ax_flow.twinx()
-temp_flow[['Tcoll_in','Tcoll_out']].plot(ax=ax_flow)
-temp_flow[['mcoll_in','mcoll_out']].plot(ax=ax_flow0, style='--')
-ax_flow.set_xlim([t1,t2])
-ax_flow.legend(loc='upper left')
+t1 = datetime(2001,1,1, 0,0,0)
+t2 = datetime(2001,1,9, 0,0,0)
+# qtot = round(m[key]['Qheat'].sum(),0)
+fig1 = pt.check_sim(t1,t2,key,ssbuff)
+fig2 = pt.plot_hx_hp_loops(t1,t2)
+# fig_flow, ax_flow = plt.subplots()
+# ax_flow0 = ax_flow.twinx()
+# tf[key][['Tcoll_in','Tcoll_out','Tamb']].plot(ax=ax_flow0)
+# e[key]['Qirr'].plot(ax=ax_flow0, color='gold', linewidth=2)
+# tf[key][['mcoll_in','mcoll_out']].plot(ax=ax_flow, style='--')
+# tf[key]['mcoll_in'].plot(ax=ax_flow,style='--')
+# ax_flow0.set_xlim([t1,t2])
+# ax_flow0.legend(loc='upper left')
+# ax_flow.legend(loc='center left')
 
-figx = pt.plot_monthly(key)
+# figx = pt.plot_monthly(key)
+# t1 = datetime(2001,1,1, 0,0,0)
+# t2 = datetime(2001,1,7, 12,0,0)
+fig_hp,ax_hp = pt.plot_cop_on_map(key)
+fig_hp,ax_hp = pt.plot_hp_operation_on_map(key)
 
+# check daily totals
+# pf.check_daily_totals(t1, t2, e[key], ['QuColl_irr','QuColl_t'])
+# fig2 = pt.plot_coll_balance(mb[key], t1, t2)
+# fig2.suptitle(key)
 
 #%%
-barWidth = 0.2
-compare1 = 'test35'
-compare2 = 'y'
-r1 = np.arange(len(m[compare1]))
-r2 = [x + barWidth for x in r1]
-r3 = [x + 2 * barWidth for x in r1]
-r4 = [x + 3 * barWidth for x in r1]
-r5 = [x + 4 * barWidth for x in r1]
-r6 = [x + 5 * barWidth for x in r1]
+t1 = datetime(2001,6,14, 0,0,0)
+t2 = datetime(2001,6,15, 0,0,0)
+for ax in fig1.axes:
+    ax.set_xlim([t1,t2])
+#%% Qhp + Qaux_hp is greater than Qdhw_source + Qsh_source
+key='test68'
+energy = e[key]
+instances = energy[(energy['Qhp_load'] + energy['Qaux_hp']) > (energy['Qdhw_source'] + energy['Qsh_buff_source'])]
+in_heat = energy['Qhp_load']+energy['Qaux_hp']
+out_heat = -(energy['Qdhw_source'] + energy['Qsh_buff_source'])
+qhx = energy['Qhx']
+qu = energy['QuColl']
+fig,ax = plt.subplots()
+ax.plot(in_heat.index, in_heat,linestyle='--', label = 'Qhp_out + Qaux_hp')
+ax.plot(qhx.index, qhx,linestyle='--', color='orange', label='Qhx')
+ax.plot(qu.index, qu,linestyle='--', color='red',label='QuColl')
+ax.fill_between(out_heat.index, out_heat, alpha=0.2, label='Qdhw_in + Qsh_in')
+t1 = datetime(2001,6,13, 0,0,0)
+t2 = datetime(2001,6,14, 0,0,0)
+ax.set_xlim([t1,t2])
+ax.legend()
+#%% mcoll_plot in plotly
+import plotly.graph_objects as go, plotly.io as pio
+pio.renderers.default = 'browser'
+import plotly.express as px
+from plotly.subplots import make_subplots
+
+# Create the figure
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+# Add the first set of lines to the secondary y-axis
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tcoll_in'], mode='lines', name='Tcoll_in'), secondary_y=True)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tcoll_out'], mode='lines', name='Tcoll_out'), secondary_y=True)
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['Tamb'], mode='lines', name='Tamb'), secondary_y=True)
+
+# Add the second set of lines to the primary y-axis with dashed style
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['mcoll_in'], mode='lines', name='mcoll_in', line=dict(dash='dash')))
+fig.add_trace(go.Scatter(x=temp_flow.index, y=temp_flow['mcoll_out'], mode='lines', name='mcoll_out', line=dict(dash='dash')))
+
+# Update layout to set the range and axes
+fig.update_layout(
+    xaxis=dict(range=[t1, t2]),
+    yaxis2=dict(title='Temperature', overlaying='y', side='right', range=[-2,5]),
+    legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
+)
+
+# Show the plot in the browser
+fig.show()
 
 
-plt.figure(figsize=(7, 7))
+#%% monthly plot comparison
+compare1 = 'test71'
+compare2 = 'test76'
+pf.compare_monthly_bars(m, compare1,compare2)
 
-# Plotting for test35
-bars1 = plt.bar(r1, m[compare1]['Qhp'], color='tab:blue', width=barWidth, edgecolor='grey', label='Qhp')
-bars2 = plt.bar(r3, m[compare1]['Qaux_hp'], color='tab:orange', width=barWidth, edgecolor='grey', label='Qaux_hp')
-bars3 =  plt.bar(r5, m[compare1]['Qaux_dhw'], color='tab:green', width=barWidth, edgecolor='grey', label='Qaux_dhw')
+#%% compare T HP source in of multiple cases
+compare = ['test64', 'test69']
+for key in compare:
+    tf[key]['Thp_source_in_final'] = c[key]['ctr_hp'] * tf[key]['Thp_source_in']
+figc, axs = plt.subplots(len(compare), 1, figsize=(10, 3 * len(compare)))  # Adjust figsize as necessary
+df = tf
+column='Thp_source_in_final'
 
-bars4 = plt.bar(r2, m[compare2]['Qhp'], color='tab:blue', width=barWidth, edgecolor='grey',alpha=0.4, label='Qhp')
-bars5 = plt.bar(r4, m[compare2]['Qaux_hp'], color='tab:orange', width=barWidth, edgecolor='grey',alpha=0.4, label='Qaux_hp')
-bars6 = plt.bar(r6, m[compare2]['Qaux_dhw'], color='tab:green', width=barWidth, edgecolor='grey',alpha=0.4, label='Qaux_dhw')
+if len(compare) == 1:
+    axs = [axs]  # Makes axs iterable if only one subplot is created
 
-plt.xlabel('Month', fontweight='bold')
-month = m[key].index.strftime('%b')
-plt.xticks([r + 2.5 * barWidth for r in range(len(m['test35']['Qhp']))], month)
+for ax, comp in zip(axs, compare):
+    pt = Plots(c[comp], e[comp], tf[comp])
+    # pt.plot_colormap(ax, df[comp][column], comp, cmap='PiYG_r', vmin=1.8, vmax=2.8)
+    pt.plot_colormap(ax, df[comp][column], comp, cmap='PuOr_r', vmin=-25, vmax=35)
+    # if COP calculate the max value that occurs in 99% of the data by df[comp][column].quantile(0.99)
 
-legend1 = plt.legend([bars1, bars2, bars3], ['Qhp', 'Qaux_hp', 'Qaux_dhw'], loc='upper left')
-# legend2 = plt.legend([bars1, bars4], ['without buffer', 'with buffer'], loc='upper right')
+figc.suptitle(column)
+plt.tight_layout()
+plt.show()
 
-plt.gca().add_artist(legend1)
+#%% compare annual cop of multiple cases
+compare = ['test64', 'test69']
+figc, axs = plt.subplots(len(compare), 1, figsize=(10, 3 * len(compare)))  # Adjust figsize as necessary
 
-plt.title('Monthly Energy Consumption Comparison')
-plt.ylabel('Energy consumption [kWh]')
+if len(compare) == 1:
+    axs = [axs]  # Makes axs iterable if only one subplot is created
+
+for ax, comp in zip(axs, compare):
+    pt = Plots(c[comp], e[comp], tf[comp])
+    pt.plot_colormap(ax, e[comp]['COP'], comp, cmap='viridis_r', vmin=2.1, vmax=2.9)
+    Q1 = round(e[comp]['COP'].quantile(0.25),2)
+    median = round(e[comp]['COP'].median(),2)
+    Q3 = round(e[comp]['COP'].quantile(0.75),2)
+    print(f'{comp}, Q1={Q1}, median={median}, Q3={Q3}')
+
+plt.tight_layout()
+plt.show()
+
+#%% plot new controller for inlet of collecctor
+compare = ['test49', 'test50']
+compare1 = 'test49'
+compare2 = 'test50'
+
+fig_ctr,ax_ctr = plt.subplots()
+c[compare1]['coll_in_thresh'].plot(ax=ax_ctr, linewidth=2)
+c[compare2]['coll_in_thresh'].plot.area(ax=ax_ctr, alpha=0.2)
+ax_ctr.legend()
+t1 = datetime(2001,1,23, 0,0,0)
+t2 = datetime(2001,1,31, 0,0,0)
+ax_ctr.set_xlim([t1,t2])
+
+#%% compare daily/monthly cumulative results of 2 or more cases
+compare = ['test64','test69']
+which = 'monthly'
+pf.plot_energy_cumulatives(compare, e, which)
+
+pf.plot_kpi_cumulatives(compare, e, which)
+
+#%% collector loss coeff
+t1 = datetime(2001,6,6, 0,0,0)
+t2 = datetime(2001,6,7, 0,0,0)
+df = tf['test62'][['coll_loss_coeff','apparent_coll_loss_coeff']].copy()
+df = df/3.6 # converting from kJ/hr to J/s(W)
+fig_loss, ax_loss = plt.subplots()
+df['coll_loss_coeff'].plot(ax=ax_loss, color='black', style='--')
+df['apparent_coll_loss_coeff'].plot(ax=ax_loss, color='red', style=':')
+ax_loss.set_xlim([t1,t2])
+ax_loss.grid(linestyle='--', alpha=0.4)
+ax_loss.legend()
+ax_loss.set_ylabel('Thermal loss coefficient [W/m2K]')
+
+#%% plot energy balance for load side of HP and manipulate Qss_buff_source for plotting
+file = 'test67'
+energy = e[file]
+temp_flow = tf[file]
+# energy['Qsh_buff_source'][energy['Qsh_buff_source']<0] = 0
+# energy['Qdhw_source'][energy['Qdhw_source']<0] = 0
+energy['Qsh_buff_source'] = energy['Qsh_buff_source']*(-1)
+energy['Qdhw_source'] =  energy['Qdhw_source']*(-1)
+fig_bal, ax_bal = plt.subplots()
+energy[['Qsh_buff_source','Qdhw_source']].plot.area(ax=ax_bal, alpha=0.5, stacked=False, color=['tab:blue','tab:orange'] )
+energy[['Qhp_load','Qaux_hp','Qhx']].sum(axis=1).plot(ax=ax_bal, style='--', color='black')
+controls['div_load'].plot(ax=ax_bal,color='green', style=":")
+controls['demand'].plot.area(ax=ax_bal,color='green', alpha=0.2)
+
+# ax_bal0 = ax_bal.twinx()
+# temp_flow[['Tsh_source_in','Tsh_source_out']].plot(ax=ax_bal0,color=['mediumorchid', 'indigo'])
+# temp_flow[['Tdhw_source_in','Tdhw_source_out']].plot(ax=ax_bal0,color=['chocolate', 'saddlebrown'])
+# temp_flow[['Thx_load_out','Thx_load_in']].plot(ax=ax_bal0,color=['lightgreen', 'darkgreen'])
+ax_bal.set_xlim([t1,t2])
+ax_bal.set_ylim([-14,14])
+# ax_bal0.legend(loc='upper right')
+ax_bal.legend(loc='upper left')
+fig_bal.suptitle(file)
+
+#%% energy balance of a tank - dhw
+file = 'test65'
+energy = e[file]
+fig_eb, ax_eb = plt.subplots()
+energy[['Qdhw_source','Qdhw_load','Qaux_dhw','Qloss_dhw']].plot(ax=ax_eb)
+energy['Qstored_dhw'].plot.area(ax=ax_eb, alpha=0.2, stacked=False)
+ax_eb.set_xlim([t1,t2])
+fig_eb.suptitle(file)
+ax_eb.legend()
+
+#%% hx energy vs temp
+file = 'test67'
+t1 = datetime(2001,3,18, 0,0,0)
+t2 = datetime(2001,3,19, 0,0,0)
+fig_hx, ax_hx = plt.subplots()
+ax_hx0 = ax_hx.twinx()
+e[file]['Qhx'].plot.area(ax=ax_hx,alpha=0.2,stacked=False, color='orange')
+tf[file][['Thx_source_in','Thx_source_out','Thx_load_out','Thx_load_in']].plot(ax=ax_hx0, color=['black','gray','blue','lightblue'])
+ax_hx.set_xlim([t1,t2])
+ax_hx.set_title(file)
+
+#%% check if QuColl is negative only when HX_bypass=0
+file = 'test67'
+t1 = datetime(2001,3,19, 0,0,0)
+t2 = datetime(2001,3,20, 0,0,0)
+energy = e[file]
+controls = c[file]
+negative_QuColl = energy[energy['QuColl'] < -0.02]
+
+# Check if all corresponding hx_bypass values in the controls DataFrame are 0
+all_negative_when_hx_bypass_zero = (controls.loc[negative_QuColl.index, 'hx_bypass'] == 0).all() # if false at least 1 exists that does not satisfy
+mismatch_indices = negative_QuColl.index[controls.loc[negative_QuColl.index, 'hx_bypass'] != 0]
+match_indices = negative_QuColl.index[controls.loc[negative_QuColl.index, 'hx_bypass'] == 0]
+
+# Extract the relevant rows from both DataFrames
+mismatch_rows = energy.loc[mismatch_indices]
+mismatch_controls = controls.loc[mismatch_indices]
+
+match_rows = energy.loc[match_indices]
+match_controls = controls.loc[match_indices]
+
+hx_positive = energy['Qhx'][energy['Qhx'] > 0].sum()
+hx_negative = energy['Qhx'][energy['Qhx'] < 0].sum()
+qu_negative = energy['QuColl'][energy['QuColl'] < 0].sum()
+qu_positive = energy['QuColl'][energy['QuColl'] > 0].sum()
+
+#%%
+negative_qhx = energy['Qhx'][energy['Qhx'] < 0]
+negative_qucoll = energy['QuColl'][energy['QuColl'] < 0]
+
+# Align the indices of both series
+aligned_qhx, aligned_qucoll = negative_qhx.align(negative_qucoll, join='inner')
+
+# Find where the values are different
+difference_mask = aligned_qhx != aligned_qucoll
+
+# Extract and display the differences
+differences = pd.DataFrame({
+    'Qhx': aligned_qhx[difference_mask],
+    'QuColl': aligned_qucoll[difference_mask]})
+
+qucoll_negative_qhx_not_negative_mask = negative_qucoll.index.difference(negative_qhx.index)
+# Extract and add the additional column
+qucoll_negative_qhx_not_negative = negative_qucoll.loc[qucoll_negative_qhx_not_negative_mask]
+
+differences['QuColl_Neg_Qhx_Not_Neg'] = None  # Initialize the column
+# Update the differences DataFrame with the new information
+differences = pd.concat([differences, qucoll_negative_qhx_not_negative.rename('QuColl_Neg_Qhx_Not_Neg')], axis=1)
+
+positive_qucoll_irr = energy['QuColl_irr'][energy['QuColl_irr'] > 0].sum()
+positive_qucoll_t = energy['QuColl_t'][energy['QuColl_t'] > 0].sum()
+
+fig,ax = plt.subplots()
+differences['QuColl'].plot(ax=ax)    
+differences['QuColl_Neg_Qhx_Not_Neg'].plot(ax=ax,color='black')
+negative_qucoll.plot.area(ax=ax,alpha=0.2)
+#%% Sankey diagram
+import plotly.graph_objects as go, plotly.io as pio
+pio.renderers.default = 'browser'
+file = 'test76'
+day = datetime(2001,4,19,0,0,0)
+en = pf.comp_en_for_one_day(e[file], day)
+
+flows, unique_labels, label_to_index = pf.make_sankey_flows(en, p[file])
+
+# Create the sources, targets, and values lists
+sources = [flows[key]['source'] for key in flows]
+targets = [flows[key]['target'] for key in flows]
+values = [flows[key]['value'] for key in flows]
+
+node_colors, link_colors = pf.sankey_node_colors(unique_labels, sources)
+node_x, node_y = pf.sankey_node_positions(unique_labels)
+
+node_totals, node_totals_load = pf.sankey_node_totals(unique_labels,sources,targets,values)
+
+# Create the Sankey diagram
+fig = go.Figure(go.Sankey(node=dict(pad=100,
+                                    thickness=20,
+                                    line=dict(color="black", width=0.5),
+                                    label=unique_labels,
+                                    color=node_colors,                                    
+                                    x = node_x,
+                                    y=node_y),  # Set y positions),
+                          link=dict(source=sources,
+                                    target=targets,
+                                    value=values,
+                                    color=link_colors)
+                          ))
+
+# Update the layout for better visualization
+fig.update_layout(title_text=f"Energy Flow {file}",
+                  font=dict(size=16),
+                  hovermode='x',
+                  margin=dict(l=50, r=50, t=50, b=50),
+                  width=1200, height=600,)
+fig.show()
+
+#%% obtain sankeymatic text 
+# Reverse the label_to_index dictionary to get index to label mapping
+file='test69'
+day = datetime(2001,1,8,0,0,0)
+en = pf.comp_en_for_one_day(e[file], day)
+
+flows, unique_labels, label_to_index = pf.make_sankey_flows(en, p[file])
+
+index_to_label = {v: k for k, v in label_to_index.items()}
+
+# Create the SANKEYMatic formatted strings
+sankeymatic_lines = []
+for key in flows:
+    source_label = index_to_label[flows[key]['source']]
+    target_label = index_to_label[flows[key]['target']]
+    value = round(flows[key]['value'],2)
+    sankeymatic_lines.append(f"{source_label} [{value}] {target_label}")
+
+# Join all lines into a single string separated by new lines
+sankeymatic_text = "\n".join(sankeymatic_lines)
+print(sankeymatic_text)
+
+#%% calculate KPIs
+file = 'test69'
+t1 = datetime(2001,7,16,0,0,0)
+t2 = datetime(2001,7,17,0,0,0)
+energy = e[file].loc[t1:t2]
+el_em, gas_em, energy = pf.cal_emissions(energy)
+print(f'electricty emission: {round(el_em,2)}, gas emission: {gas_em}')
+
+#%% mass balance for SS buff load side pump
+fig,ax = plt.subplots()
+key='test51'
+tf[key][['mpumpHPS_in','mpumpHPS_out']].plot(ax=ax, style='--')
+ax0 = ax.twinx()
+c[key]['ctr_hp'].plot.area(ax=ax0, alpha=0.2)
+mb[key]['hp_source_pump'].plot(ax=ax0, color='black', style='-.')
+ax.legend()
+ax0.legend()
+ax.set_xlim([t1,t2])
+
+#%% print results
+test = 'test55'
+tx = datetime(2001,2,16,16,12,0)
+tamb = tf[test]['Tamb'].loc[tx]
+coll_in = tf[test]['Tcoll_in'].loc[tx]
+t_in_below_amb = c[test]['t_inlet_below_ambient'].loc[tx]
+coll_pump = c[test]['coll_pump'].loc[tx]
+print(f"{test}: tamb: {tamb}, tcoll_in: {coll_in}, t_inlet_lelow_amb: {t_in_below_amb}, coll_pump: {coll_pump}")
+#%%
+import plotly.graph_objects as go
+import plotly.io as pio
+pio.renderers.default = 'browser'
+
+# Create traces for each series
+trace1 = go.Scatter(x=e['test44'].index, y=e['test44']['Qhp'],
+                    mode='lines', fill='tozeroy', fillcolor='rgba(0, 0, 255, 0.2)',  # Adjust color and transparency
+                    name='test44')
+
+trace2 = go.Scatter(x=e['test45'].index, y=e['test45']['Qhp'],
+                    mode='lines', line=dict(width=4), name='test45')
+
+# Create the figure and add the traces
+fig = go.Figure()
+fig.add_trace(trace1)
+fig.add_trace(trace2)
+
+# Update layout to add titles and labels
+fig.update_layout(title='Qhp Plot', xaxis_title='Index', yaxis_title='Qhp',
+                  legend_title='Tests', 
+                  xaxis=dict(rangeslider=dict(visible=True), type='date'))
+
+# Show the plot
+fig.show()
+
+e['test44']['Qhp'].plot.area(ax=ax,alpha=0.2,label='test44')
+e['test45']['Qhp'].plot(ax=ax,linewidth=2,label='test45')
 #%% check sims plot in plotly using rangeslider
 import pandas as pd
 import numpy as np
@@ -646,6 +1037,26 @@ fig,ax = plt.subplots()
 df['ht_to_load'].plot(ax=ax, kind='bar',position=1, width=0.2,color='green')
 df[['ht_from_source','Qhp']].plot(ax=ax, kind='bar',stacked=True,position=0, width=0.2, color=['gold','skyblue'])
 ax.legend()
+
+#%% 
+from plotting_performance_data_ecoforest import plot_hp_performance
+fig, ax, df = plot_hp_performance()
+
+t1 = datetime(2001,1,1, 0,0,0)
+t2 = datetime(2002,1,1, 0,0,0)
+for file in tf:
+    tf[file],c[file] = pf.new_columns_for_map(tf[file], c[file])
+
+file='test73'
+temp_flow = tf[file]
+controls = c[file]
+xi = temp_flow['Thp_source_in']*controls['ctr_hp']
+yi_dhw = (temp_flow['Thp_load_in']*(controls['div_load']==1)*controls['ctr_hp']).replace(0,np.nan)
+yi_sh = (temp_flow['Thp_load_in']*(controls['div_load']==0)*controls['ctr_hp']).replace(0,np.nan)
+plt.scatter(xi,yi_dhw, edgecolors= "green", facecolors='none', linewidth=0.6,label='DHW', alpha=0.3)
+plt.scatter(xi,yi_sh, edgecolors= "red", facecolors='none', linewidth=0.6,label='SH', alpha=0.3)
+
+
 
 #%% Scatter plot on the HP performance map
 from plotting_performance_data import plot_performance_map
